@@ -6,12 +6,17 @@ namespace School_Management_System.Models
 {
     public class ApplicationUser:IdentityUser
     {
+        [Required]
+        [MaxLength (100)]
         public string FullName { get;set; }
+        [Required]
         public RoleType Role {  get; set; }
         public int? SchoolId { get; set; }
         [ForeignKey(nameof(SchoolId))]
         public virtual School School { get; set; }
+        [Required]
         public UserStatus DelectionStatus { get; set; }
+        [Required]
         public DateTime CraeteAt { get;set; }= DateTime.UtcNow;
 
         public DateTime? LastLoginDate {  get; set; }
