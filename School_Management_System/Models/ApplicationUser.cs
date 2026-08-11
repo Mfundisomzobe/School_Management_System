@@ -9,42 +9,27 @@ namespace School_Management_System.Models
         [Required]
         [MaxLength (100)]
         public string FullName { get;set; }
-        [Required]
-        public RoleType Role {  get; set; }
-        public int? SchoolId { get; set; }
-        [ForeignKey(nameof(SchoolId))]
-        public virtual School School { get; set; }
-        [Required]
-        public UserStatus DelectionStatus { get; set; }
-        [Required]
-        public DateTime CraeteAt { get;set; }= DateTime.UtcNow;
 
-        public DateTime? LastLoginDate {  get; set; }
-        public bool MustChangePassword { get; set; } = false;
+        [Required]
+        public string Role { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public  bool IsActive { get; set; }
+
+        [Required]
+        public string? RefreshToken { get;set; }
+
+
+        public DateTime? RefreshTokenExpiryTime {  get; set; }
 
         //Navigation Properties
-        public virtual TeacherProfile TeacherProfile { get; set; }
-        public virtual Student StudentProfile { get; set; }
-        public virtual ParentProfile ParentProfile { get; set; }
+        public virtual Teacher Teacher { get; set; }
+        public virtual Student Student { get; set; }
+        public virtual Parent  Parent { get; set; }
 
 
-        
-
-        public enum RoleType
-        {
-            Admin,
-            Teacher,
-            Student,
-            Parent
-        }
-
-        public enum UserStatus
-        {
-            [Display(Name="Active")]
-            Active,
-            [Display(Name = "InActive")]
-            InActive
-        }
 
     }
 }

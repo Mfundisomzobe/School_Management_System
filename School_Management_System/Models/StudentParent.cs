@@ -1,28 +1,27 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace School_Management_System.Models
 {
     public class StudentParent
     {
-        public int StudentParentId { get; set; }
+        [Key]
+        public int Id { get; set; }
+        [Required]
         public int StudentId { get; set; }
-        public virtual Student Student { get; set; }
 
+        [ForeignKey("StudentId")]
+        public virtual Student Student { get; set; }
+        [Required]
         public int ParentId { get; set; }
 
-        public virtual ParentProfile Parent { get; set; }
-        public ParentRelationship Relationship { get; set; }
-        public bool IsPrimaryContact {  get; set; }=false;
+        [ForeignKey("StudentId")]
+        public virtual Parent Parent { get; set; }
 
-        public enum ParentRelationship
-        {
-            [Display(Name ="Father")]
-            Father,
-            [Display(Name = "Mother")]
-            Mother,
-            [Display(Name = "Guardian")]
-            Guardian
-        }
+        [Required]
+        public string Relationship { get; set; }
 
+        public bool IsPrimaryContact { get; set; }
+        public bool IsActive { get;set; }=true;
     }
 }
