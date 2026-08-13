@@ -3,18 +3,25 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
 using School_Management_System.Models;
-using School_Management_System.Services.Implementations;
-using School_Management_System.Services.Interfaces;
 
-var builder = WebApplication.CreateBuilder(args);
+
+var builder= WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllersWithViews();
+// SESSION: 30 SECONDS
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromSeconds(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Configure Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure Identity
+// Configure Identity with ApplicationUser
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -22,12 +29,18 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
+
+    //Lockout settings
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.User.RequireUniqueEmail = true;
+
+    //User settings
+    options.User.RequireUniqueEmail= true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
+
 
 // Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
@@ -35,54 +48,26 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.Name = ".SchoolManagement.Auth";
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     options.SlidingExpiration = true;
 });
 
+builder.Services.AddAuthorization();
 // Register Services
-builder.Services.AddScoped<IParentCodeService, ParentCodeService>();
+
 
 var app = builder.Build();
-// After app = builder.Build();
 
+//Seed Database
 using (var scope = app.Services.CreateScope())
 {
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+   var services = scope.ServiceProvider;
+    await DbInitializer.InitializeAsync(services);
 
-    // Create Admin role
-    if (!await roleManager.RoleExistsAsync("Admin"))
-    {
-        await roleManager.CreateAsync(new IdentityRole("Admin"));
-    }
-
-    // Create admin user
-    var adminEmail = "admin@school.com";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-
-    if (adminUser == null)
-    {
-        var user = new ApplicationUser
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            FullName = "System Administrator",
-            RoleType = "Admin",
-            IsActive = true,
-            EmailConfirmed = true
-        };
-
-        var result = await userManager.CreateAsync(user, "Admin@123");
-
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(user, "Admin");
-            Console.WriteLine("Admin user created successfully!");
-        }
-    }
 }
 
 // Configure HTTP request pipeline
@@ -95,11 +80,13 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
+//Configure Routes
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

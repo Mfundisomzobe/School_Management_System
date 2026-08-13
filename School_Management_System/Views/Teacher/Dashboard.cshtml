@@ -1,0 +1,106 @@
+﻿@model List<Student>
+@{
+    ViewData["Title"] = "Teacher Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-chalkboard-teacher me-2"></i>Teacher Dashboard</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active">Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+            <span class="badge bg-primary">Welcome, @ViewBag.TeacherName</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-white-50">My Students</h6>
+                    <h3 class="text-white">@ViewBag.StudentCount</h3>
+                </div>
+                <i class="fas fa-user-graduate text-white-50"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>My Students</h5>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table datatable" id="teacherStudentTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Admission No</th>
+                            <th>Class</th>
+                            <th>Section</th>
+                            <th>Parents</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in Model)
+                        {
+                            <tr>
+                                <td>@student.Id</td>
+                                <td><i class="fas fa-user-circle me-2 text-success"></i>@student.User.FullName</td>
+                                <td>@student.AdmissionNumber</td>
+                                <td>@student.Class</td>
+                                <td>@(string.IsNullOrEmpty(student.Section) ? "-" : student.Section)</td>
+                                <td>
+                                    @if (student.StudentParents != null && student.StudentParents.Any())
+                                    {
+                                        foreach (var sp in student.StudentParents.Where(x => x.IsActive))
+                                        {
+                                            <span class="badge bg-info">@sp.Parent.User.FullName (@sp.Relationship)</span>
+                                            <br />
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No parents</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="fas fa-info-circle me-2"></i>No students assigned to you.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#teacherStudentTable').DataTable({
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search..."
+                }
+            });
+        });
+    </script>
+}

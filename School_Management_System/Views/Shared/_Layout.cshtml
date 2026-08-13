@@ -5,50 +5,330 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - School_Management_System</title>
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/School_Management_System.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding-top: 20px;
+        }
+
+            .sidebar .nav-link {
+                color: rgba(255,255,255,0.8);
+                padding: 12px 20px;
+                margin: 5px 10px;
+                border-radius: 10px;
+                transition: all 0.3s;
+            }
+
+                .sidebar .nav-link:hover {
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    transform: translateX(5px);
+                }
+
+                .sidebar .nav-link.active {
+                    background: rgba(255,255,255,0.25);
+                    color: white;
+                }
+
+                .sidebar .nav-link i {
+                    margin-right: 10px;
+                    width: 20px;
+                }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+        }
+
+            .stat-card h3 {
+                font-size: 2.5rem;
+                font-weight: 700;
+            }
+
+            .stat-card i {
+                font-size: 3rem;
+                opacity: 0.5;
+            }
+
+        .btn {
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+            .table thead {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+        }
+
+        .badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+
+        .footer {
+            background: white;
+            padding: 15px 0;
+            margin-top: 30px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+                padding: 10px;
+            }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">School Management</a>
-                <div class="navbar-collapse collapse">
-                    <ul class="navbar-nav ms-auto">
-                        @if (User.Identity?.IsAuthenticated == true)
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar d-none d-md-block">
+                <div class="text-center mb-4">
+                    <h4 class="text-white">🏫 School</h4>
+                    <small class="text-white-50">Management System</small>
+                </div>
+                <hr class="bg-light opacity-25" />
+                <nav class="nav flex-column">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        @if (User.IsInRole("Admin"))
                         {
-                            <li class="nav-item">
-                                <span class="navbar-text text-white me-3">Hello, @User.Identity.Name</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="btn btn-outline-light">Logout</button>
-                                </form>
-                            </li>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")"
+                               asp-controller="Admin" asp-action="Dashboard">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "AddTeacher" ? "active" : "")"
+                               asp-controller="Admin" asp-action="AddTeacher">
+                                <i class="fas fa-chalkboard-teacher"></i> Add Teacher
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "ViewTeachers" ? "active" : "")"
+                               asp-controller="Admin" asp-action="ViewTeachers">
+                                <i class="fas fa-users"></i> Teachers
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "AddStudent" ? "active" : "")"
+                               asp-controller="Admin" asp-action="AddStudent">
+                                <i class="fas fa-user-graduate"></i> Add Student
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "ViewStudents" ? "active" : "")"
+                               asp-controller="Admin" asp-action="ViewStudents">
+                                <i class="fas fa-users"></i> Students
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "AddParent" ? "active" : "")"
+                               asp-controller="Admin" asp-action="AddParent">
+                                <i class="fas fa-user-plus"></i> Add Parent
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "ViewParents" ? "active" : "")"
+                               asp-controller="Admin" asp-action="ViewParents">
+                                <i class="fas fa-users"></i> Parents
+                            </a>
                         }
-                        else
+                        @if (User.IsInRole("Teacher"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
+                            <a class="nav-link active" asp-controller="Teacher" asp-action="Dashboard">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <a class="nav-link" asp-controller="Teacher" asp-action="MyStudents">
+                                <i class="fas fa-user-graduate"></i> My Students
+                            </a>
                         }
-                    </ul>
+                        @if (User.IsInRole("Student"))
+                        {
+                            <a class="nav-link active" asp-controller="Student" asp-action="Profile">
+                                <i class="fas fa-user"></i> My Profile
+                            </a>
+                        }
+                        @if (User.IsInRole("Parent"))
+                        {
+                            <a class="nav-link active" asp-controller="Parent" asp-action="Dashboard">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <a class="nav-link" asp-controller="Parent" asp-action="MyChildren">
+                                <i class="fas fa-child"></i> My Children
+                            </a>
+                        }
+                    }
+                </nav>
+                <hr class="bg-light opacity-25" />
+                <div class="text-center text-white-50 small">
+                    <i class="fas fa-shield-alt"></i> Secure System
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Top Navbar -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white rounded-3 shadow-sm mb-4">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav me-auto">
+                                <li class="nav-item">
+                                    <span class="navbar-text">
+                                        <i class="fas fa-calendar-alt me-2"></i> @DateTime.Now.ToString("dddd, MMMM dd, yyyy")
+                                    </span>
+                                </li>
+                            </ul>
+                            <ul class="navbar-nav">
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                            <div class="user-avatar d-inline-block">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <span class="ms-2">@User.FindFirst("FullName")?.Value</span>
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <span class="dropdown-item-text">
+                                                    <i class="fas fa-envelope me-2"></i> @User.Identity.Name
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
+                                                    <i class="fas fa-key"></i> Change Password
+                                                </a>
+                                            </li>
+                                        
+                                            <li><hr class="dropdown-divider" /></li>
+                                            <li>
+                                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Toast Messages -->
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["Warning"] != null)
+                {
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i> @TempData["Warning"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <!-- Page Content -->
+                @RenderBody()
+
+                <!-- Footer -->
+                <div class="footer text-center text-muted">
+                    <small>© @DateTime.Now.Year School Management System. All rights reserved.</small>
+                </div>
+            </div>
+        </div>
     </div>
 
-    
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        // Auto-hide alerts after 5 seconds
+        $(document).ready(function() {
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 5000);
+
+            
+         
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

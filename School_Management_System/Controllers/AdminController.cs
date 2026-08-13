@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
+using School_Management_System.Helpers;
 using School_Management_System.Models;
-using School_Management_System.Services.Interfaces;
 using School_Management_System.ViewModels;
+using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 
 
@@ -18,12 +19,12 @@ namespace School_Management_System.Controllers
     {
 
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<ApplicationUser> _roleManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
 
         public AdminController(
             UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationUser> roleManager,
+            RoleManager<IdentityRole> roleManager,
             ApplicationDbContext context)
         {
             _userManager = userManager;
@@ -33,7 +34,7 @@ namespace School_Management_System.Controllers
 
 
         // System Administrator Dashboard  
-        public async Task<IActionResult> AdminDashboard()
+        public async Task<IActionResult> Dashboard()
         {
             ViewBag.TotalTeachers = await _context.Teachers.CountAsync(t => t.IsActive);
             ViewBag.TotalStudents = await _context.Students.CountAsync(s => s.IsActive);
@@ -43,10 +44,49 @@ namespace School_Management_System.Controllers
         }
 
         //Teacher Management
+        // Synchronous version for GET (no async needed)
+        private string GenerateEmployeeIdSync()
+        {
+            var year = DateTime.UtcNow.Year.ToString().Substring(2);
+            var count = _context.Teachers.Count() + 1;
+            return $"EMP-{year}-{count:D4}";
+        }
+
+        private string GenerateRandomPassword()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars,6)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        // Helper method to generate Admission Number
+        private async Task<string> GenerateAdmissionNumberAsync()
+        {
+            var year = DateTime.UtcNow.Year.ToString().Substring(2);
+            var count = await _context.Students.CountAsync() + 1;
+            return $"STU-{year}-{count:D4}";
+        }
+        [HttpGet]
+        public IActionResult GenerateCredentials()
+        {
+            return Json(new
+            {
+                password = GenerateRandomPassword(),
+                employeeId = GenerateEmployeeIdSync()
+            });
+        }
+
 
         [HttpGet]
         public IActionResult AddTeacher()
         {
+            var model = new AddTeacherViewModel
+            {
+                // Generate Employee ID
+                EmployeeId = GenerateEmployeeIdSync(),
+                // Generate Password
+                Password = GenerateRandomPassword()
+            };
             return View();
         }
 
@@ -54,23 +94,42 @@ namespace School_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTeacher( AddTeacherViewModel model)
         {
-            if(!ModelState.IsValid) 
+            if (!ModelState.IsValid)
+            {
+                model.EmployeeId = GenerateEmployeeIdSync();
+                model.Password = GenerateRandomPassword();
+                // Log invalid model state
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    Console.WriteLine($"Model Error: {error.ErrorMessage}");
+                }
                 return View(model);
-
+            }
             //Check if email already exists
              var existingUser = await _userManager.FindByEmailAsync(model.Email);
 
             if (existingUser != null)
             {
                 ModelState.AddModelError("Email", "Email already exists.");
+                model.EmployeeId = GenerateEmployeeIdSync();
+                model.Password = GenerateRandomPassword();
                 return View(model);
+            }
+            // Use the generated password from the form
+        var password = model.Password;
+            // If somehow empty, generate a new one
+            if (string.IsNullOrEmpty(password))
+            {
+                password = GenerateRandomPassword();
             }
 
 
             //Check if EmployeeId already Exists 
-            if(await _context.Teachers.AnyAsync(t => t.EmployeeId== model.EmployeeId))
+            if (await _context.Teachers.AnyAsync(t => t.EmployeeId== model.EmployeeId))
             {
                 ModelState.AddModelError("EmployeeId", "Employee ID already Exists");
+
                 return View(model);
             }
 
@@ -78,6 +137,11 @@ namespace School_Management_System.Controllers
 
             try
             {
+                // AUTO-GENERATE EMPLOYEE ID
+                var employeeId = GenerateEmployeeIdSync();
+
+                // AUTO-GENERATE PASSWORD
+                var Password = GenerateRandomPassword();
                 //Create ApplicationUser
                 var user = new ApplicationUser
                 {
@@ -85,7 +149,7 @@ namespace School_Management_System.Controllers
                     Email = model.Email,
                     FullName = model.FullName,
                     Role = "Teacher",
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     IsActive = true,
                     EmailConfirmed = true, //Auto Confirm email
                 };
@@ -95,6 +159,8 @@ namespace School_Management_System.Controllers
                 {
                     foreach (var error in createResult.Errors)
                         ModelState.AddModelError(string.Empty, error.Description);
+                    model.EmployeeId = GenerateEmployeeIdSync();
+                    model.Password = GenerateRandomPassword();
                     return View(model);
                 }
 
@@ -124,6 +190,8 @@ namespace School_Management_System.Controllers
             {
                 await transaction.RollbackAsync();
                 ModelState.AddModelError("",$"Failed to add teacher: {ex.Message}");
+                model.EmployeeId = GenerateEmployeeIdSync();
+                model.Password = GenerateRandomPassword();
                 return View(model);
             }
         }
@@ -231,6 +299,11 @@ namespace School_Management_System.Controllers
 
             try
             {
+                // AUTO-GENERATE ADMISSION NUMBER
+                var admissionNumber = await GenerateAdmissionNumberAsync();
+
+                // AUTO-GENERATE PASSWORD
+                var password = GenerateRandomPassword();
                 //Create ApplicationUser
                 var user = new ApplicationUser
                 {

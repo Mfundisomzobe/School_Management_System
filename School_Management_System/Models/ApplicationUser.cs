@@ -18,7 +18,7 @@ namespace School_Management_System.Models
         [Required]
         public  bool IsActive { get; set; }
 
-        [Required]
+        
         public string? RefreshToken { get;set; }
 
 

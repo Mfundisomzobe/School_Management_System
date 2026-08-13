@@ -21,5 +21,10 @@ namespace School_Management_System.Models
         public DateTime HireDate { get; set; }= DateTime.UtcNow;
          public bool IsActive { get; set; }
 
+
+        //  navigation property
+        public virtual ICollection<Student> Students { get; set; }
+
+
     }
 }

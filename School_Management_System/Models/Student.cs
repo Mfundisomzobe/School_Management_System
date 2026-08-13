@@ -27,7 +27,7 @@ namespace School_Management_System.Models
         [Display(Name = "Date of Birth")]
         public DateTime DateOfBirth { get; set; }
 
-        [Required]
+        
         public int? TeacherId { get; set; }
         [ForeignKey("TeacherId")]
         public virtual Teacher Teacher { get; set; }

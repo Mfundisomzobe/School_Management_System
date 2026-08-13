@@ -1,0 +1,107 @@
+﻿@model List<Parent>
+@{
+    ViewData["Title"] = "View Parents";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-users me-2"></i>Parents</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Parents</li>
+                    </ol>
+                </nav>
+            </div>
+            <a asp-controller="Admin" asp-action="AddParent" class="btn btn-warning">
+                <i class="fas fa-plus me-2"></i>Add Parent
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table datatable" id="parentTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Occupation</th>
+                        <th>Children</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        int index = 1;
+                        foreach (var parent in Model)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td><i class="fas fa-user-circle me-2 text-warning"></i>@parent.User.FullName</td>
+                                <td>@parent.User.Email</td>
+                                <td>@parent.PhoneNumber</td>
+                                <td>@parent.Occupation</td>
+                                <td>
+                                    @if (parent.StudentParents != null && parent.StudentParents.Any())
+                                    {
+                                        foreach (var sp in parent.StudentParents.Where(x => x.IsActive))
+                                        {
+                                            <span class="badge bg-secondary">@sp.Student.User.FullName (@sp.Relationship)</span>
+                                            <br />
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No children</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (parent.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactive</span>
+                                    }
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-info-circle me-2"></i>No parents found
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@* @section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#parentTable').DataTable({
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search..."
+                }
+            });
+        });
+    </script>
+} *@

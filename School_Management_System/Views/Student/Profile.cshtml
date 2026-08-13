@@ -1,0 +1,89 @@
+﻿@model Student
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-user me-2"></i>My Profile</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active">Profile</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Student Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Full Name</label>
+                            <p class="fs-5">@Model.User.FullName</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Email</label>
+                            <p class="fs-5">@Model.User.Email</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Admission Number</label>
+                            <p><span class="badge bg-secondary">@Model.AdmissionNumber</span></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Class</label>
+                            <p class="fs-5">@Model.Class @(string.IsNullOrEmpty(Model.Section) ? "" : "- " + Model.Section)</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Date of Birth</label>
+                            <p class="fs-5">@Model.DateOfBirth.ToString("dd MMMM yyyy")</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Teacher</label>
+                            <p class="fs-5">@(Model.Teacher?.User?.FullName ?? "Not Assigned")</p>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.StudentParents != null && Model.StudentParents.Any())
+                {
+                    <hr />
+                    <h6 class="mb-3"><i class="fas fa-users me-2"></i>Parents/Guardians</h6>
+                    <div class="row">
+                        @foreach (var sp in Model.StudentParents.Where(x => x.IsActive))
+                        {
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="mb-1"><i class="fas fa-user-circle me-2 text-warning"></i>@sp.Parent.User.FullName</h6>
+                                        <p class="mb-1 small">
+                                            <span class="badge bg-info">@sp.Relationship</span>
+                                            @if (sp.IsPrimaryContact)
+                                            {
+                                                <span class="badge bg-primary">Primary Contact</span>
+                                            }
+                                        </p>
+                                        <p class="mb-1 small"><i class="fas fa-phone me-2"></i>@sp.Parent.PhoneNumber</p>
+                                        <p class="mb-0 small"><i class="fas fa-briefcase me-2"></i>@sp.Parent.Occupation</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
