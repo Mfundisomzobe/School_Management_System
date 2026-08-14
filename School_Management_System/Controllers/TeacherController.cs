@@ -18,9 +18,11 @@ namespace School_Management_System.Controllers
              UserManager<ApplicationUser> userManager,
             ApplicationDbContext context)
         {
+            _userManager = userManager;
+            _context = context;
             
         }
-        public async Task<IActionResult> Dasboard()
+        public async Task<IActionResult> Dashboard()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
