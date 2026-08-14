@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
-using School_Management_System.Helpers;
+
 using School_Management_System.Models;
 using School_Management_System.ViewModels;
 using System.Runtime.Intrinsics.X86;
