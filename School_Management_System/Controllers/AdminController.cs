@@ -60,10 +60,10 @@ namespace School_Management_System.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
         // Helper method to generate Admission Number
-        private async Task<string> GenerateAdmissionNumberAsync()
+        private string GenerateAdmissionNumberAsync()
         {
             var year = DateTime.UtcNow.Year.ToString().Substring(2);
-            var count = await _context.Students.CountAsync() + 1;
+            var count =  _context.Students.Count() + 1;
             return $"STU-{year}-{count:D4}";
         }
         [HttpGet]
@@ -72,7 +72,8 @@ namespace School_Management_System.Controllers
             return Json(new
             {
                 password = GenerateRandomPassword(),
-                employeeId = GenerateEmployeeIdSync()
+                employeeId = GenerateEmployeeIdSync(),
+                admissionNumber= GenerateAdmissionNumberAsync()
             });
         }
 
@@ -212,6 +213,15 @@ namespace School_Management_System.Controllers
         [HttpGet]
         public async  Task<IActionResult> AddStudent()
         {
+
+            var model = new AddStudentViewModel
+            {
+                // Generate Employee ID
+                AdmissionNumber =GenerateAdmissionNumberAsync(),
+                // Generate Password
+                Password = GenerateRandomPassword()
+            };
+
             ViewBag.Teachers = new SelectList(
                 await _context.Teachers
                 .Include(t => t.User)
@@ -235,6 +245,8 @@ namespace School_Management_System.Controllers
         {
             if (!ModelState.IsValid)
             {
+                model.AdmissionNumber = GenerateAdmissionNumberAsync();
+                model.Password = GenerateRandomPassword();
                 ViewBag.Teachers = new SelectList(
                    await _context.Teachers
                        .Include(t => t.User)
@@ -257,6 +269,8 @@ namespace School_Management_System.Controllers
             if (existingUser != null)
             {
                 ModelState.AddModelError("Email", "Email already Exists.");
+                model.AdmissionNumber = GenerateAdmissionNumberAsync();
+                model.Password = GenerateRandomPassword();
 
                 ViewBag.Teachers = new SelectList(
                    await _context.Teachers
@@ -279,6 +293,8 @@ namespace School_Management_System.Controllers
             if(await _context.Students.AnyAsync(s => s.AdmissionNumber == model.AdmissionNumber))
             {
                 ModelState.AddModelError("AdmissionNumber", "Admission number already exists.");
+                model.AdmissionNumber = GenerateAdmissionNumberAsync();
+                model.Password = GenerateRandomPassword();
 
                 ViewBag.Teachers = new SelectList(
                   await _context.Teachers
@@ -300,7 +316,7 @@ namespace School_Management_System.Controllers
             try
             {
                 // AUTO-GENERATE ADMISSION NUMBER
-                var admissionNumber = await GenerateAdmissionNumberAsync();
+                var admissionNumber =  GenerateAdmissionNumberAsync();
 
                 // AUTO-GENERATE PASSWORD
                 var password = GenerateRandomPassword();
@@ -323,6 +339,8 @@ namespace School_Management_System.Controllers
                   foreach(var error in createResult.Errors)
                     {
                         ModelState.AddModelError("",error.Description);
+                        model.AdmissionNumber = GenerateAdmissionNumberAsync();
+                        model.Password = GenerateRandomPassword();
                         return View(model);
                     }
 
@@ -355,6 +373,8 @@ namespace School_Management_System.Controllers
             {
                 await transaction.RollbackAsync();
                  ModelState.AddModelError("", $"Failed to add student: {ex.Message}");
+                model.AdmissionNumber = GenerateAdmissionNumberAsync();
+                model.Password = GenerateRandomPassword();
 
                 ViewBag.Teachers = new SelectList(
                    await _context.Teachers
@@ -394,6 +414,14 @@ namespace School_Management_System.Controllers
         [HttpGet]
         public async Task<IActionResult> AddParent()
         {
+
+            var model = new AddParentViewModel
+            {
+             
+                // Generate Password
+                Password = GenerateRandomPassword()
+            };
+
             ViewBag.Students = new SelectList(
                 await _context.Students
                 .Include(s => s.User)
@@ -416,6 +444,8 @@ namespace School_Management_System.Controllers
         {
             if (!ModelState.IsValid)
             {
+                model.Password = GenerateRandomPassword();
+
                 ViewBag.Students = new SelectList(
                     await _context.Students
                         .Include(s => s.User)
@@ -436,6 +466,8 @@ namespace School_Management_System.Controllers
             if (existingUser != null)
             {
                 ModelState.AddModelError("Email", "Email already exists.");
+                model.Password = GenerateRandomPassword();
+
                 ViewBag.Students = new SelectList(
                     await _context.Students
                         .Include(s => s.User)
@@ -455,6 +487,8 @@ namespace School_Management_System.Controllers
             if (await _context.Parents.AnyAsync(p => p.PhoneNumber == model.PhoneNumber))
             {
                 ModelState.AddModelError("PhoneNumber", "Phone number already exists.");
+                model.Password = GenerateRandomPassword();
+
                 ViewBag.Students = new SelectList(
                     await _context.Students
                         .Include(s => s.User)
@@ -479,6 +513,8 @@ namespace School_Management_System.Controllers
             if (existingRelation)
             {
                 ModelState.AddModelError("Relationship", $"Student already has a {model.Relationship} linked.");
+                model.Password = GenerateRandomPassword();
+
                 ViewBag.Students = new SelectList(
                     await _context.Students
                         .Include(s => s.User)
@@ -498,6 +534,8 @@ namespace School_Management_System.Controllers
 
             try
             {
+                // AUTO-GENERATE PASSWORD
+                var password = GenerateRandomPassword();
                 // Create ApplicationUser
                 var user = new ApplicationUser
                 {
@@ -515,6 +553,8 @@ namespace School_Management_System.Controllers
                 {
                     foreach (var error in createResult.Errors)
                         ModelState.AddModelError("", error.Description);
+                    model.Password = GenerateRandomPassword();
+
                     return View(model);
                 }
 
@@ -560,6 +600,7 @@ namespace School_Management_System.Controllers
 
                 await transaction.RollbackAsync();
                 ModelState.AddModelError("", $"Failed to add parent: {ex.Message}");
+                model.Password = GenerateRandomPassword();
 
                 ViewBag.Students = new SelectList(
                     await _context.Students

@@ -106,17 +106,23 @@
                             <span asp-validation-for="StudentId" class="text-danger small"></span>
                         </div>
 
+                        <!-- Password - BIGGER VERSION -->
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Password" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                <input asp-for="Password" class="form-control" type="password" placeholder="Enter password" />
-                                <button type="button" class="btn btn-outline-secondary toggle-password">
-                                    <i class="fas fa-eye"></i>
+                            <label class="fw-bold fs-6">Password</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <input asp-for="Password" id="passwordInput" class="form-control form-control-lg" readonly style="font-size: 1.2rem; font-weight: 600; background-color: #f8f9fa; letter-spacing: 1px; font-family: 'Courier New', monospace;" />
+                                <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility()" style="padding: 0 20px;">
+                                    <i class="fas fa-eye" id="eyeIcon" style="font-size: 1.2rem;"></i>
+                                </button>
+                                <button type="button" class="btn btn-warning" onclick="regenerateCredentials()" style="padding: 0 25px; font-weight: 600; font-size: 1rem;">
+                                    <i class="fas fa-sync me-2"></i> Regenerate
                                 </button>
                             </div>
-                            <span asp-validation-for="Password" class="text-danger small"></span>
-                            <small class="text-muted">Password must be at least 6 characters</small>
+                            <small class="text-muted mt-1 d-block">
+                                <i class="fas fa-info-circle me-1"></i>
+                                This password will be used for login. Click <strong>Regenerate</strong> for a new one.
+                            </small>
                         </div>
                     </div>
 
@@ -149,6 +155,63 @@
                     icon.removeClass('fa-eye-slash').addClass('fa-eye');
                 }
             });
+        });
+
+           // Regenerate both credentials
+        function regenerateCredentials() {
+            var btn = document.querySelector('.btn-warning');
+            var originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            btn.disabled = true;
+
+            $.ajax({
+                url: '/Admin/GenerateCredentials',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                   
+                    $('#passwordInput').val(data.password);
+
+                    btn.innerHTML = '<i class="fas fa-check"></i> Regenerated!';
+                    btn.disabled = false;
+                    setTimeout(function() {
+                        btn.innerHTML = originalHtml;
+                    }, 2000);
+                },
+                error: function() {
+                    alert('Failed to regenerate credentials. Please try again.');
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                }
+            });
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            var passwordInput = $('#passwordInput');
+            var eyeIcon = $('#eyeIcon');
+
+            if (passwordInput.attr('type') === 'password') {
+                passwordInput.attr('type', 'text');
+                eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                passwordInput.attr('type', 'password');
+                eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        }
+
+        // Auto-hide success alert after 10 seconds
+        $(document).ready(function() {
+            setTimeout(function() {
+                $('.alert-success').fadeOut('slow');
+            }, 10000);
+        });
+
+        // Copy password on double-click
+        $('#passwordInput').on('dblclick', function() {
+            this.select();
+            document.execCommand('copy');
+            alert('Password copied to clipboard!');
         });
     </script>
 }
