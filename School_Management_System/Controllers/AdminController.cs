@@ -78,6 +78,18 @@ namespace School_Management_System.Controllers
         }
 
 
+
+
+
+
+
+
+        //=======TEACHER MANAGEMENT======//
+
+
+
+
+
         [HttpGet]
         public IActionResult AddTeacher()
         {
@@ -195,6 +207,8 @@ namespace School_Management_System.Controllers
                 model.Password = GenerateRandomPassword();
                 return View(model);
             }
+
+
         }
 
         [HttpGet]
@@ -208,7 +222,122 @@ namespace School_Management_System.Controllers
             return View(teachers);
         }
 
-        //Student management
+        //EDIT: TEACHER
+        // ===== EDIT TEACHER - GET =====
+        [HttpGet]
+        public async Task<IActionResult> EditTeacher(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var teacher = await _context.Teachers
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (teacher == null)
+                return NotFound();
+
+            var model = new EditTeacherViewModel
+            {
+                Id = teacher.Id,
+                FullName = teacher.User.FullName,
+                Email = teacher.User.Email,
+                EmployeeId = teacher.EmployeeId,
+                Department = teacher.Department,
+                Qualification = teacher.Qualification,
+                IsActive = teacher.IsActive
+            };
+
+            return View(model);
+        }
+
+        // ===== EDIT TEACHER - POST =====
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditTeacher(EditTeacherViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                var teacher = await _context.Teachers
+                    .Include(t => t.User)
+                    .FirstOrDefaultAsync(t => t.Id == model.Id);
+
+                if (teacher == null)
+                    return NotFound();
+
+                // Check duplicate email
+                var existingUser = await _userManager.Users
+                    .FirstOrDefaultAsync(u => u.Email == model.Email && u.Id != teacher.UserId);
+
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("Email", "This email is already used by another user.");
+                    return View(model);
+                }
+
+                // Check duplicate Employee ID
+                var existingTeacher = await _context.Teachers
+                    .FirstOrDefaultAsync(t => t.EmployeeId == model.EmployeeId && t.Id != model.Id);
+
+                if (existingTeacher != null)
+                {
+                    ModelState.AddModelError("EmployeeId", "This Employee ID is already used by another teacher.");
+                    return View(model);
+                }
+
+                // Update User
+                teacher.User.FullName = model.FullName;
+                teacher.User.Email = model.Email;
+                teacher.User.UserName = model.Email;
+
+                // Update Teacher
+                teacher.EmployeeId = model.EmployeeId;
+                teacher.Department = model.Department;
+                teacher.Qualification = model.Qualification;
+                teacher.IsActive = model.IsActive;
+
+                await _userManager.UpdateAsync(teacher.User);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Teacher '{model.FullName}' updated successfully!";
+                return RedirectToAction("ViewTeachers");
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError("", $"Database error: {ex.Message}");
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error: {ex.Message}");
+                return View(model);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //=======STUDENT MANAGEMENT======//
+
+
+
 
         [HttpGet]
         public async  Task<IActionResult> AddStudent()
@@ -237,6 +366,8 @@ namespace School_Management_System.Controllers
             return View();
 
         }
+
+        
 
 
         [HttpPost]
@@ -409,7 +540,25 @@ namespace School_Management_System.Controllers
         }
 
 
-        //Parent Management
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //=======PARENT MANAGEMENT======//
+
+
+
+      
 
         [HttpGet]
         public async Task<IActionResult> AddParent()

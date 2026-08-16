@@ -1,0 +1,199 @@
+﻿@using School_Management_System.ViewModels
+@model EditTeacherViewModel
+@{
+    ViewData["Title"] = "Edit Teacher";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-user-edit me-2"></i>Edit Teacher</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="ViewTeachers">Teachers</a></li>
+                            <li class="breadcrumb-item active">Edit Teacher</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a asp-controller="Admin" asp-action="ViewTeachers" class="btn btn-info text-white">
+                    <i class="fas fa-list me-2"></i>View Teachers
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Edit Teacher Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="editTeacherForm">
+                        @Html.AntiForgeryToken()
+                        <input asp-for="Id" type="hidden" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="FullName" class="form-label fw-bold">
+                                        <i class="fas fa-user me-1"></i>Full Name
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                        <input asp-for="FullName" class="form-control" placeholder="Enter full name" required />
+                                    </div>
+                                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label fw-bold">
+                                        <i class="fas fa-envelope me-1"></i>Email
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" required />
+                                    </div>
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EmployeeId" class="form-label fw-bold">
+                                        <i class="fas fa-id-badge me-1"></i>Employee ID
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                        <input asp-for="EmployeeId" class="form-control" placeholder="Enter employee ID" required readonly />
+                                    </div>
+                                    <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Department" class="form-label fw-bold">
+                                        <i class="fas fa-building me-1"></i>Department
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-building"></i></span>
+                                        <select asp-for="Department" class="form-control" required>
+                                            <option value="">-- Select Department --</option>
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Languages">Languages</option>
+                                            <option value="Arts">Arts</option>
+                                            <option value="Physical Education">Physical Education</option>
+                                            <option value="ICT">ICT / Computer Science</option>
+                                            <option value="Special Education">Special Education</option>
+                                            <option value="Administration">Administration</option>
+                                            <option value="Counseling">Counseling & Guidance</option>
+                                            <option value="Library">Library & Media</option>
+                                            <option value="STEM">STEM</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="Department" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Qualification" class="form-label fw-bold">
+                                        <i class="fas fa-graduation-cap me-1"></i>Qualification
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
+                                        <select asp-for="Qualification" class="form-control">
+                                            <option value="">-- Select Qualification --</option>
+                                            <option value="Ph.D.">Ph.D. (Doctor of Philosophy)</option>
+                                            <option value="M.Sc.">M.Sc. (Master of Science)</option>
+                                            <option value="M.A.">M.A. (Master of Arts)</option>
+                                            <option value="M.Ed.">M.Ed. (Master of Education)</option>
+                                            <option value="MBA">MBA (Master of Business Administration)</option>
+                                            <option value="B.Sc.">B.Sc. (Bachelor of Science)</option>
+                                            <option value="B.A.">B.A. (Bachelor of Arts)</option>
+                                            <option value="B.Ed.">B.Ed. (Bachelor of Education)</option>
+                                            <option value="PGDE">PGDE (Postgraduate Diploma in Education)</option>
+                                            <option value="Diploma">Diploma</option>
+                                            <option value="Certificate">Certificate</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="Qualification" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-toggle-on me-1"></i>Status
+                                    </label>
+                                    <div class="form-check form-switch mt-2">
+                                        <input asp-for="IsActive" class="form-check-input" type="checkbox" id="isActiveSwitch" />
+                                        <label class="form-check-label fw-bold" for="isActiveSwitch">
+                                            <span id="statusLabel">@(Model.IsActive ? "Active" : "Inactive")</span>
+                                        </label>
+                                    </div>
+                                    <span asp-validation-for="IsActive" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-2"></i>Update Teacher
+                                </button>
+                                <a asp-controller="Admin" asp-action="ViewTeachers" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Update status label when toggle is clicked
+        $(document).ready(function() {
+            $('#isActiveSwitch').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#statusLabel').text('Active');
+                } else {
+                    $('#statusLabel').text('Inactive');
+                }
+            });
+        });
+    </script>
+}

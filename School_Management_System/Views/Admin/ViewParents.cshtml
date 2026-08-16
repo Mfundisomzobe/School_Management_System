@@ -33,6 +33,7 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
+                        <th>Address</th>
                         <th>Occupation</th>
                         <th>Children</th>
                         <th>Status</th>
@@ -49,6 +50,7 @@
                                 <td><i class="fas fa-user-circle me-2 text-warning"></i>@parent.User.FullName</td>
                                 <td>@parent.User.Email</td>
                                 <td>@parent.PhoneNumber</td>
+                                <td>@parent.Address</td>
                                 <td>@parent.Occupation</td>
                                 <td>
                                     @if (parent.StudentParents != null && parent.StudentParents.Any())
