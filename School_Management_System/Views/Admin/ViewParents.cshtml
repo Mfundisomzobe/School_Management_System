@@ -58,6 +58,7 @@
                                         foreach (var sp in parent.StudentParents.Where(x => x.IsActive))
                                         {
                                             <span class="badge bg-secondary">@sp.Student.User.FullName (@sp.Relationship)</span>
+                                            
                                             <br />
                                         }
                                     }
@@ -70,6 +71,9 @@
                                     @if (parent.IsActive)
                                     {
                                         <span class="badge bg-success">Active</span>
+                                        <a asp-controller="Admin" asp-action="EditParent" asp-route-id="@parent.Id" class="btn btn-primary">
+                                            Edit
+                                        </a>
                                     }
                                     else
                                     {

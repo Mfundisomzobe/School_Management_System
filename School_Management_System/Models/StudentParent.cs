@@ -15,13 +15,15 @@ namespace School_Management_System.Models
         [Required]
         public int ParentId { get; set; }
 
-        [ForeignKey("StudentId")]
+        [ForeignKey("ParentId")]
         public virtual Parent Parent { get; set; }
 
         [Required]
         public string Relationship { get; set; }
 
         public bool IsPrimaryContact { get; set; }
-        public bool IsActive { get;set; }=true;
+        public bool IsActive { get; set; } = true;
+
     }
+       
 }

@@ -540,6 +540,151 @@ namespace School_Management_System.Controllers
         }
 
 
+        //EDIT: STUDENT
+        // ===== EDIT STUDENT - GET =====
+        [HttpGet]
+        public async Task<IActionResult> EditStudent(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var student = await _context.Students
+                .Include(t => t.User)
+                .Include(s => s.Teacher)
+                   .ThenInclude(t => t.User)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (student == null)
+                return NotFound();
+
+            string teacherName = student.Teacher?.User?.FullName ?? "Not Assigned";
+            var model = new EditStudentViewModel
+            {
+                Id = student.Id,
+                FullName = student.User.FullName,
+                Email = student.User.Email,
+                Section = student.Section,
+                Class = student.Class,
+                AdmissionNumber = student.AdmissionNumber,
+                TeacherId = student.TeacherId,
+                IsActive = student.IsActive,
+                DateOfBirth = student.DateOfBirth
+               
+
+
+            };
+            
+
+            // Set ViewBag for the view
+            ViewBag.TeacherName = teacherName;  // ← IMPORTANT!
+            return View(model);
+        }
+
+        // ===== EDIT STUDENT - POST =====
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditStudent(EditStudentViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // If validation fails, get teacher name again for the view
+                var student = await _context.Students
+                    .Include(s => s.Teacher)
+                        .ThenInclude(t => t.User)
+                    .FirstOrDefaultAsync(s => s.Id == model.Id);
+
+                if (student != null)
+                {
+                    ViewBag.TeacherName = student.Teacher?.User?.FullName ?? "Not Assigned";
+                }
+                return View(model);
+            }
+            try
+            {
+                var student = await _context.Students
+                    .Include(t => t.User)
+                    .Include (s => s.Teacher)
+                       .ThenInclude(t => t.User)
+                    .FirstOrDefaultAsync(t => t.Id == model.Id);
+
+                if (student == null)
+                    return NotFound();
+
+                // Check duplicate email
+                var existingUser = await _userManager.Users
+                    .FirstOrDefaultAsync(u => u.Email == model.Email && u.Id != student.UserId);
+
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("Email", "This email is already used by another user.");
+                    ViewBag.TeacherName = student.Teacher?.User?.FullName ?? "Not Assigned";
+
+                    return View(model);
+                }
+
+                // Check duplicate Employee ID
+                var existingStudent = await _context.Students
+                    .FirstOrDefaultAsync(t => t.AdmissionNumber == model.AdmissionNumber && t.Id != model.Id);
+
+                if (existingStudent != null)
+                {
+                    ModelState.AddModelError("AdmissionNumber", "This Addmission Number is already used by another user.");
+                    return View(model);
+                }
+
+                // Update User
+                student.User.FullName = model.FullName;
+                student.User.Email = model.Email;
+                student.User.UserName = model.Email;
+
+                // Update Student
+                student.AdmissionNumber = model.AdmissionNumber;
+                student.Section = model.Section;
+                student.Class = model.Class;
+                student.TeacherId = model.TeacherId;
+                student.IsActive = model.IsActive;
+
+                await _userManager.UpdateAsync(student.User);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Student '{model.FullName}' updated successfully!";
+                return RedirectToAction("ViewStudents");
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError("", $"Database error: {ex.Message}");
+
+                // Get teacher name again for the view
+                var student = await _context.Students
+                    .Include(s => s.Teacher)
+                        .ThenInclude(t => t.User)
+                    .FirstOrDefaultAsync(s => s.Id == model.Id);
+
+                if (student != null)
+                {
+                    ViewBag.TeacherName = student.Teacher?.User?.FullName ?? "Not Assigned";
+                }
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error: {ex.Message}");
+
+                // Get teacher name again for the view
+                var student = await _context.Students
+                    .Include(s => s.Teacher)
+                        .ThenInclude(t => t.User)
+                    .FirstOrDefaultAsync(s => s.Id == model.Id);
+
+                if (student != null)
+                {
+                    ViewBag.TeacherName = student.Teacher?.User?.FullName ?? "Not Assigned";
+                }
+                return View(model);
+            }
+        }
+
+
 
 
 
@@ -558,7 +703,7 @@ namespace School_Management_System.Controllers
 
 
 
-      
+
 
         [HttpGet]
         public async Task<IActionResult> AddParent()
@@ -782,8 +927,148 @@ namespace School_Management_System.Controllers
             return View(parents);
         }
 
+        //EDIT: STUDENT
+        // ===== EDIT STUDENT - GET =====
+        [HttpGet]
+        public async Task<IActionResult> EditParent(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var parent = await _context.Parents
+                .Include(t => t.User)
+                .Include(s => s.StudentParents)
+                      .ThenInclude(sp => sp.Student)
+                        .ThenInclude(s => s.User)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (parent == null)
+                return NotFound();
+
+            
+            var model = new EditParentViewModel
+            {
+                Id = parent.Id,
+                FullName = parent.User.FullName,
+                Email = parent.User.Email,
+                PhoneNumber = parent.PhoneNumber,
+                Address = parent.Address,
+                Occupation = parent.Occupation,
+                StudentId= parent.User.Student.Id,
+                IsActive = parent.IsActive,
+             
 
 
-      
+
+            };
+
+
+           
+            return View(model);
+        }
+
+        // ===== EDIT STUDENT - POST =====
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditParent(EditParentViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // If validation fails, get teacher name again for the view
+                var parent = await _context.Parents
+                     .Include(t => t.User)
+                     .Include(s => s.StudentParents)
+                      .ThenInclude(sp => sp.Student)
+                        .ThenInclude(s => s.User)
+                    .FirstOrDefaultAsync(s => s.Id == model.Id);
+
+                return View(model);
+            }
+            try
+            {
+                var parent = await _context.Parents
+                    .Include(t => t.User)
+                     .Include(s => s.StudentParents)
+                      .ThenInclude(sp => sp.Student)
+                        .ThenInclude(s => s.User)
+                    .FirstOrDefaultAsync(t => t.Id == model.Id);
+
+                if (parent == null)
+                    return NotFound();
+
+                // Check duplicate email
+                var existingUser = await _userManager.Users
+                    .FirstOrDefaultAsync(u => u.Email == model.Email && u.Id != parent.UserId);
+
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("Email", "This email is already used by another user.");
+                    
+
+                    return View(model);
+                }
+
+                // Check duplicate Employee ID
+                var existingParent = await _context.Parents
+                    .FirstOrDefaultAsync(t => t.PhoneNumber == model.PhoneNumber && t.Id != model.Id);
+
+                if (existingParent != null)
+                {
+                    ModelState.AddModelError("PhoneNumber", "This PhoneNumber is already used by another user.");
+                    return View(model);
+                }
+
+                // Update User
+                parent.User.FullName = model.FullName;
+                parent.User.Email = model.Email;
+                parent.User.UserName = model.Email;
+
+                // Update Student
+                parent.PhoneNumber = model.PhoneNumber;
+                parent.Address = model.Address;
+                parent.Occupation = model.Occupation;
+                parent.IsActive = model.IsActive;
+
+                await _userManager.UpdateAsync(parent.User);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Parent '{model.FullName}' updated successfully!";
+                return RedirectToAction("ViewParents");
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError("", $"Database error: {ex.Message}");
+
+                // Get teacher name again for the view
+                var student = await _context.Parents
+                   .Include(t => t.User)
+                     .Include(s => s.StudentParents)
+                      .ThenInclude(sp => sp.Student)
+                        .ThenInclude(s => s.User)
+                    .FirstOrDefaultAsync(s => s.Id == model.Id);
+
+               
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error: {ex.Message}");
+
+                // Get parent name again for the view
+                var student = await _context.Parents
+                    .Include(t => t.User)
+                     .Include(s => s.StudentParents)
+                      .ThenInclude(sp => sp.Student)
+                        .ThenInclude(s => s.User)
+                    .FirstOrDefaultAsync(s => s.Id == model.Id);
+
+                return View(model);
+            }
+        }
+
+
+
+
+
     }
 }
