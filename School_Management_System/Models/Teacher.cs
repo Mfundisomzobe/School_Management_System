@@ -24,6 +24,7 @@ namespace School_Management_System.Models
 
         //  navigation property
         public virtual ICollection<Student> Students { get; set; }
+        public virtual ICollection<Class> Classes { get; set; } 
 
 
     }

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
 
 using School_Management_System.Models;
+using School_Management_System.Services.Implementation;
 using School_Management_System.ViewModels;
 using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
@@ -21,15 +22,18 @@ namespace School_Management_System.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
+        private readonly AuditLogger _auditLogger;
 
         public AdminController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            AuditLogger auditLogger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
+            _auditLogger = auditLogger;
         }
 
 
@@ -216,7 +220,7 @@ namespace School_Management_System.Controllers
         {
             var teachers = await _context.Teachers
                 .Include(t => t.User)
-                .Where(t => t.IsActive)
+              
                 .ToListAsync();
 
             return View(teachers);
@@ -287,6 +291,8 @@ namespace School_Management_System.Controllers
                     ModelState.AddModelError("EmployeeId", "This Employee ID is already used by another teacher.");
                     return View(model);
                 }
+                var adminUser = await _userManager.GetUserAsync(User);
+                string oldName = teacher.User.FullName;
 
                 // Update User
                 teacher.User.FullName = model.FullName;
@@ -301,6 +307,14 @@ namespace School_Management_System.Controllers
 
                 await _userManager.UpdateAsync(teacher.User);
                 await _context.SaveChangesAsync();
+
+                //// Log the edit action
+                //await _auditLogger.LogWithUserAsync(
+                //    "Edit Teacher",
+                //    adminUser.Id,
+                //    adminUser.FullName,
+                //    $"Teacher '{oldName}' was updated by {adminUser.FullName}. New name: {model.FullName}"
+                //);
 
                 TempData["Success"] = $"Teacher '{model.FullName}' updated successfully!";
                 return RedirectToAction("ViewTeachers");
@@ -317,6 +331,67 @@ namespace School_Management_System.Controllers
             }
         }
 
+        // ===== SOFT DELETE TEACHER =====
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteTeacher(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var teacher = await _context.Teachers
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if(teacher  == null)
+            {
+                TempData["Error"] = "Teacher not Found.";
+                return RedirectToAction("ViewTeacher");
+            }
+            var adminUser = await _userManager.GetUserAsync(User);
+            string teacherName = teacher.User.FullName;
+
+            //Soft delete -just deactivate
+            teacher.IsActive = false;
+            teacher.User.IsActive = false;
+            await _context.SaveChangesAsync();
+
+
+            // OR Method 2: Using FullName only
+             await _auditLogger.LogAsync(
+                 "Delete Teacher",
+                 adminUser.FullName,
+                 $"Teacher '{teacherName}' was deactivated"
+             );
+            TempData["Success"] = $" Teacher '{teacher.User.FullName}' has been deactivated successfully.";
+            return RedirectToAction("ViewTeachers");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ReactivateTeacher(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+             var teacher = await _context.Teachers
+        .Include(t => t.User)
+        .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (teacher == null)
+            {
+                TempData["Error"] = "Teacher not found.";
+                return RedirectToAction("ViewTeachers");
+            }
+
+            // Reactivate
+            teacher.IsActive = true;
+            teacher.User.IsActive = true;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Teacher '{teacher.User.FullName}' has been reactivated successfully.";
+            return RedirectToAction("ViewTeachers");
+
+        }
 
 
 
@@ -533,7 +608,7 @@ namespace School_Management_System.Controllers
                .Include(s => s.StudentParents)
                     .ThenInclude(sp => sp.Parent)
                        .ThenInclude(p => p.User)
-               .Where(s => s.IsActive)
+              
                .ToListAsync();
 
             return View(students);
@@ -682,6 +757,66 @@ namespace School_Management_System.Controllers
                 }
                 return View(model);
             }
+        }
+        // ===== SOFT DELETE STUDENT =====
+        [HttpGet]
+        public async Task<IActionResult> DeleteStudent(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var student = await _context.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (student == null)
+            {
+                TempData["Error"] = "Student not found.";
+                return RedirectToAction("ViewStudents");
+            }
+            var adminUser = await _userManager.GetUserAsync(User);
+            string studentName = student.User.FullName;
+
+
+            // Soft delete - just deactivate
+            student.IsActive = false;
+            student.User.IsActive = false;
+            await _context.SaveChangesAsync();
+
+            // Log the action
+            await _auditLogger.LogAsync(
+               "Delete Teacher",
+               adminUser.FullName,
+                $"Student '{studentName}' was deactivated by {adminUser.FullName}"
+           );
+           
+            TempData["Success"] = $"Student '{student.User.FullName}' has been deactivated successfully.";
+            return RedirectToAction("ViewStudents");
+        }
+        // ===== REACTIVATE STUDENT =====
+        [HttpGet]
+        public async Task<IActionResult> ReactivateStudent(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var student = await _context.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (student == null)
+            {
+                TempData["Error"] = "Student not found.";
+                return RedirectToAction("ViewStudents");
+            }
+
+            // Reactivate
+            student.IsActive = true;
+            student.User.IsActive = true;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Student '{student.User.FullName}' has been reactivated successfully.";
+            return RedirectToAction("ViewStudents");
         }
 
 
@@ -921,14 +1056,15 @@ namespace School_Management_System.Controllers
                 .Include(p => p.StudentParents)
                     .ThenInclude(sp => sp.Student)
                         .ThenInclude(s => s.User)
-                .Where(p => p.IsActive)
+               
                 .ToListAsync();
 
             return View(parents);
         }
 
-        //EDIT: STUDENT
-        // ===== EDIT STUDENT - GET =====
+        //EDIT: PARENT
+        
+        // ===== EDIT PARENT - GET =====
         [HttpGet]
         public async Task<IActionResult> EditParent(int? id)
         {
@@ -938,14 +1074,18 @@ namespace School_Management_System.Controllers
             var parent = await _context.Parents
                 .Include(t => t.User)
                 .Include(s => s.StudentParents)
-                      .ThenInclude(sp => sp.Student)
+                    .ThenInclude(sp => sp.Student)
                         .ThenInclude(s => s.User)
                 .FirstOrDefaultAsync(t => t.Id == id);
 
             if (parent == null)
                 return NotFound();
 
-            
+            // Get the first student linked to this parent
+            var firstStudentParent = parent.StudentParents?.FirstOrDefault();
+            int? studentId = firstStudentParent?.StudentId;
+            string studentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
+
             var model = new EditParentViewModel
             {
                 Id = parent.Id,
@@ -954,43 +1094,47 @@ namespace School_Management_System.Controllers
                 PhoneNumber = parent.PhoneNumber,
                 Address = parent.Address,
                 Occupation = parent.Occupation,
-                StudentId= parent.User.Student.Id,
-                IsActive = parent.IsActive,
-             
-
-
-
+                StudentId = studentId,  // Get from StudentParents, not from User.Student
+                StudentName = studentName,  // Add this to ViewModel
+                IsActive = parent.IsActive
             };
 
+            // Optional: Set ViewBag for student name if not using ViewModel property
+            ViewBag.StudentName = studentName;
 
-           
             return View(model);
         }
 
-        // ===== EDIT STUDENT - POST =====
+        // ===== EDIT PARENT - POST =====
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditParent(EditParentViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                // If validation fails, get teacher name again for the view
+                // If validation fails, get parent data again for the view
                 var parent = await _context.Parents
-                     .Include(t => t.User)
-                     .Include(s => s.StudentParents)
-                      .ThenInclude(sp => sp.Student)
-                        .ThenInclude(s => s.User)
+                    .Include(t => t.User)
+                    .Include(s => s.StudentParents)
+                        .ThenInclude(sp => sp.Student)
+                            .ThenInclude(s => s.User)
                     .FirstOrDefaultAsync(s => s.Id == model.Id);
 
+                if (parent != null)
+                {
+                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
+                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
+                }
                 return View(model);
             }
+
             try
             {
                 var parent = await _context.Parents
                     .Include(t => t.User)
-                     .Include(s => s.StudentParents)
-                      .ThenInclude(sp => sp.Student)
-                        .ThenInclude(s => s.User)
+                    .Include(s => s.StudentParents)
+                        .ThenInclude(sp => sp.Student)
+                            .ThenInclude(s => s.User)
                     .FirstOrDefaultAsync(t => t.Id == model.Id);
 
                 if (parent == null)
@@ -1003,18 +1147,22 @@ namespace School_Management_System.Controllers
                 if (existingUser != null)
                 {
                     ModelState.AddModelError("Email", "This email is already used by another user.");
-                    
 
+                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
+                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
                     return View(model);
                 }
 
-                // Check duplicate Employee ID
+                // Check duplicate Phone Number
                 var existingParent = await _context.Parents
                     .FirstOrDefaultAsync(t => t.PhoneNumber == model.PhoneNumber && t.Id != model.Id);
 
                 if (existingParent != null)
                 {
-                    ModelState.AddModelError("PhoneNumber", "This PhoneNumber is already used by another user.");
+                    ModelState.AddModelError("PhoneNumber", "This Phone Number is already used by another user.");
+
+                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
+                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
                     return View(model);
                 }
 
@@ -1023,11 +1171,33 @@ namespace School_Management_System.Controllers
                 parent.User.Email = model.Email;
                 parent.User.UserName = model.Email;
 
-                // Update Student
+                // Update Parent
                 parent.PhoneNumber = model.PhoneNumber;
                 parent.Address = model.Address;
                 parent.Occupation = model.Occupation;
                 parent.IsActive = model.IsActive;
+
+                // If StudentId changed, update the relationship
+                if (model.StudentId.HasValue)
+                {
+                    // Remove existing StudentParent relationships
+                    var existingRelationships = parent.StudentParents.ToList();
+                    foreach (var rel in existingRelationships)
+                    {
+                        _context.StudentParents.Remove(rel);
+                    }
+
+                    // Add new relationship
+                    var newRelationship = new StudentParent
+                    {
+                        StudentId = model.StudentId.Value,
+                        ParentId = parent.Id,
+                        Relationship = model.Relationship ?? "Parent",
+                        IsPrimaryContact = true,
+                        IsActive = true
+                    };
+                    await _context.StudentParents.AddAsync(newRelationship);
+                }
 
                 await _userManager.UpdateAsync(parent.User);
                 await _context.SaveChangesAsync();
@@ -1039,35 +1209,236 @@ namespace School_Management_System.Controllers
             {
                 ModelState.AddModelError("", $"Database error: {ex.Message}");
 
-                // Get teacher name again for the view
-                var student = await _context.Parents
-                   .Include(t => t.User)
-                     .Include(s => s.StudentParents)
-                      .ThenInclude(sp => sp.Student)
-                        .ThenInclude(s => s.User)
+                var parent = await _context.Parents
+                    .Include(t => t.User)
+                    .Include(s => s.StudentParents)
+                        .ThenInclude(sp => sp.Student)
+                            .ThenInclude(s => s.User)
                     .FirstOrDefaultAsync(s => s.Id == model.Id);
 
-               
+                if (parent != null)
+                {
+                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
+                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
+                }
                 return View(model);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Error: {ex.Message}");
 
-                // Get parent name again for the view
-                var student = await _context.Parents
+                var parent = await _context.Parents
                     .Include(t => t.User)
-                     .Include(s => s.StudentParents)
-                      .ThenInclude(sp => sp.Student)
-                        .ThenInclude(s => s.User)
+                    .Include(s => s.StudentParents)
+                        .ThenInclude(sp => sp.Student)
+                            .ThenInclude(s => s.User)
                     .FirstOrDefaultAsync(s => s.Id == model.Id);
 
+                if (parent != null)
+                {
+                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
+                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
+                }
                 return View(model);
             }
         }
+        // ===== SOFT DELETE PARENT =====
+        [HttpGet]
+        public async Task<IActionResult> DeleteParent(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var parent = await _context.Parents
+                .Include(p => p.User)
+                .Include(p => p.StudentParents)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (parent == null)
+            {
+                TempData["Error"] = "Parent not found.";
+                return RedirectToAction("ViewParents");
+            }
+            var adminUser = await _userManager.GetUserAsync(User);
+            string parentName = parent.User.FullName;
+
+            // Soft delete - deactivate parent
+            parent.IsActive = false;
+            parent.User.IsActive = false;
+
+            // Also deactivate all StudentParent relationships
+            if (parent.StudentParents != null && parent.StudentParents.Any())
+            {
+                foreach (var sp in parent.StudentParents)
+                {
+                    sp.IsActive = false;
+                }
+            }
+
+            // Log the action
+            await _auditLogger.LogAsync(
+               "Delete Teacher",
+               adminUser.FullName,
+                $"Student '{parentName}' was deactivated by {adminUser.FullName}"
+           ); 
+            
+
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Parent '{parent.User.FullName}' has been deactivated successfully.";
+            return RedirectToAction("ViewParents");
+        }
+
+        // ===== REACTIVATE PARENT =====
+[HttpGet]
+public async Task<IActionResult> ReactivateParent(int id)
+{
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+    var parent = await _context.Parents
+        .Include(p => p.User)
+        .Include(p => p.StudentParents)
+        .FirstOrDefaultAsync(p => p.Id == id);
+
+    if (parent == null)
+    {
+        TempData["Error"] = "Parent not found.";
+        return RedirectToAction("ViewParents");
+    }
+            var adminUser = await _userManager.GetUserAsync(User);
+            string parentName = parent.User.FullName;
+            // Log the action
+            
+            // Reactivate parent
+            parent.IsActive = true;
+    parent.User.IsActive = true;
+
+    // Also reactivate all StudentParent relationships
+    if (parent.StudentParents != null && parent.StudentParents.Any())
+    {
+        foreach (var sp in parent.StudentParents)
+        {
+            sp.IsActive = true;
+        }
+    }
+            // Log the action
+            await _auditLogger.LogAsync(
+               "Delete Teacher",
+               adminUser.FullName,
+                $"Student '{parentName}' was deactivated by {adminUser.FullName}");
+    await _context.SaveChangesAsync();
+
+    TempData["Success"] = $"Parent '{parent.User.FullName}' has been reactivated successfully.";
+    return RedirectToAction("ViewParents");
+  }
 
 
 
+
+
+
+
+
+        public IActionResult SchoolInfo()
+        {
+          
+            var schoolInfoList = _context.SchoolInfos.ToList();
+            return View(schoolInfoList);
+        }
+
+        // GET: SchoolInfo/Create
+        public IActionResult AddSchool()
+        {
+           
+
+            return View();
+        }
+
+        // POST: SchoolInfo/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddSchool([Bind("SchoollName,Address,PhoneNumber,Email,WebsiteUrl")] SchoolInfo schoolInfo)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(schoolInfo);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "School information added successfully!";
+                return RedirectToAction(nameof(SchoolInfo));
+            }
+
+            TempData["ErrorMessage"] = "Failed to add school information. Please check the input and try again.";
+            return View(schoolInfo);
+        }
+
+        public IActionResult EditSchool()
+        {
+           
+
+            var schoolInfo = _context.SchoolInfos.FirstOrDefault();
+            if (schoolInfo == null)
+            {
+                return NotFound();
+            }
+            return View(schoolInfo);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditSchool([Bind("SchoolInfoId,SchoolName,Address,PhoneNumber,Email,WebsiteUrl")] SchoolInfo schoolInfo)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(schoolInfo);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "School information updated successfully!";
+                    return RedirectToAction(nameof(SchoolInfo));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                   
+                    
+                        TempData["ErrorMessage"] = "Error updating  school information. Please try again.";
+                        throw;
+                    
+                }
+            }
+
+            TempData["ErrorMessage"] = "Failed to update hospital information. Please check the input and try again.";
+            return View(schoolInfo);
+        }
+       
+        //// ===== VIEW AUDIT LOGS =====
+        //[HttpGet]
+        //public async Task<IActionResult> ViewLogs()
+        //{
+        //    if (!User.IsInRole("Admin"))
+        //        return RedirectToAction("Login", "Account");
+
+        //    try
+        //    {
+        //        var logs = await _context.AuditLogs
+        //            .Include(l => l.User)
+        //            .OrderByDescending(l => l.ActionDate)
+        //            .Take(100)
+        //            .ToListAsync();
+
+        //        // Even if logs is empty, pass an empty list (not null)
+        //        return View(logs ?? new List<AuditLog>());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the error
+        //        TempData["Error"] = $"Error loading audit logs: {ex.Message}";
+        //        return View(new List<AuditLog>());  // Pass empty list to avoid null reference
+        //    }
+        //}
 
 
     }

@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
 using School_Management_System.Models;
-
+using School_Management_System.Services.Interface;
 using School_Management_System.ViewModels;
 
 namespace School_Management_System.Controllers
@@ -17,6 +17,7 @@ namespace School_Management_System.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
+       
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -28,6 +29,7 @@ namespace School_Management_System.Controllers
             _signInManager = signInManager;
             _roleManager = roleManager;
             _context = context;
+          
         }
 
         [HttpGet]
@@ -36,6 +38,8 @@ namespace School_Management_System.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Dashboard", "Admin");
+
+
             }
 
             ViewData["ReturnUrl"] = returnUrl;
@@ -60,6 +64,7 @@ namespace School_Management_System.Controllers
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
+       
 
                 //Update last login time
                 user.CreatedAt = DateTime.UtcNow;
@@ -85,6 +90,8 @@ namespace School_Management_System.Controllers
             if (result.IsLockedOut)
             {
                 ModelState.AddModelError(string.Empty, "Account Locked out. Please ty again later.");
+
+
                 return View(model);
             }
 
@@ -208,6 +215,31 @@ namespace School_Management_System.Controllers
         {
             return View();
         }
+
+        //[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> ViewLogs()
+        //{
+        //    if (!User.IsInRole("Admin"))
+        //        return RedirectToAction("Login", "Account");
+
+        //    try
+        //    {
+        //        var logs = await _context.AuditLogs
+        //            .Include(l => l.User)
+        //            .OrderByDescending(l => l.ActionDate)
+        //            .Take(100)
+        //            .ToListAsync();
+
+        //        // Even if logs is empty, pass an empty list (not null)
+        //        return View(logs ?? new List<AuditLog>());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the error
+        //        TempData["Error"] = $"Error loading audit logs: {ex.Message}";
+        //        return View(new List<AuditLog>());  // Pass empty list to avoid null reference
+        //    }
+        //}
 
     }
 }

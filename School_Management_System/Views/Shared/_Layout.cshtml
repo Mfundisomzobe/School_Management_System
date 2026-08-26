@@ -21,7 +21,7 @@
 
         .sidebar {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: darkblue;
             padding-top: 20px;
         }
 
@@ -191,6 +191,14 @@
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "ViewParents" ? "active" : "")"
                                asp-controller="Admin" asp-action="ViewParents">
                                 <i class="fas fa-users"></i> Parents
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "AddSchool" ? "active" : "")"
+                               asp-controller="Admin" asp-action="AddSchool">
+                                <i class="fas fa-user-plus"></i> Add School
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" && ViewContext.RouteData.Values["Action"]?.ToString() == "ViewLogs" ? "active" : "")"
+                               asp-controller="Admin" asp-action="ViewLogs">
+                                <i class="fas fa-clipboard-list"></i> View Logs
                             </a>
                         }
                         @if (User.IsInRole("Teacher"))

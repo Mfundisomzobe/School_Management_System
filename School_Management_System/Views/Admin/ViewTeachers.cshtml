@@ -4,84 +4,108 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2><i class="fas fa-chalkboard-teacher me-2"></i>Teachers</h2>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Teachers</li>
-                    </ol>
-                </nav>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-chalkboard-teacher me-2"></i>Teachers List</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Teachers</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a asp-controller="Admin" asp-action="AddTeacher" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Add New Teacher
+                </a>
             </div>
-            <a asp-controller="Admin" asp-action="AddTeacher" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Add Teacher
-            </a>
         </div>
     </div>
-</div>
 
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table datatable" id="teacherTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Employee ID</th>
-                        <th>Department</th>
-                        <th>Qualification</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Any())
-                    {
-                        int index = 1;
-                        foreach (var teacher in Model)
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="teacherTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Employee ID</th>
+                            <th>Department</th>
+                            <th>Qualification</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var teacher in Model)
                         {
                             <tr>
-                                <td>@index</td>
+                                <td>@teacher.Id</td>
                                 <td><i class="fas fa-user-circle me-2 text-primary"></i>@teacher.User.FullName</td>
-                                <td>@teacher.User.Email</td>
+                                <td><i class="fas fa-envelope me-1 text-muted"></i>@teacher.User.Email</td>
                                 <td><span class="badge bg-secondary">@teacher.EmployeeId</span></td>
                                 <td>@teacher.Department</td>
-                                <td>@teacher.Qualification</td>
+                                <td>@(string.IsNullOrEmpty(teacher.Qualification) ? "-" : teacher.Qualification)</td>
                                 <td>
                                     @if (teacher.IsActive)
                                     {
-                                        <span class="badge bg-success">Active</span>
-                                        <a asp-controller="Admin" asp-action="EditTeacher" asp-route-id="@teacher.Id" class="btn btn-primary">
-                                            Edit
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (teacher.IsActive)
+                                    {
+                                        <a asp-controller="Admin" asp-action="EditTeacher" asp-route-id="@teacher.Id"
+                                           class="btn btn-warning btn-sm" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-controller="Admin" asp-action="DeleteTeacher" asp-route-id="@teacher.Id"
+                                           class="btn btn-danger btn-sm" title="Deactivate"
+                                           onclick="return confirm('Are you sure you want to deactivate this teacher?');">
+                                            <i class="fas fa-trash"></i>
                                         </a>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-danger">Inactive</span>
+                                        <a asp-controller="Admin" asp-action="ReactivateTeacher" asp-route-id="@teacher.Id"
+                                           class="btn btn-success btn-sm" title="Reactivate"
+                                           onclick="return confirm('Are you sure you want to reactivate this teacher?');">
+                                            <i class="fas fa-undo"></i> Reactivate
+                                        </a>
                                     }
                                 </td>
                             </tr>
-                            index++;
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="7" class="text-center py-4">
-                                <i class="fas fa-info-circle me-2"></i>No teachers found
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
-@* 
+
 @section Scripts {
     <script>
         $(document).ready(function() {
@@ -89,9 +113,9 @@
                 responsive: true,
                 language: {
                     search: "_INPUT_",
-                    searchPlaceholder: "Search..."
+                    searchPlaceholder: "Search teachers..."
                 }
             });
         });
     </script>
-} *@
+}

@@ -17,6 +17,15 @@ namespace School_Management_System.Data
         public DbSet<Parent> Parents { get; set; }
         public DbSet<StudentParent> StudentParents { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<SchoolInfo> SchoolInfos { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<Attendance> Attendances { get; set; }
+        public DbSet<Class>Classes { get; set; }
+        public DbSet<Grade> Grades { get; set; }
+        public DbSet<Course> courses { get; set; }
+        public DbSet<Enrollment> enrollments { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +44,7 @@ namespace School_Management_System.Data
             modelBuilder.Entity<Parent>()
                 .HasIndex(p => p.PhoneNumber)
                 .IsUnique();
+
 
             
 
@@ -87,6 +97,37 @@ namespace School_Management_System.Data
                 .HasIndex(sp => new { sp.StudentId, sp.Relationship })
                 .IsUnique()
                 .HasFilter("[IsActive] = 1");
+
+            // ===== AUDITLOG CONFIGURATION =====
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Action).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.FullName).HasMaxLength(100);
+                entity.Property(e => e.Details).HasMaxLength(500);
+             
+
+                // Indexes for faster queries
+                entity.HasIndex(e => e.ActionDate);
+              
+                entity.HasIndex(e => e.Action);
+
+              
+            });
+
+
+            // Seed data for HospitalInfo
+            modelBuilder.Entity<SchoolInfo>().HasData(
+                new SchoolInfo
+                {
+                    SchoolInfoId = 1,
+                    SchoolName = "Sister Joan's",
+                    Address = "52 Mission Rd",
+                    PhoneNumber = "+27-10-123-4567",
+                    Email = "sisterjoan's@school.com",
+                    WebsiteUrl ="https://www.sisterjoan's.com"
+                }
+            );
         }
 
     }

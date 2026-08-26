@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using School_Management_System.Data;
 
@@ -11,9 +12,11 @@ using School_Management_System.Data;
 namespace School_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260820162749_AddFullnameProperty")]
+    partial class AddFullnameProperty
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -241,33 +244,6 @@ namespace School_Management_System.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("School_Management_System.Models.Attendance", b =>
-                {
-                    b.Property<int>("AttendanceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttendanceId"));
-
-                    b.Property<DateTime>("AttendanceDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EnrollmentId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("AttendanceId");
-
-                    b.HasIndex("EnrollmentId");
-
-                    b.ToTable("Attendances");
-                });
-
             modelBuilder.Entity("School_Management_System.Models.AuditLog", b =>
                 {
                     b.Property<int>("Id")
@@ -294,144 +270,15 @@ namespace School_Management_System.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Action");
-
-                    b.HasIndex("ActionDate");
+                    b.HasIndex("UserId");
 
                     b.ToTable("AuditLogs");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.Class", b =>
-                {
-                    b.Property<int>("ClassId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClassId"));
-
-                    b.Property<int>("Capacity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ClassName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("TeacherId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ClassId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("TeacherId");
-
-                    b.ToTable("Classes");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.Course", b =>
-                {
-                    b.Property<int>("CourseId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseId"));
-
-                    b.Property<string>("CourseCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("CourseDescription")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("CourseName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.HasKey("CourseId");
-
-                    b.ToTable("courses");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.Enrollment", b =>
-                {
-                    b.Property<int>("EnrollmentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EnrollmentId"));
-
-                    b.Property<int>("ClassId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EnrollmentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("EnrollmentId");
-
-                    b.HasIndex("ClassId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("enrollments");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.Grade", b =>
-                {
-                    b.Property<int>("GradeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GradeId"));
-
-                    b.Property<string>("AssessmentName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("DateRecorded")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EnrollmentId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LetterGrade")
-                        .IsRequired()
-                        .HasMaxLength(2)
-                        .HasColumnType("nvarchar(2)");
-
-                    b.Property<double>("Marks")
-                        .HasColumnType("float");
-
-                    b.HasKey("GradeId");
-
-                    b.HasIndex("EnrollmentId");
-
-                    b.ToTable("Grades");
                 });
 
             modelBuilder.Entity("School_Management_System.Models.Parent", b =>
@@ -700,62 +547,15 @@ namespace School_Management_System.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("School_Management_System.Models.Attendance", b =>
+            modelBuilder.Entity("School_Management_System.Models.AuditLog", b =>
                 {
-                    b.HasOne("School_Management_System.Models.Enrollment", "Enrollments")
-                        .WithMany("Attendances")
-                        .HasForeignKey("EnrollmentId")
+                    b.HasOne("School_Management_System.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Enrollments");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.Class", b =>
-                {
-                    b.HasOne("School_Management_System.Models.Course", "Course")
-                        .WithMany("Classes")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("School_Management_System.Models.Teacher", "Teacher")
-                        .WithMany("Classes")
-                        .HasForeignKey("TeacherId");
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Teacher");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.Enrollment", b =>
-                {
-                    b.HasOne("School_Management_System.Models.Class", "Class")
-                        .WithMany("Enrollments")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("School_Management_System.Models.Student", "Student")
-                        .WithMany("Enrollments")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.Grade", b =>
-                {
-                    b.HasOne("School_Management_System.Models.Enrollment", "Enrollment")
-                        .WithMany("Grades")
-                        .HasForeignKey("EnrollmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Enrollment");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("School_Management_System.Models.Parent", b =>
@@ -829,23 +629,6 @@ namespace School_Management_System.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("School_Management_System.Models.Class", b =>
-                {
-                    b.Navigation("Enrollments");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.Course", b =>
-                {
-                    b.Navigation("Classes");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.Enrollment", b =>
-                {
-                    b.Navigation("Attendances");
-
-                    b.Navigation("Grades");
-                });
-
             modelBuilder.Entity("School_Management_System.Models.Parent", b =>
                 {
                     b.Navigation("StudentParents");
@@ -853,15 +636,11 @@ namespace School_Management_System.Migrations
 
             modelBuilder.Entity("School_Management_System.Models.Student", b =>
                 {
-                    b.Navigation("Enrollments");
-
                     b.Navigation("StudentParents");
                 });
 
             modelBuilder.Entity("School_Management_System.Models.Teacher", b =>
                 {
-                    b.Navigation("Classes");
-
                     b.Navigation("Students");
                 });
 #pragma warning restore 612, 618

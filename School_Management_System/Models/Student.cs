@@ -39,6 +39,7 @@ namespace School_Management_System.Models
         //Navigation Property for Parents
 
         public virtual ICollection<StudentParent> StudentParents { get; set; }
+        public virtual ICollection<Enrollment> Enrollments { get; set; }
 
         
         

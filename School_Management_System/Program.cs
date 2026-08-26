@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
 using School_Management_System.Models;
+using School_Management_System.Services.Implementation;
 
 
 var builder= WebApplication.CreateBuilder(args);
@@ -58,7 +59,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddAuthorization();
 // Register Services
-
+builder.Services.AddScoped<AuditLogger>();
 
 var app = builder.Build();
 
