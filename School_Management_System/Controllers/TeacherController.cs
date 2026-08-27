@@ -52,26 +52,46 @@ namespace School_Management_System.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
+            // Get all classes assigned to this teacher
             var classes = await _context.Classes
                 .Include(c => c.Course)
                 .Include(c => c.Enrollments)
                     .ThenInclude(e => e.Student)
                         .ThenInclude(s => s.User)
+                .Include(c => c.Enrollments)
+                    .ThenInclude(e => e.Attendances)
                 .Where(c => c.TeacherId == teacher.Id && c.IsActive)
+                .OrderBy(c => c.ClassName)
                 .ToListAsync();
 
+            // Calculate totals
             var totalStudents = classes.Sum(c => c.Enrollments.Count);
             var totalClasses = classes.Count;
+
+            // Get today's attendance count
+            var today = DateTime.Today;
+            var todayAttendance = await _context.Attendances
+                .CountAsync(a => a.Enrollments.Class.TeacherId == teacher.Id && a.AttendanceDate == today);
+
+            // Create class enrollment dictionary for chart
+            var classEnrollmentCounts = classes
+                .ToDictionary(
+                    c => c.ClassName + " (" + c.Course?.CourseName + ")",
+                    c => c.Enrollments.Count
+                );
 
             var viewModel = new TeacherDashboardViewModel
             {
                 Teacher = teacher,
                 Classes = classes,
                 TotalStudents = totalStudents,
-                TotalClasses = totalClasses
+                TotalClasses = totalClasses,
+                TodayAttendance = todayAttendance,
+                ClassEnrollmentCounts = classEnrollmentCounts
             };
 
             ViewBag.TeacherName = teacher.User.FullName;
+            ViewBag.TeacherEmail = teacher.User.Email;
 
             return View(viewModel);
         }
@@ -86,7 +106,6 @@ namespace School_Management_System.Controllers
             {
                 return RedirectToAction("AccessDenied", "Account");
             }
-
             // Verify teacher owns this class
             var classEntity = await _context.Classes
                 .Include(c => c.Course)
@@ -95,13 +114,33 @@ namespace School_Management_System.Controllers
                 .Include(c => c.Enrollments)
                     .ThenInclude(e => e.Student)
                         .ThenInclude(s => s.User)
+                .Include(c => c.Enrollments)
+                    .ThenInclude(e => e.Attendances)
+                .Include(c => c.Enrollments)
+                    .ThenInclude(e => e.Grades)
                 .FirstOrDefaultAsync(c => c.ClassId == id && c.TeacherId == teacher.Id);
 
-            if (classEntity == null)
+        if (classEntity == null)
             {
                 TempData["Error"] = "Class not found or you don't have permission to view it.";
                 return RedirectToAction(nameof(Dashboard));
             }
+
+            // Calculate attendance percentage for each student
+            foreach (var enrollment in classEntity.Enrollments)
+            {
+                if (enrollment.Attendances.Any())
+                {
+                    var totalDays = enrollment.Attendances.Count;
+                    var presentDays = enrollment.Attendances.Count(a => 
+                        a.Status == Attendance.AttendanceStatus.Present || 
+                        a.Status == Attendance.AttendanceStatus.Excused);
+                    enrollment.AttendancePercentage = totalDays > 0 ? (double)presentDays / totalDays * 100 : 0;
+                }
+            }
+
+            ViewBag.EnrollmentCount = classEntity.Enrollments.Count;
+            ViewBag.AvailableSpots = classEntity.Capacity - classEntity.Enrollments.Count;
 
             return View(classEntity);
         }
@@ -173,6 +212,7 @@ namespace School_Management_System.Controllers
 
             ViewBag.ClassId = classId;
             ViewBag.ClassName = classEntity.ClassName;
+            ViewBag.TotalStudents = classEntity.Enrollments.Count;
 
             // FIXED: Use the correct enum type
             ViewBag.AttendanceStatuses = Enum.GetValues(typeof(Attendance.AttendanceStatus))
@@ -318,6 +358,7 @@ namespace School_Management_System.Controllers
 
             ViewBag.ClassId = classId;
             ViewBag.ClassName = classEntity.ClassName;
+            ViewBag.TotalStudents = classEntity.Enrollments.Count;
 
             return View(viewModel);
         }
@@ -442,10 +483,7 @@ namespace School_Management_System.Controllers
                     var presentDays = enrollment.Attendances.Count(a =>
                         a.Status == Attendance.AttendanceStatus.Present ||
                         a.Status == Attendance.AttendanceStatus.Excused);
-                    var attendancePercentage = totalDays > 0 ? (double)presentDays / totalDays * 100 : 0;
-
-                    // Store as a property or use ViewBag
-                    ViewBag.AttendancePercentage = attendancePercentage;
+                    ViewBag.AttendancePercentage = totalDays > 0 ? (double)presentDays / totalDays * 100 : 0;
                 }
             }
 

@@ -44,10 +44,19 @@ namespace School_Management_System.Controllers
             ViewBag.TotalTeachers = await _context.Teachers.CountAsync(t => t.IsActive);
             ViewBag.TotalStudents = await _context.Students.CountAsync(s => s.IsActive);
             ViewBag.TotalParents = await _context.Parents.CountAsync(p => p.IsActive);
-            ViewBag.TotalUsers = await _context.Users.CountAsync(u => u.IsActive);
+            ViewBag.TotalCourses = await _context.Courses.CountAsync();
+            ViewBag.TotalClasses = await _context.Classes.CountAsync(c => c.IsActive);
+
+            // Add these for the sidebar badges
+            ViewBag.TeacherCount = ViewBag.TotalTeachers;
+            ViewBag.StudentCount = ViewBag.TotalStudents;
+            ViewBag.ParentCount = ViewBag.TotalParents;
+            ViewBag.CourseCount = ViewBag.TotalCourses;
+            ViewBag.ClassCount = ViewBag.TotalClasses;
             return View();
         }
 
+       
         //Teacher Management
         // Synchronous version for GET (no async needed)
         private string GenerateEmployeeIdSync()
@@ -1715,7 +1724,7 @@ public async Task<IActionResult> ReactivateParent(int id)
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
                 CourseCode = course.CourseCode,
-                Description = course.CourseDescription
+                CourseDescription = course.CourseDescription
             };
 
             return View(model);
@@ -1724,7 +1733,7 @@ public async Task<IActionResult> ReactivateParent(int id)
         // POST: Edit Course
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditCourse(Course model)
+        public async Task<IActionResult> EditCourse(EditCourseViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -2189,52 +2198,61 @@ public async Task<IActionResult> ReactivateParent(int id)
         [HttpGet]
         public async Task<IActionResult> ManageEnrollments(int? classId)
         {
-            ViewBag.Classes = new SelectList(
-                await _context.Classes
-                    .Include(c => c.Course)
-                    .OrderBy(c => c.ClassName)
-                    .Select(c => new
-                    {
-                        Id = c.ClassId,
-                        Name = c.ClassName + " (" + c.Course.CourseName + ")"
-                    })
-                    .ToListAsync(),
-                "Id", "Name",
-                classId
-            );
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            // Get all active classes for dropdown
+            var classes = await _context.Classes
+                .Include(c => c.Course)
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.ClassName)
+                .Select(c => new
+                {
+                    Id = c.ClassId,
+                    Name = c.ClassName + " (" + c.Course.CourseName + ") - " + c.Enrollments.Count + "/" + c.Capacity
+                })
+                .ToListAsync();
+
+            ViewBag.Classes = new SelectList(classes, "Id", "Name", classId);
 
             if (classId.HasValue)
             {
-                var classEntity = await _context.Classes
+                // Get the selected class with details
+                var selectedClass = await _context.Classes
                     .Include(c => c.Course)
                     .Include(c => c.Teacher)
                         .ThenInclude(t => t.User)
-                    .FirstOrDefaultAsync(c => c.ClassId == classId);
-
-                if (classEntity != null)
-                {
-                    ViewBag.SelectedClass = classEntity;
-                    ViewBag.Students = new SelectList(
-                        await _context.Students
-                            .Include(s => s.User)
-                            .Where(s => s.IsActive)
-                            .Select(s => new
-                            {
-                                Id = s.Id,
-                                Name = s.User.FullName + " (" + s.AdmissionNumber + ")"
-                            })
-                            .ToListAsync(),
-                        "Id", "Name"
-                    );
-
-                    var enrolledStudents = await _context.Enrollments
-                        .Include(e => e.Student)
+                    .Include(c => c.Enrollments)
+                        .ThenInclude(e => e.Student)
                             .ThenInclude(s => s.User)
-                        .Where(e => e.ClassId == classId)
-                        .ToListAsync();
+                    .FirstOrDefaultAsync(c => c.ClassId == classId.Value && c.IsActive);
 
-                    return View(enrolledStudents);
+                if (selectedClass == null)
+                {
+                    TempData["Error"] = "Class not found.";
+                    return View(new List<Enrollment>());
                 }
+
+                ViewBag.SelectedClass = selectedClass;
+                ViewBag.EnrollmentCount = selectedClass.Enrollments.Count;
+                ViewBag.AvailableSpots = selectedClass.Capacity - selectedClass.Enrollments.Count;
+
+                // Get all active students not enrolled in this class
+                var enrolledStudentIds = selectedClass.Enrollments.Select(e => e.StudentId).ToList();
+                var availableStudents = await _context.Students
+                    .Include(s => s.User)
+                    .Where(s => s.IsActive && !enrolledStudentIds.Contains(s.Id))
+                    .OrderBy(s => s.User.FullName)
+                    .Select(s => new
+                    {
+                        Id = s.Id,
+                        Name = s.User.FullName + " (" + s.AdmissionNumber + ")"
+                    })
+                    .ToListAsync();
+
+                ViewBag.AvailableStudents = new SelectList(availableStudents, "Id", "Name");
+
+                return View(selectedClass.Enrollments.ToList());
             }
 
             return View(new List<Enrollment>());
@@ -2245,27 +2263,30 @@ public async Task<IActionResult> ReactivateParent(int id)
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EnrollStudent(int studentId, int classId)
         {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
             try
             {
-                // Check if class exists
+                // Check if class exists and is active
                 var classEntity = await _context.Classes
                     .Include(c => c.Enrollments)
-                    .FirstOrDefaultAsync(c => c.ClassId == classId);
+                    .FirstOrDefaultAsync(c => c.ClassId == classId && c.IsActive);
 
                 if (classEntity == null)
                 {
-                    TempData["Error"] = "Class not found.";
+                    TempData["Error"] = "Class not found or is inactive.";
                     return RedirectToAction(nameof(ManageEnrollments), new { classId });
                 }
 
-                // Check if student exists
+                // Check if student exists and is active
                 var student = await _context.Students
                     .Include(s => s.User)
-                    .FirstOrDefaultAsync(s => s.Id == studentId);
+                    .FirstOrDefaultAsync(s => s.Id == studentId && s.IsActive);
 
                 if (student == null)
                 {
-                    TempData["Error"] = "Student not found.";
+                    TempData["Error"] = "Student not found or is inactive.";
                     return RedirectToAction(nameof(ManageEnrollments), new { classId });
                 }
 
@@ -2288,7 +2309,8 @@ public async Task<IActionResult> ReactivateParent(int id)
                 {
                     StudentId = studentId,
                     ClassId = classId,
-                    EnrollmentDate = DateTime.UtcNow
+                    EnrollmentDate = DateTime.UtcNow,
+                    IsActive = true
                 };
 
                 await _context.Enrollments.AddAsync(enrollment);
@@ -2310,6 +2332,10 @@ public async Task<IActionResult> ReactivateParent(int id)
                 return RedirectToAction(nameof(ManageEnrollments), new { classId });
             }
         }
+
+
+
+
         // GET: Remove Enrollment
         [HttpGet]
         public async Task<IActionResult> RemoveEnrollment(int enrollmentId)
@@ -2351,6 +2377,9 @@ public async Task<IActionResult> ReactivateParent(int id)
         [HttpGet]
         public async Task<IActionResult> ClassRoster(int id)
         {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
             var classEntity = await _context.Classes
                 .Include(c => c.Course)
                 .Include(c => c.Teacher)
@@ -2371,6 +2400,7 @@ public async Task<IActionResult> ReactivateParent(int id)
 
             return View(classEntity);
         }
+
 
     }
 }

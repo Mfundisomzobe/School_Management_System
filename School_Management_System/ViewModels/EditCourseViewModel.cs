@@ -18,7 +18,7 @@ namespace School_Management_System.ViewModels
 
         [Display(Name = "Description")]
         [StringLength(500)]
-        public string Description { get; set; }
+        public string CourseDescription { get; set; }
 
         public bool IsActive { get; set; } = true;
     }
