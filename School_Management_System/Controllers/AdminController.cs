@@ -8,6 +8,7 @@ using School_Management_System.Data;
 
 using School_Management_System.Models;
 using School_Management_System.Services.Implementation;
+using School_Management_System.Services.Interface;
 using School_Management_System.ViewModels;
 using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace School_Management_System.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
-        private readonly AuditLogger _auditLogger;
+        private readonly IAuditLogger _auditLogger;
 
         public AdminController(
             UserManager<ApplicationUser> userManager,
@@ -82,7 +83,170 @@ namespace School_Management_System.Controllers
         }
 
 
+        // ==================== AUDIT LOG MANAGEMENT ====================
 
+        // GET: View Audit Logs with Pagination
+        [HttpGet]
+        public async Task<IActionResult> ViewAuditLogs(int page = 1, string searchTerm = null,
+            string filterAction = null, DateTime? filterDate = null, string filterUser = null)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var query = _context.AuditLogs
+                .Include(l => l.User)  // Include User navigation property
+                .AsQueryable();
+
+            // Apply filters
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(l =>
+                    l.Action.Contains(searchTerm) ||
+                    (l.Details != null && l.Details.Contains(searchTerm)) ||
+                    (l.FullName != null && l.FullName.Contains(searchTerm)) ||
+                    (l.User != null && l.User.Email.Contains(searchTerm)));
+            }
+
+            if (!string.IsNullOrEmpty(filterAction))
+            {
+                query = query.Where(l => l.Action == filterAction);
+            }
+
+            if (filterDate.HasValue)
+            {
+                query = query.Where(l => l.ActionDate.Date == filterDate.Value.Date);
+            }
+
+            if (!string.IsNullOrEmpty(filterUser))
+            {
+                query = query.Where(l =>
+                    (l.FullName != null && l.FullName.Contains(filterUser)) ||
+                    (l.User != null && l.User.Email.Contains(filterUser)));
+            }
+
+            // Get total count for pagination
+            var totalCount = await query.CountAsync();
+            var pageSize = 10;
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            // Get paginated logs
+            var logs = await query
+                .OrderByDescending(l => l.ActionDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Get distinct actions for filter dropdown
+            var actions = await _context.AuditLogs
+                .Select(l => l.Action)
+                .Distinct()
+                .ToListAsync();
+
+            var model = new AuditLogViewModel
+            {
+                Logs = logs,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalCount = totalCount,
+                PageSize = pageSize,
+                SearchTerm = searchTerm,
+                FilterAction = filterAction,
+                FilterDate = filterDate,
+                FilterUser = filterUser
+            };
+
+            ViewBag.Actions = new SelectList(actions);
+            ViewBag.TotalPages = totalPages;
+            ViewBag.CurrentPage = page;
+
+            return View(model);
+        }
+
+        // GET: View Audit Log Details
+        [HttpGet]
+        public async Task<IActionResult> AuditLogDetails(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var log = await _context.AuditLogs
+                .Include(l => l.User)  // Include User navigation property
+                .FirstOrDefaultAsync(l => l.Id == id);
+
+            if (log == null)
+            {
+                TempData["Error"] = "Audit log not found.";
+                return RedirectToAction("ViewAuditLogs");
+            }
+
+            return View(log);
+        }
+
+        // GET: Clear Old Audit Logs (Optional)
+        [HttpGet]
+        public async Task<IActionResult> ClearOldLogs(int days = 30)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var cutoffDate = DateTime.UtcNow.AddDays(-days);
+            var oldLogs = await _context.AuditLogs
+                .Where(l => l.ActionDate < cutoffDate)
+                .ToListAsync();
+
+            var count = oldLogs.Count;
+            _context.AuditLogs.RemoveRange(oldLogs);
+            await _context.SaveChangesAsync();
+
+            var adminUser = await _userManager.GetUserAsync(User);
+            await _auditLogger.LogAsync(
+                "Clear Audit Logs",
+                adminUser.FullName,
+                $"Cleared {count} audit logs older than {days} days"
+            );
+
+            TempData["Success"] = $"Successfully cleared {count} audit logs older than {days} days.";
+            return RedirectToAction("ViewAuditLogs");
+        }
+
+        // GET: Export Audit Logs (Optional)
+        [HttpGet]
+        public async Task<IActionResult> ExportAuditLogs(DateTime? fromDate, DateTime? toDate)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var query = _context.AuditLogs
+                .Include(l => l.User)  // Include User navigation property
+                .AsQueryable();
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(l => l.ActionDate >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                query = query.Where(l => l.ActionDate <= toDate.Value);
+            }
+
+            var logs = await query
+                .OrderByDescending(l => l.ActionDate)
+                .ToListAsync();
+
+            // Create CSV export
+            var csvContent = "ID,Action,User,Details,Date\n";
+            foreach (var log in logs)
+            {
+                var userName = log.FullName ?? log.User?.FullName ?? "System";
+                csvContent += $"{log.Id},{log.Action},{userName},{log.Details},{log.ActionDate}\n";
+            }
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(csvContent);
+            var fileName = $"AuditLogs_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+
+            return File(bytes, "text/csv", fileName);
+        }
 
 
 
@@ -1413,7 +1577,7 @@ public async Task<IActionResult> ReactivateParent(int id)
             TempData["ErrorMessage"] = "Failed to update hospital information. Please check the input and try again.";
             return View(schoolInfo);
         }
-       
+
         //// ===== VIEW AUDIT LOGS =====
         //[HttpGet]
         //public async Task<IActionResult> ViewLogs()
@@ -1440,6 +1604,773 @@ public async Task<IActionResult> ReactivateParent(int id)
         //    }
         //}
 
+
+
+
+
+
+
+
+
+
+        // ==================== COURSE MANAGEMENT ====================
+
+        // GET: Courses List
+
+        [HttpGet]
+        public async Task<IActionResult> ViewCourses(string searchTerm, int page = 1, int pageSize = 10)
+        {
+            var query = _context.Courses.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(c =>
+                                    c.CourseName.Contains(searchTerm) ||
+                                    c.CourseCode.Contains(searchTerm) ||
+                                    c.CourseDescription.Contains(searchTerm));
+            }
+            var totalCount = await query.CountAsync();
+            var courses = await query    
+                .OrderBy(c => c.CourseName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Page = page;
+            ViewBag.PageSize =pageSize;
+            ViewBag.SearchTerm =searchTerm;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            return View(courses);
+        }
+
+        // GET: Create Course
+        [HttpGet]
+        public IActionResult CreateCourse()
+        {
+            return View();
+        }
+
+
+        //POST : Create Course
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Check if course code already exists
+            if(await _context.Courses.AnyAsync(c => c.CourseCode == model.CourseCode))
+            {
+                ModelState.AddModelError("CourseCode", "This course code already exists");
+                return View(model);
+            }
+
+            try
+            {
+                var course = new Course
+                {
+                    CourseName = model.CourseName,
+                    CourseCode = model.CourseCode,
+                    CourseDescription = model.CourseDescription
+                };
+                await _context.Courses.AddAsync(course);
+                await _context.SaveChangesAsync();
+
+                var adminUser = await _userManager.GetUserAsync(User);
+                await _auditLogger.LogAsync(
+                    "Create Course",
+                    adminUser.FullName,
+                    $"Course '{model.CourseName}' ({model.CourseCode}) was created by {adminUser.FullName}"
+                    );
+                TempData["Success"] = $"Course '{model.CourseName}' created successfully!";
+
+                return RedirectToAction(nameof(ViewCourses));
+            }
+            catch(Exception ex)
+            {
+                ModelState.AddModelError("", $"Error creating course: {ex.Message}");
+                return View(model);
+            }
+        }
+        // GET: Edit Course
+        [HttpGet]
+        public async Task<IActionResult> EditCourse(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var course = await _context.Courses.FindAsync(id);
+
+            if (course == null)
+            {
+                TempData["Error"] = "Course not found.";
+                return RedirectToAction(nameof(ViewCourses));
+            }
+
+            var model = new EditCourseViewModel
+            {
+                CourseId = course.CourseId,
+                CourseName = course.CourseName,
+                CourseCode = course.CourseCode,
+                Description = course.CourseDescription
+            };
+
+            return View(model);
+        }
+
+        // POST: Edit Course
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCourse(Course model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var course = await _context.Courses.FindAsync(model.CourseId);
+
+            if (course == null)
+            {
+                TempData["Error"] = "Course not found.";
+                return RedirectToAction(nameof(ViewCourses));
+            }
+
+            // Check if course code is taken by another course
+            if (await _context.Courses.AnyAsync(c => c.CourseCode == model.CourseCode && c.CourseId != model.CourseId))
+            {
+                ModelState.AddModelError("CourseCode", "This course code is already used by another course.");
+                return View(model);
+            }
+
+            try
+            {
+                string oldName = course.CourseName;
+                course.CourseName = model.CourseName;
+                course.CourseCode = model.CourseCode;
+                course.CourseDescription = model.CourseDescription;
+
+                await _context.SaveChangesAsync();
+
+                var adminUser = await _userManager.GetUserAsync(User);
+                await _auditLogger.LogAsync(
+                    "Edit Course",
+                    adminUser.FullName,
+                    $"Course '{oldName}' was updated to '{model.CourseName}' by {adminUser.FullName}"
+                );
+
+                TempData["Success"] = $"Course '{model.CourseName}' updated successfully!";
+                return RedirectToAction(nameof(ViewCourses));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error updating course: {ex.Message}");
+                return View(model);
+            }
+
+        }
+        // GET: Delete Course
+        [HttpGet]
+        public async Task<IActionResult> DeleteCourse(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var course = await _context.Courses
+                .Include(c => c.Classes)
+                .FirstOrDefaultAsync(c => c.CourseId == id);
+
+            if (course == null)
+            {
+                TempData["Error"] = "Course not found.";
+                return RedirectToAction(nameof(ViewCourses));
+            }
+
+            // Check if course has classes
+            if (course.Classes != null && course.Classes.Any())
+            {
+                TempData["Error"] = $"Cannot delete course '{course.CourseName}' because it has {course.Classes.Count} class(es) associated with it. Please delete the classes first.";
+                return RedirectToAction(nameof(ViewCourses));
+            }
+
+            var adminUser = await _userManager.GetUserAsync(User);
+            string courseName = course.CourseName;
+
+            _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+
+            await _auditLogger.LogAsync(
+                "Delete Course",
+                adminUser.FullName,
+                $"Course '{courseName}' was deleted by {adminUser.FullName}"
+            );
+
+            TempData["Success"] = $"Course '{courseName}' deleted successfully.";
+            return RedirectToAction(nameof(ViewCourses));
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // ==================== CLASS MANAGEMENT ====================
+
+        // GET: Classes List
+        [HttpGet]
+        public async Task<IActionResult> ViewClasses(string searchTerm, int page = 1, int pageSize = 10)
+        {
+            var query = _context.Classes
+                .Include(c => c.Course)
+                .Include(c => c.Teacher)
+                    .ThenInclude(t => t.User)
+                .Include(c => c.Enrollments)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(c =>
+                    c.ClassName.Contains(searchTerm) ||
+                    c.Course.CourseName.Contains(searchTerm) ||
+                    c.Course.CourseCode.Contains(searchTerm) ||
+                    c.Teacher.User.FullName.Contains(searchTerm));
+            }
+
+            var totalCount = await query.CountAsync();
+            var classes = await query
+                .OrderBy(c => c.ClassName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            return View(classes);
+        }
+        // GET: Create Class
+        [HttpGet]
+        public async Task<IActionResult> CreateClass()
+        {
+            ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
+            ViewBag.Teachers = new SelectList(
+                await _context.Teachers
+                    .Include(t => t.User)
+                    .Where(t => t.IsActive)
+                    .Select(t => new
+                    {
+                        Id = t.Id,
+                        Name = t.User.FullName + " (" + t.EmployeeId + ")"
+                    })
+                    .ToListAsync(),
+                "Id", "Name"
+            );
+            return View();
+        }
+
+        // POST: Create Class
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateClass(CreateClassViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
+                ViewBag.Teachers = new SelectList(
+                    await _context.Teachers
+                        .Include(t => t.User)
+                        .Where(t => t.IsActive)
+                        .Select(t => new
+                        {
+                            Id = t.Id,
+                            Name = t.User.FullName + " (" + t.EmployeeId + ")"
+                        })
+                        .ToListAsync(),
+                    "Id", "Name"
+                );
+                return View(model);
+            }
+
+            try
+            {
+                // Check if class name already exists
+                if (await _context.Classes.AnyAsync(c => c.ClassName == model.ClassName))
+                {
+                    ModelState.AddModelError("ClassName", "This class name already exists.");
+                    ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
+                    ViewBag.Teachers = new SelectList(
+                        await _context.Teachers
+                            .Include(t => t.User)
+                            .Where(t => t.IsActive)
+                            .Select(t => new
+                            {
+                                Id = t.Id,
+                                Name = t.User.FullName + " (" + t.EmployeeId + ")"
+                            })
+                            .ToListAsync(),
+                        "Id", "Name"
+                    );
+                    return View(model);
+                }
+
+                var classEntity = new Class
+                {
+                    ClassName = model.ClassName,
+                    CourseId = model.CourseId,
+                    TeacherId = model.TeacherId,
+                    Capacity = model.Capacity,
+                    IsActive =true
+                };
+
+                await _context.Classes.AddAsync(classEntity);
+                await _context.SaveChangesAsync();
+
+                var adminUser = await _userManager.GetUserAsync(User);
+                var course = await _context.Courses.FindAsync(model.CourseId);
+                var teacher = await _context.Teachers
+                    .Include(t => t.User)
+                    .FirstOrDefaultAsync(t => t.Id == model.TeacherId);
+
+                await _auditLogger.LogAsync(
+                    "Create Class",
+                    adminUser.FullName,
+                    $"Class '{model.ClassName}' was created for Course '{course?.CourseName}' with Teacher '{teacher?.User?.FullName}'"
+                );
+
+                TempData["Success"] = $"Class '{model.ClassName}' created successfully!";
+                return RedirectToAction(nameof(ViewClasses));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error creating class: {ex.Message}");
+                ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
+                ViewBag.Teachers = new SelectList(
+                    await _context.Teachers
+                        .Include(t => t.User)
+                        .Where(t => t.IsActive)
+                        .Select(t => new
+                        {
+                            Id = t.Id,
+                            Name = t.User.FullName + " (" + t.EmployeeId + ")"
+                        })
+                        .ToListAsync(),
+                    "Id", "Name"
+                );
+                return View(model);
+            }
+        }
+        // GET: Edit Class
+        [HttpGet]
+        public async Task<IActionResult> EditClass(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var classEntity = await _context.Classes
+                .Include(c => c.Course)
+                .Include(c => c.Teacher)
+                .FirstOrDefaultAsync(c => c.ClassId == id);
+
+            if (classEntity == null)
+            {
+                TempData["Error"] = "Class not found.";
+                return RedirectToAction(nameof(ViewClasses));
+            }
+
+            ViewBag.Courses = new SelectList(
+                await _context.Courses.ToListAsync(),
+                "CourseId", "CourseName",
+                classEntity.CourseId
+            );
+
+            ViewBag.Teachers = new SelectList(
+                await _context.Teachers
+                    .Include(t => t.User)
+                    .Where(t => t.IsActive)
+                    .Select(t => new
+                    {
+                        Id = t.Id,
+                        Name = t.User.FullName + " (" + t.EmployeeId + ")"
+                    })
+                    .ToListAsync(),
+                "Id", "Name",
+                classEntity.TeacherId
+            );
+
+            var model = new EditClassViewModel
+            {
+                ClassId = classEntity.ClassId,
+                ClassName = classEntity.ClassName,
+                CourseId = classEntity.CourseId,
+                TeacherId = classEntity.Teacher.Id,
+                Capacity = classEntity.Capacity,
+                IsActive = classEntity.IsActive
+            };
+
+            return View(model);
+        }
+
+        // POST: Edit Class
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditClass(Class model)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
+                ViewBag.Teachers = new SelectList(
+                    await _context.Teachers
+                        .Include(t => t.User)
+                        .Where(t => t.IsActive)
+                        .Select(t => new
+                        {
+                            Id = t.Id,
+                            Name = t.User.FullName + " (" + t.EmployeeId + ")"
+                        })
+                        .ToListAsync(),
+                    "Id", "Name"
+                );
+                return View(model);
+            }
+
+            var classEntity = await _context.Classes
+                .Include(c => c.Enrollments)
+                .FirstOrDefaultAsync(c => c.ClassId == model.ClassId);
+
+            if (classEntity == null)
+            {
+                TempData["Error"] = "Class not found.";
+                return RedirectToAction(nameof(ViewClasses));
+            }
+
+            try
+            {
+                // Check if class name is taken by another class
+                if (await _context.Classes.AnyAsync(c => c.ClassName == model.ClassName && c.ClassId != model.ClassId))
+                {
+                    ModelState.AddModelError("ClassName", "This class name already exists.");
+                    ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
+                    ViewBag.Teachers = new SelectList(
+                        await _context.Teachers
+                            .Include(t => t.User)
+                            .Where(t => t.IsActive)
+                            .Select(t => new
+                            {
+                                Id = t.Id,
+                                Name = t.User.FullName + " (" + t.EmployeeId + ")"
+                            })
+                            .ToListAsync(),
+                        "Id", "Name"
+                    );
+                    return View(model);
+                }
+
+                // Check if new capacity is less than current enrollment
+                if (model.Capacity < classEntity.Enrollments.Count)
+                {
+                    ModelState.AddModelError("Capacity", $"Cannot reduce capacity below current enrollment ({classEntity.Enrollments.Count} students).");
+                    ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
+                    ViewBag.Teachers = new SelectList(
+                        await _context.Teachers
+                            .Include(t => t.User)
+                            .Where(t => t.IsActive)
+                            .Select(t => new
+                            {
+                                Id = t.Id,
+                                Name = t.User.FullName + " (" + t.EmployeeId + ")"
+                            })
+                            .ToListAsync(),
+                        "Id", "Name"
+                    );
+                    return View(model);
+                }
+
+                string oldName = classEntity.ClassName;
+                classEntity.ClassName = model.ClassName;
+                classEntity.CourseId = model.CourseId;
+                classEntity.TeacherId = model.TeacherId;
+                classEntity.Capacity = model.Capacity;
+
+                await _context.SaveChangesAsync();
+
+                var adminUser = await _userManager.GetUserAsync(User);
+                await _auditLogger.LogAsync(
+                    "Edit Class",
+                    adminUser.FullName,
+                    $"Class '{oldName}' was updated to '{model.ClassName}' by {adminUser.FullName}"
+                );
+
+                TempData["Success"] = $"Class '{model.ClassName}' updated successfully!";
+                return RedirectToAction(nameof(ViewClasses));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error updating class: {ex.Message}");
+                ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
+                ViewBag.Teachers = new SelectList(
+                    await _context.Teachers
+                        .Include(t => t.User)
+                        .Where(t => t.IsActive)
+                        .Select(t => new
+                        {
+                            Id = t.Id,
+                            Name = t.User.FullName + " (" + t.EmployeeId + ")"
+                        })
+                        .ToListAsync(),
+                    "Id", "Name"
+                );
+                return View(model);
+            }
+        }
+
+        // GET: Delete Class
+        [HttpGet]
+        public async Task<IActionResult> DeleteClass(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var classEntity = await _context.Classes
+                .Include(c => c.Enrollments)
+                .Include(c => c.Course)
+                .Include(c => c.Teacher)
+                    .ThenInclude(t => t.User)
+                .FirstOrDefaultAsync(c => c.ClassId == id);
+
+            if (classEntity == null)
+            {
+                TempData["Error"] = "Class not found.";
+                return RedirectToAction(nameof(ViewClasses));
+            }
+
+            // Check if class has students enrolled
+            if (classEntity.Enrollments != null && classEntity.Enrollments.Any())
+            {
+                TempData["Error"] = $"Cannot delete class '{classEntity.ClassName}' because it has {classEntity.Enrollments.Count} student(s) enrolled. Please remove all enrollments first.";
+                return RedirectToAction(nameof(ViewClasses));
+            }
+
+            var adminUser = await _userManager.GetUserAsync(User);
+            string className = classEntity.ClassName;
+
+            _context.Classes.Remove(classEntity);
+            await _context.SaveChangesAsync();
+
+            await _auditLogger.LogAsync(
+                "Delete Class",
+                adminUser.FullName,
+                $"Class '{className}' was deleted by {adminUser.FullName}"
+            );
+
+            TempData["Success"] = $"Class '{className}' deleted successfully.";
+            return RedirectToAction(nameof(ViewClasses));
+        }
+
+        // ==================== ENROLLMENT MANAGEMENT ====================
+
+        // GET: Manage Enrollments
+        [HttpGet]
+        public async Task<IActionResult> ManageEnrollments(int? classId)
+        {
+            ViewBag.Classes = new SelectList(
+                await _context.Classes
+                    .Include(c => c.Course)
+                    .OrderBy(c => c.ClassName)
+                    .Select(c => new
+                    {
+                        Id = c.ClassId,
+                        Name = c.ClassName + " (" + c.Course.CourseName + ")"
+                    })
+                    .ToListAsync(),
+                "Id", "Name",
+                classId
+            );
+
+            if (classId.HasValue)
+            {
+                var classEntity = await _context.Classes
+                    .Include(c => c.Course)
+                    .Include(c => c.Teacher)
+                        .ThenInclude(t => t.User)
+                    .FirstOrDefaultAsync(c => c.ClassId == classId);
+
+                if (classEntity != null)
+                {
+                    ViewBag.SelectedClass = classEntity;
+                    ViewBag.Students = new SelectList(
+                        await _context.Students
+                            .Include(s => s.User)
+                            .Where(s => s.IsActive)
+                            .Select(s => new
+                            {
+                                Id = s.Id,
+                                Name = s.User.FullName + " (" + s.AdmissionNumber + ")"
+                            })
+                            .ToListAsync(),
+                        "Id", "Name"
+                    );
+
+                    var enrolledStudents = await _context.Enrollments
+                        .Include(e => e.Student)
+                            .ThenInclude(s => s.User)
+                        .Where(e => e.ClassId == classId)
+                        .ToListAsync();
+
+                    return View(enrolledStudents);
+                }
+            }
+
+            return View(new List<Enrollment>());
+        }
+
+        // POST: Enroll Student
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EnrollStudent(int studentId, int classId)
+        {
+            try
+            {
+                // Check if class exists
+                var classEntity = await _context.Classes
+                    .Include(c => c.Enrollments)
+                    .FirstOrDefaultAsync(c => c.ClassId == classId);
+
+                if (classEntity == null)
+                {
+                    TempData["Error"] = "Class not found.";
+                    return RedirectToAction(nameof(ManageEnrollments), new { classId });
+                }
+
+                // Check if student exists
+                var student = await _context.Students
+                    .Include(s => s.User)
+                    .FirstOrDefaultAsync(s => s.Id == studentId);
+
+                if (student == null)
+                {
+                    TempData["Error"] = "Student not found.";
+                    return RedirectToAction(nameof(ManageEnrollments), new { classId });
+                }
+
+                // Check if class is at capacity
+                if (classEntity.Enrollments.Count >= classEntity.Capacity)
+                {
+                    TempData["Error"] = $"Class '{classEntity.ClassName}' has reached its capacity of {classEntity.Capacity} students.";
+                    return RedirectToAction(nameof(ManageEnrollments), new { classId });
+                }
+
+                // Check for duplicate enrollment
+                if (await _context.Enrollments.AnyAsync(e => e.StudentId == studentId && e.ClassId == classId))
+                {
+                    TempData["Error"] = $"Student '{student.User.FullName}' is already enrolled in this class.";
+                    return RedirectToAction(nameof(ManageEnrollments), new { classId });
+                }
+
+                // Create enrollment
+                var enrollment = new Enrollment
+                {
+                    StudentId = studentId,
+                    ClassId = classId,
+                    EnrollmentDate = DateTime.UtcNow
+                };
+
+                await _context.Enrollments.AddAsync(enrollment);
+                await _context.SaveChangesAsync();
+
+                var adminUser = await _userManager.GetUserAsync(User);
+                await _auditLogger.LogAsync(
+                    "Enroll Student",
+                    adminUser.FullName,
+                    $"Student '{student.User.FullName}' was enrolled in class '{classEntity.ClassName}' by {adminUser.FullName}"
+                );
+
+                TempData["Success"] = $"Student '{student.User.FullName}' enrolled successfully in '{classEntity.ClassName}'!";
+                return RedirectToAction(nameof(ManageEnrollments), new { classId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error enrolling student: {ex.Message}";
+                return RedirectToAction(nameof(ManageEnrollments), new { classId });
+            }
+        }
+        // GET: Remove Enrollment
+        [HttpGet]
+        public async Task<IActionResult> RemoveEnrollment(int enrollmentId)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var enrollment = await _context.Enrollments
+                .Include(e => e.Student)
+                    .ThenInclude(s => s.User)
+                .Include(e => e.Class)
+                .FirstOrDefaultAsync(e => e.EnrollmentId == enrollmentId);
+
+            if (enrollment == null)
+            {
+                TempData["Error"] = "Enrollment not found.";
+                return RedirectToAction(nameof(ManageEnrollments));
+            }
+
+            var adminUser = await _userManager.GetUserAsync(User);
+            string studentName = enrollment.Student.User.FullName;
+            string className = enrollment.Class.ClassName;
+            int classId = enrollment.ClassId;
+
+            _context.Enrollments.Remove(enrollment);
+            await _context.SaveChangesAsync();
+
+            await _auditLogger.LogAsync(
+                "Remove Enrollment",
+                adminUser.FullName,
+                $"Student '{studentName}' was removed from class '{className}' by {adminUser.FullName}"
+            );
+
+            TempData["Success"] = $"Student '{studentName}' has been removed from class '{className}'.";
+            return RedirectToAction(nameof(ManageEnrollments), new { classId });
+        }
+
+        // GET: View Class Roster
+        [HttpGet]
+        public async Task<IActionResult> ClassRoster(int id)
+        {
+            var classEntity = await _context.Classes
+                .Include(c => c.Course)
+                .Include(c => c.Teacher)
+                    .ThenInclude(t => t.User)
+                .Include(c => c.Enrollments)
+                    .ThenInclude(e => e.Student)
+                        .ThenInclude(s => s.User)
+                .FirstOrDefaultAsync(c => c.ClassId == id);
+
+            if (classEntity == null)
+            {
+                TempData["Error"] = "Class not found.";
+                return RedirectToAction(nameof(ViewClasses));
+            }
+
+            ViewBag.EnrollmentCount = classEntity.Enrollments.Count;
+            ViewBag.AvailableSpots = classEntity.Capacity - classEntity.Enrollments.Count;
+
+            return View(classEntity);
+        }
 
     }
 }

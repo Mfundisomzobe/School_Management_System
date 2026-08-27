@@ -7,25 +7,27 @@ namespace School_Management_System.ViewModels
     public class AuditLogViewModel
     {
 
-        [Key]
-        public int Id { get; set; }
+        public List<AuditLog> Logs { get; set; } = new List<AuditLog>();
 
-        [Required]
-        [StringLength(200, ErrorMessage = "Action cannot exceed 200 characters.")]
-        public string Action { get; set; }
+        public int CurrentPage { get; set; } = 1;
 
-        public string UserId { get; set; }
+        public int TotalPages { get; set; }
 
-        [ForeignKey(nameof(UserId))]
-        public virtual ApplicationUser User { get; set; }
+        public int TotalCount { get; set; }
 
+        public int PageSize { get; set; } = 10;
 
-        [StringLength(500, ErrorMessage = "Details cannot exceed 500 characters.")]
-        public string Details { get; set; }
+        public string? SearchTerm { get; set; }
 
-        [Required]
-        [DataType(DataType.Date)]
-        public DateTime ActionDate { get; set; } = DateTime.Now;
+        public string? FilterAction { get; set; }
+
+        public DateTime? FilterDate { get; set; }
+
+        public string? FilterUser { get; set; }
+
+        public bool HasPreviousPage => CurrentPage > 1;
+
+        public bool HasNextPage => CurrentPage < TotalPages;
     }
 }
 

@@ -1,0 +1,147 @@
+﻿@using School_Management_System.ViewModels
+@model EditClassViewModel
+@{
+    ViewData["Title"] = "Edit Class";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-3 px-md-4 mt-3 mt-md-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 gap-sm-0">
+                <div>
+                    <h2 class="fw-bold fs-4 fs-md-3">
+                        <i class="fas fa-edit text-warning me-2"></i>Edit Class
+                    </h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb small mb-0">
+                            <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a asp-action="ViewClasses" class="text-decoration-none">Classes</a></li>
+                            <li class="breadcrumb-item active">Edit</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a asp-action="ViewClasses" class="btn btn-secondary btn-sm w-100 w-sm-auto">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Classes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark py-2 py-md-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-edit me-2"></i>Edit Class Information
+                    </h5>
+                </div>
+                <div class="card-body p-3 p-md-4">
+                    <form method="post" asp-action="EditClass">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ClassId" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <!-- Class Name -->
+                        <div class="mb-3">
+                            <label asp-for="ClassName" class="form-label fw-bold">
+                                <i class="fas fa-chalkboard me-1 text-warning"></i>Class Name
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
+                                <input asp-for="ClassName" class="form-control" placeholder="e.g., Grade 10A - Mathematics" />
+                            </div>
+                            <span asp-validation-for="ClassName" class="text-danger small"></span>
+                            <div class="form-text">A descriptive name for this class section.</div>
+                        </div>
+
+                        <!-- Course -->
+                        <div class="mb-3">
+                            <label asp-for="CourseId" class="form-label fw-bold">
+                                <i class="fas fa-book me-1 text-warning"></i>Course
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-book"></i></span>
+                                <select asp-for="CourseId" class="form-select" asp-items="ViewBag.Courses">
+                                    <option value="">-- Select Course --</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="CourseId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Teacher -->
+                        <div class="mb-3">
+                            <label asp-for="TeacherId" class="form-label fw-bold">
+                                <i class="fas fa-chalkboard-teacher me-1 text-warning"></i>Teacher
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-chalkboard-teacher"></i></span>
+                                <select asp-for="TeacherId" class="form-select" asp-items="ViewBag.Teachers">
+                                    <option value="">-- Select Teacher --</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="TeacherId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Capacity -->
+                        <div class="mb-3">
+                            <label asp-for="Capacity" class="form-label fw-bold">
+                                <i class="fas fa-users me-1 text-warning"></i>Capacity
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                <input asp-for="Capacity" class="form-control" type="number" min="1" max="100" />
+                            </div>
+                            <span asp-validation-for="Capacity" class="text-danger small"></span>
+                            <div class="form-text">Maximum number of students allowed in this class (1-100).</div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-toggle-on me-1 text-warning"></i>Status
+                            </label>
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label class="form-check-label" asp-for="IsActive">
+                                    <span id="statusLabel">@(Model.IsActive ? "Active" : "Inactive")</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-end mt-4">
+                            <a asp-action="ViewClasses" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-1"></i>Update Class
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            $('#IsActive').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#statusLabel').text('Active');
+                } else {
+                    $('#statusLabel').text('Inactive');
+                }
+            });
+        });
+    </script>
+}

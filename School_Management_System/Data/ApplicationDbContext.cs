@@ -22,8 +22,8 @@ namespace School_Management_System.Data
         public DbSet<Attendance> Attendances { get; set; }
         public DbSet<Class>Classes { get; set; }
         public DbSet<Grade> Grades { get; set; }
-        public DbSet<Course> courses { get; set; }
-        public DbSet<Enrollment> enrollments { get; set; }
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Enrollment> Enrollments { get; set; }
 
 
 

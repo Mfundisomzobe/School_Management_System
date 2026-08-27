@@ -53,3 +53,539 @@ body {
         transform: scale(1);
     }
 }
+
+
+/* ========================================
+   TEACHER MODULE STYLES
+   ======================================== */
+
+/* ----- Dashboard Styles ----- */
+.stat-card {
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+    height: 100%;
+}
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .stat-card .icon {
+        font-size: 2.5rem;
+        opacity: 0.6;
+    }
+
+    .stat-card .number {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .stat-card .label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+.card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .card-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+.welcome-text {
+    font-size: 0.9rem;
+}
+
+.role-badge {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+}
+
+/* Mobile-friendly action buttons */
+.action-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.action-btn {
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+    border: none;
+}
+
+    .action-btn:hover {
+        transform: scale(1.1);
+    }
+
+/* ----- Class Roster Styles ----- */
+.info-card-sm {
+    padding: 15px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    height: 100%;
+    text-align: center;
+}
+
+    .info-card-sm .label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .info-card-sm .value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+
+.roster-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+/* ----- Attendance Styles ----- */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.75rem;
+    display: inline-block;
+    margin: 2px;
+}
+
+.status-Present {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-Absent {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-Late {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-Excused {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.attendance-select {
+    min-width: 120px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 4px 8px;
+}
+
+    .attendance-select option.Present {
+        background-color: #d4edda;
+    }
+
+    .attendance-select option.Absent {
+        background-color: #f8d7da;
+    }
+
+    .attendance-select option.Late {
+        background-color: #fff3cd;
+    }
+
+    .attendance-select option.Excused {
+        background-color: #d1ecf1;
+    }
+
+/* Mobile-friendly form */
+.form-container {
+    padding: 10px;
+}
+
+.attendance-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -10px;
+}
+
+    .attendance-table-wrapper table {
+        min-width: 500px;
+        width: 100%;
+    }
+
+/* Attendance header */
+.attendance-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ----- Grade Styles ----- */
+.grade-a {
+    color: #28a745;
+    font-weight: 700;
+}
+
+.grade-b {
+    color: #17a2b8;
+    font-weight: 700;
+}
+
+.grade-c {
+    color: #ffc107;
+    font-weight: 700;
+}
+
+.grade-d {
+    color: #fd7e14;
+    font-weight: 700;
+}
+
+.grade-f {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+.grade-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    min-width: 35px;
+    display: inline-block;
+    text-align: center;
+}
+
+    .grade-badge.grade-a {
+        background-color: #d4edda;
+    }
+
+    .grade-badge.grade-b {
+        background-color: #d1ecf1;
+    }
+
+    .grade-badge.grade-c {
+        background-color: #fff3cd;
+    }
+
+    .grade-badge.grade-d {
+        background-color: #ffe5d0;
+    }
+
+    .grade-badge.grade-f {
+        background-color: #f8d7da;
+    }
+
+.marks-input {
+    width: 80px !important;
+    display: inline-block !important;
+    font-size: 0.85rem;
+    padding: 4px 8px;
+}
+
+.assessment-input {
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    min-width: 120px;
+}
+
+.grades-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -10px;
+}
+
+    .grades-table-wrapper table {
+        min-width: 600px;
+        width: 100%;
+    }
+
+.grade-scale {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+}
+
+/* ----- Student View Styles ----- */
+.info-card {
+    border-left: 4px solid;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+    .info-card .label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-card .value {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-top: 4px;
+    }
+
+.attendance-bar {
+    height: 20px;
+    border-radius: 10px;
+    background: #e9ecef;
+    overflow: hidden;
+    position: relative;
+    margin-top: 5px;
+}
+
+    .attendance-bar .fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.5s ease;
+    }
+
+    .attendance-bar .percentage {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.mobile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+    .mobile-stack > div {
+        flex: 1;
+    }
+
+/* ----- Table Responsive Wrapper ----- */
+.table-responsive-stack {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+    .table-responsive-stack table {
+        width: 100%;
+        min-width: 600px;
+    }
+
+.records-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -10px;
+}
+
+    .records-wrapper table {
+        min-width: 500px;
+        width: 100%;
+    }
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* Small devices (phones, 576px and up) */
+@media (min-width: 576px) {
+    .status-badge {
+        padding: 5px 15px;
+        font-size: 0.85rem;
+    }
+
+    .attendance-select {
+        min-width: 140px;
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+
+    .attendance-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .attendance-bar .percentage {
+        font-size: 0.8rem;
+    }
+
+    .grade-badge {
+        padding: 5px 15px;
+        font-size: 1rem;
+        min-width: 40px;
+    }
+
+    .marks-input {
+        width: 100px !important;
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+
+    .assessment-input {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+        min-width: 150px;
+    }
+
+    .grade-scale {
+        gap: 10px;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .stat-card .number {
+        font-size: 2.5rem;
+    }
+
+    .welcome-text {
+        font-size: 1rem;
+    }
+
+    .role-badge {
+        font-size: 1rem;
+        padding: 8px 16px;
+    }
+
+    .info-card-sm .value {
+        font-size: 1.3rem;
+    }
+
+    .form-container {
+        padding: 20px;
+    }
+
+    .attendance-table-wrapper {
+        margin: 0;
+    }
+
+        .attendance-table-wrapper table {
+            min-width: auto;
+        }
+
+    .grades-table-wrapper {
+        margin: 0;
+    }
+
+        .grades-table-wrapper table {
+            min-width: auto;
+        }
+
+    .info-card {
+        padding: 15px 20px;
+        margin-bottom: 15px;
+    }
+
+        .info-card .label {
+            font-size: 0.85rem;
+        }
+
+        .info-card .value {
+            font-size: 1.1rem;
+        }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .mobile-stack {
+        flex-direction: row;
+        gap: 20px;
+    }
+
+    .records-wrapper {
+        margin: 0;
+    }
+
+        .records-wrapper table {
+            min-width: auto;
+        }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .grades-table-wrapper table {
+        min-width: auto;
+    }
+
+    .records-wrapper table {
+        min-width: auto;
+    }
+}
+
+/* Extra small devices (phones, less than 576px) */
+@media (max-width: 575.98px) {
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+
+    .roster-actions .btn {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+}
+
+/* Small devices (phones, less than 768px) */
+@media (max-width: 767.98px) {
+    .table-responsive-stack {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+        .table-responsive-stack table {
+            width: 100%;
+            min-width: 500px;
+        }
+}
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 768px) {
+    .filter-section .row > div {
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-section .row > div {
+        margin-bottom: 10px;
+    }
+}
