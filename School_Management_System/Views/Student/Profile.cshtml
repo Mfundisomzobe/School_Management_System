@@ -1,88 +1,149 @@
-﻿@model Student
+﻿@using School_Management_System.ViewModels.Student
+@model StudentProfileViewModel
 @{
     ViewData["Title"] = "My Profile";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2><i class="fas fa-user me-2"></i>My Profile</h2>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item active">Profile</li>
-                    </ol>
-                </nav>
-            </div>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="fw-bold">
+                <i class="fas fa-user text-primary me-2"></i>My Profile
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Profile</li>
+                </ol>
+            </nav>
         </div>
     </div>
-</div>
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Student Information</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">Full Name</label>
-                            <p class="fs-5">@Model.User.FullName</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">Email</label>
-                            <p class="fs-5">@Model.User.Email</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">Admission Number</label>
-                            <p><span class="badge bg-secondary">@Model.AdmissionNumber</span></p>
-                        </div>
+    <div class="row g-4">
+        <!-- Student Information -->
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-user-graduate me-2"></i>Student Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Full Name</label>
+                        <p class="fw-bold mb-0">@Model.Student.User.FullName</p>
                     </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">Class</label>
-                            <p class="fs-5">@Model.Class @(string.IsNullOrEmpty(Model.Section) ? "" : "- " + Model.Section)</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">Date of Birth</label>
-                            <p class="fs-5">@Model.DateOfBirth.ToString("dd MMMM yyyy")</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">Teacher</label>
-                            <p class="fs-5">@(Model.Teacher?.User?.FullName ?? "Not Assigned")</p>
-                        </div>
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Email</label>
+                        <p class="mb-0">@Model.Student.User.Email</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Admission Number</label>
+                        <p class="mb-0"><span class="badge bg-secondary">@Model.Student.AdmissionNumber</span></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Class</label>
+                        <p class="mb-0">@Model.Student.Class @Model.Student.Section</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Date of Birth</label>
+                        <p class="mb-0">@Model.Student.DateOfBirth.ToString("dd MMMM yyyy")</p>
+                    </div>
+                    <div class="mb-0">
+                        <label class="text-muted small fw-bold">Status</label>
+                        <p class="mb-0">
+                            @if (Model.Student.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </p>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                @if (Model.StudentParents != null && Model.StudentParents.Any())
-                {
-                    <hr />
-                    <h6 class="mb-3"><i class="fas fa-users me-2"></i>Parents/Guardians</h6>
-                    <div class="row">
-                        @foreach (var sp in Model.StudentParents.Where(x => x.IsActive))
+        <!-- Parents Information -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-users me-2"></i>Parents / Guardians
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Parents.Any())
+                    {
+                        @foreach (var parent in Model.Parents)
                         {
-                            <div class="col-md-6 mb-3">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <h6 class="mb-1"><i class="fas fa-user-circle me-2 text-warning"></i>@sp.Parent.User.FullName</h6>
-                                        <p class="mb-1 small">
-                                            <span class="badge bg-info">@sp.Relationship</span>
-                                            @if (sp.IsPrimaryContact)
-                                            {
-                                                <span class="badge bg-primary">Primary Contact</span>
-                                            }
-                                        </p>
-                                        <p class="mb-1 small"><i class="fas fa-phone me-2"></i>@sp.Parent.PhoneNumber</p>
-                                        <p class="mb-0 small"><i class="fas fa-briefcase me-2"></i>@sp.Parent.Occupation</p>
+                            var fullName = parent.User.FullName;
+                            var initials = string.IsNullOrEmpty(fullName) ? "?" :
+                            string.Concat(fullName.Split(' ')
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .Select(s => s[0]))
+                            .ToUpper();
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-circle bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center"
+                                         style="width: 48px; height: 48px; font-size: 18px; font-weight: 700;">
+                                        @initials
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">@parent.User.FullName</div>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-envelope me-1"></i> @parent.User.Email
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-phone me-1"></i> @parent.PhoneNumber
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(parent.Occupation))
+                                        {
+                                            <div class="text-muted small">
+                                                <i class="fas fa-briefcase me-1"></i> @parent.Occupation
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
                         }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No parents linked to your account.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="col-lg-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-chart-pie me-2"></i>Quick Stats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Total Classes</label>
+                        <p class="fw-bold fs-4 mb-0">@Model.Enrollments.Count</p>
                     </div>
-                }
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Parents Linked</label>
+                        <p class="fw-bold fs-4 mb-0">@Model.Parents.Count</p>
+                    </div>
+                    <div class="mb-0">
+                        <label class="text-muted small fw-bold">Student ID</label>
+                        <p class="mb-0"><code>#@Model.Student.Id</code></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
