@@ -619,32 +619,68 @@
                         </a>
                     </div>
                 }
-
                 @if (User.IsInRole("Teacher"))
                 {
                     <div class="nav-section">
                         <div class="section-title">Main</div>
-                        <a class="nav-link active" asp-controller="Teacher" asp-action="Dashboard">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")"
+                           asp-controller="Teacher" asp-action="Dashboard">
                             <i class="fas fa-gauge-high"></i>
                             <span class="nav-text">Dashboard</span>
                         </a>
                     </div>
 
-                    <div class="nav-section">
-                        <div class="section-title">Classroom</div>
-                        <a class="nav-link" asp-controller="Teacher" asp-action="ClassRoster">
-                            <i class="fas fa-users"></i>
-                            <span class="nav-text">Class Roster</span>
-                        </a>
-                        <a class="nav-link" asp-controller="Teacher" asp-action="MarkAttendance">
-                            <i class="fas fa-clipboard-check"></i>
-                            <span class="nav-text">Attendance</span>
-                        </a>
-                        <a class="nav-link" asp-controller="Teacher" asp-action="EnterGrades">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span class="nav-text">Grades</span>
-                        </a>
-                    </div>
+                    @if (ViewBag.HasClasses != null && ViewBag.HasClasses == true)
+                    {
+                        <div class="nav-section">
+                            <div class="section-title">Classroom</div>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "ClassRoster" ? "active" : "")"
+                               asp-controller="Teacher" asp-action="ClassRoster" asp-route-id="@ViewBag.FirstClassId">
+                                <i class="fas fa-users"></i>
+                                <span class="nav-text">Class Roster</span>
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "MarkAttendance" ? "active" : "")"
+                               asp-controller="Teacher" asp-action="MarkAttendance" asp-route-classId="@ViewBag.FirstClassId">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span class="nav-text">Mark Attendance</span>
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "AttendanceHistory" ? "active" : "")"
+                               asp-controller="Teacher" asp-action="AttendanceHistory" asp-route-classId="@ViewBag.FirstClassId">
+                                <i class="fas fa-history"></i>
+                                <span class="nav-text">Attendance History</span>
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "AttendanceReport" ? "active" : "")"
+                               asp-controller="Teacher" asp-action="AttendanceReport" asp-route-classId="@ViewBag.FirstClassId">
+                                <i class="fas fa-file-alt"></i>
+                                <span class="nav-text">Attendance Report</span>
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "EnterGrades" ? "active" : "")"
+                               asp-controller="Teacher" asp-action="EnterGrades" asp-route-classId="@ViewBag.FirstClassId">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span class="nav-text">Enter Grades</span>
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "GradeHistory" ? "active" : "")"
+                               asp-controller="Teacher" asp-action="GradeHistory" asp-route-classId="@ViewBag.FirstClassId">
+                                <i class="fas fa-history"></i>
+                                <span class="nav-text">Grade History</span>
+                            </a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "GradeReport" ? "active" : "")"
+                               asp-controller="Teacher" asp-action="GradeReport" asp-route-classId="@ViewBag.FirstClassId">
+                                <i class="fas fa-file-alt"></i>
+                                <span class="nav-text">Grade Report</span>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="nav-section">
+                            <div class="section-title">Classroom</div>
+                            <div class="text-muted small px-3 py-2" style="color: rgba(255,255,255,0.3) !important;">
+                                <i class="fas fa-info-circle me-1"></i>
+                                No classes assigned yet
+                            </div>
+                        </div>
+                    }
                 }
 
                 @if (User.IsInRole("Student"))

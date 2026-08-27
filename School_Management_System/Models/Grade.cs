@@ -21,7 +21,8 @@ namespace School_Management_System.Models
         [StringLength(2)]
         public string LetterGrade {  get; set; }
         [Required]
-        public DateTime DateRecorded { get; set; }
+        [DataType(DataType.DateTime)]
+        public DateTime DateRecorded { get; set; } = DateTime.UtcNow;
         [Required]
         public bool IsActive { get; set; }
 

@@ -7,6 +7,11 @@ namespace School_Management_System.ViewModels.Teacher
         public int ClassId { get; set; }
         public string ClassName { get; set; }
         public List<StudentGradeViewModel> Students { get; set; }
+        public int TotalStudents { get; set; }
+        public int GradedCount { get; set; }
+        public int UngradedCount { get; set; }
+        public double ClassAverage { get; set; }
+        public string AssessmentName { get; set; } = "Term Average";
     }
 
     public class StudentGradeViewModel
@@ -22,5 +27,7 @@ namespace School_Management_System.ViewModels.Teacher
         public string LetterGrade { get; set; }
         public int? GradeId { get; set; }
         public string AssessmentName { get; set; } = "Term Average";
+        public bool HasGrade { get; set; }
+        public DateTime? DateRecorded { get; set; }
     }
 }

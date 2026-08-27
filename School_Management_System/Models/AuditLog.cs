@@ -35,6 +35,8 @@ namespace School_Management_System.Models
 
         [StringLength(50)]
         public string? UserRole { get; set; }
+
+        public bool IsActive { get; set; } = true;
     }
 }
 

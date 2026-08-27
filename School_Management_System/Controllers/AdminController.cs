@@ -1993,15 +1993,26 @@ public async Task<IActionResult> ReactivateParent(int id)
                 return RedirectToAction("Login", "Account");
 
             var classEntity = await _context.Classes
-                .Include(c => c.Course)
-                .Include(c => c.Teacher)
-                .FirstOrDefaultAsync(c => c.ClassId == id);
+          .Include(c => c.Course)
+          .Include(c => c.Teacher)
+          .FirstOrDefaultAsync(c => c.ClassId == id);
 
             if (classEntity == null)
             {
                 TempData["Error"] = "Class not found.";
                 return RedirectToAction(nameof(ViewClasses));
             }
+
+            // Create ViewModel from Class entity
+            var model = new EditClassViewModel
+            {
+                ClassId = classEntity.ClassId,
+                ClassName = classEntity.ClassName,
+                CourseId = classEntity.CourseId,
+                TeacherId = classEntity.TeacherId ?? 0,  // Handle nullable
+                Capacity = classEntity.Capacity,
+                IsActive = classEntity.IsActive
+            };
 
             ViewBag.Courses = new SelectList(
                 await _context.Courses.ToListAsync(),
@@ -2023,24 +2034,17 @@ public async Task<IActionResult> ReactivateParent(int id)
                 classEntity.TeacherId
             );
 
-            var model = new EditClassViewModel
-            {
-                ClassId = classEntity.ClassId,
-                ClassName = classEntity.ClassName,
-                CourseId = classEntity.CourseId,
-                TeacherId = classEntity.Teacher.Id,
-                Capacity = classEntity.Capacity,
-                IsActive = classEntity.IsActive
-            };
-
-            return View(model);
+            return View(model); 
         }
 
         // POST: Edit Class
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditClass(Class model)
+        public async Task<IActionResult> EditClass(EditClassViewModel model)  // ← Changed from Class to EditClassViewModel
         {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
@@ -2061,7 +2065,7 @@ public async Task<IActionResult> ReactivateParent(int id)
 
             var classEntity = await _context.Classes
                 .Include(c => c.Enrollments)
-                .FirstOrDefaultAsync(c => c.ClassId == model.ClassId);
+                .FirstOrDefaultAsync(c => c.ClassId == model.ClassId);  // ← Use model.ClassId
 
             if (classEntity == null)
             {
@@ -2116,6 +2120,7 @@ public async Task<IActionResult> ReactivateParent(int id)
                 classEntity.CourseId = model.CourseId;
                 classEntity.TeacherId = model.TeacherId;
                 classEntity.Capacity = model.Capacity;
+                classEntity.IsActive = model.IsActive;  // ← Add this if you want to update status
 
                 await _context.SaveChangesAsync();
 
