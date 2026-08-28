@@ -863,9 +863,90 @@
         @RenderBody()
 
         <!-- Footer -->
-        <div class="footer text-center text-muted">
-            <small>© @DateTime.Now.Year School Management System. All rights reserved.</small>
+        <!-- ============================================
+        FOOTER - CLEAN & PROFESSIONAL
+        ============================================ -->
+        <div class="footer">
+            <div class="container-fluid px-3 px-md-4">
+                <div class="footer-content">
+                    <div class="row align-items-center">
+                        <!-- Left Side -->
+                        <div class="col-md-6 text-center text-md-start">
+                            <p class="mb-0">
+                                <span class="text-muted">&copy; @DateTime.Now.Year</span>
+                                <span class="text-light mx-1">School Management System</span>
+                                <span class="text-muted">— All rights reserved.</span>
+                            </p>
+                        </div>
+
+                        <!-- Right Side -->
+                        <div class="col-md-6 text-center text-md-end">
+                            <p class="mb-0">
+                                <span class="text-muted">Developed by</span>
+                                <strong class="developer-name">Mfundiso Mzobe</strong>
+                               
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <style>
+            /* ========================================
+                   CORPORATE FOOTER STYLES
+                   ======================================== */
+
+            .footer {
+                background: #0f1117;
+                padding: 18px 0;
+                margin-top: 40px;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+                .footer .text-muted {
+                    color: rgba(255, 255, 255, 0.35) !important;
+                    font-size: 0.85rem;
+                }
+
+                .footer .text-light {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                    font-weight: 500;
+                }
+
+                .footer .developer-name {
+                    color: #818cf8;
+                    font-weight: 600;
+                    transition: color 0.3s ease;
+                    cursor: default;
+                }
+
+                    .footer .developer-name:hover {
+                        color: #a78bfa;
+                    }
+
+                .footer .badge-version {
+                    display: inline-block;
+                    padding: 1px 10px;
+                    border-radius: 12px;
+                    background: rgba(99, 102, 241, 0.12);
+                    color: #818cf8;
+                    font-size: 0.65rem;
+                    font-weight: 500;
+                    margin-left: 8px;
+                    border: 1px solid rgba(99, 102, 241, 0.08);
+                }
+
+                    .footer .badge-version::before {
+                        content: '⚡';
+                        margin-right: 4px;
+                        font-size: 0.6rem;
+                    }
+
+            
+
+            }
+        </style>
     </div>
 
     <!-- ===== SCRIPTS ===== -->

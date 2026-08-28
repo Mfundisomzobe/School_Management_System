@@ -262,88 +262,44 @@ namespace School_Management_System.Data
             // ============================================
             // 7. UPDATE CLASSES WITH TEACHER IDs
             // ============================================
-            var mathTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Mathematics");
-            var englishTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "English");
-            var scienceTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Science");
-            var historyTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Social Studies");
-            var ictTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "ICT / Computer Science");
-            var artsTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Arts");
-            var peTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Physical Education");
-            var adminTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Administration");
+            var hasTeacherAssigned = await context.Classes.AnyAsync(c => c.TeacherId != null && c.TeacherId > 0);
 
-            var classes = await context.Classes.ToListAsync();
-            if (classes.Any())
+            if (!hasTeacherAssigned)  // ← Only run if no teacher is assigned to any class
             {
-                foreach (var classEntity in classes)
+                var mathTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Mathematics");
+                var englishTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "English");
+                var scienceTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Science");
+                var historyTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Social Studies");
+                var ictTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "ICT / Computer Science");
+                var artsTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Arts");
+                var peTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Physical Education");
+                var adminTeacher = await context.Teachers.FirstOrDefaultAsync(t => t.Department == "Administration");
+
+                var classes = await context.Classes.ToListAsync();
+                if (classes.Any())
                 {
-                    if (classEntity.ClassName.Contains("Mathematics") && mathTeacher != null)
-                        classEntity.TeacherId = mathTeacher.Id;
-                    else if (classEntity.ClassName.Contains("English") && englishTeacher != null)
-                        classEntity.TeacherId = englishTeacher.Id;
-                    else if ((classEntity.ClassName.Contains("Science") || classEntity.ClassName.Contains("Biology")) && scienceTeacher != null)
-                        classEntity.TeacherId = scienceTeacher.Id;
-                    else if (classEntity.ClassName.Contains("History") && historyTeacher != null)
-                        classEntity.TeacherId = historyTeacher.Id;
-                    else if (classEntity.ClassName.Contains("Computer Science") && ictTeacher != null)
-                        classEntity.TeacherId = ictTeacher.Id;
-                    else if (classEntity.ClassName.Contains("Art") && artsTeacher != null)
-                        classEntity.TeacherId = artsTeacher.Id;
-                    else if (classEntity.ClassName.Contains("Physical Education") && peTeacher != null)
-                        classEntity.TeacherId = peTeacher.Id;
-                    else if (classEntity.ClassName.Contains("Business") && adminTeacher != null)
-                        classEntity.TeacherId = adminTeacher.Id;
+                    foreach (var classEntity in classes)
+                    {
+                        if (classEntity.ClassName.Contains("Mathematics") && mathTeacher != null)
+                            classEntity.TeacherId = mathTeacher.Id;
+                        else if (classEntity.ClassName.Contains("English") && englishTeacher != null)
+                            classEntity.TeacherId = englishTeacher.Id;
+                        else if ((classEntity.ClassName.Contains("Science") || classEntity.ClassName.Contains("Biology")) && scienceTeacher != null)
+                            classEntity.TeacherId = scienceTeacher.Id;
+                        else if (classEntity.ClassName.Contains("History") && historyTeacher != null)
+                            classEntity.TeacherId = historyTeacher.Id;
+                        else if (classEntity.ClassName.Contains("Computer Science") && ictTeacher != null)
+                            classEntity.TeacherId = ictTeacher.Id;
+                        else if (classEntity.ClassName.Contains("Art") && artsTeacher != null)
+                            classEntity.TeacherId = artsTeacher.Id;
+                        else if (classEntity.ClassName.Contains("Physical Education") && peTeacher != null)
+                            classEntity.TeacherId = peTeacher.Id;
+                        else if (classEntity.ClassName.Contains("Business") && adminTeacher != null)
+                            classEntity.TeacherId = adminTeacher.Id;
+                    }
+                    await context.SaveChangesAsync();
                 }
-                await context.SaveChangesAsync();
             }
-
-            // ============================================
-            // 8. CREATE ENROLLMENTS
-            // ============================================
-            if (!await context.Enrollments.AnyAsync())
-            {
-                var students = await context.Students.ToListAsync();
-                var classList = await context.Classes.ToListAsync();
-
-                foreach (var student in students)
-                {
-                    var classIds = new List<int>();
-
-                    if (student.Class == "9")
-                    {
-                        classIds.AddRange(new[] { 9, 11 });
-                    }
-                    else if (student.Class == "10")
-                    {
-                        classIds.AddRange(new[] { 1, 2, 5, 9, 11 });
-                    }
-                    else if (student.Class == "11")
-                    {
-                        classIds.AddRange(new[] { 3, 4, 6, 10, 12 });
-                    }
-                    else if (student.Class == "12")
-                    {
-                        classIds.AddRange(new[] { 7, 8, 13 });
-                    }
-
-                    foreach (var classId in classIds)
-                    {
-                        var classEntity = classList.FirstOrDefault(c => c.ClassId == classId);
-                        if (classEntity != null)
-                        {
-                            var enrollment = new Enrollment
-                            {
-                                StudentId = student.Id,
-                                ClassId = classEntity.ClassId,
-                                EnrollmentDate = DateTime.UtcNow,
-                                IsActive = true
-                            };
-                            await context.Enrollments.AddAsync(enrollment);
-                        }
-                    }
-                }
-                await context.SaveChangesAsync();
-            }
-
             // ============================================
             // 9. CREATE ATTENDANCE RECORDS
             // ============================================

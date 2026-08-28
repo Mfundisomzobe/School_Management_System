@@ -15,7 +15,7 @@ namespace School_Management_System.Models
         [StringLength(500)]
         public string CourseDescription { get; set; }
         [Required]
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; }=true;
 
         // Navigation Properties
         public virtual ICollection<Class> Classes { get; set; }

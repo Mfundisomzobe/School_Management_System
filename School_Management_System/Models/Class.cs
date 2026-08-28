@@ -20,7 +20,7 @@ namespace School_Management_System.Models
         [Required]
         public int Capacity { get; set; }
         [Required]
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         //Navigation Property
         public virtual ICollection<Enrollment> Enrollments { get; set; }

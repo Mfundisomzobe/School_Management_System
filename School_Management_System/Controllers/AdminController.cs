@@ -1587,31 +1587,6 @@ public async Task<IActionResult> ReactivateParent(int id)
             return View(schoolInfo);
         }
 
-        //// ===== VIEW AUDIT LOGS =====
-        //[HttpGet]
-        //public async Task<IActionResult> ViewLogs()
-        //{
-        //    if (!User.IsInRole("Admin"))
-        //        return RedirectToAction("Login", "Account");
-
-        //    try
-        //    {
-        //        var logs = await _context.AuditLogs
-        //            .Include(l => l.User)
-        //            .OrderByDescending(l => l.ActionDate)
-        //            .Take(100)
-        //            .ToListAsync();
-
-        //        // Even if logs is empty, pass an empty list (not null)
-        //        return View(logs ?? new List<AuditLog>());
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log the error
-        //        TempData["Error"] = $"Error loading audit logs: {ex.Message}";
-        //        return View(new List<AuditLog>());  // Pass empty list to avoid null reference
-        //    }
-        //}
 
 
 
@@ -1626,30 +1601,46 @@ public async Task<IActionResult> ReactivateParent(int id)
 
         // GET: Courses List
 
+        // GET: View Courses (Show both active and inactive)
         [HttpGet]
-        public async Task<IActionResult> ViewCourses(string searchTerm, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> ViewCourses(string searchTerm, int page = 1, int pageSize = 10, bool showInactive = false)
         {
-            var query = _context.Courses.AsQueryable();
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var query = _context.Courses
+                .Include(c => c.Classes)
+                .AsQueryable();
+
+            // Filter by active status
+            if (!showInactive)
+            {
+                query = query.Where(c => c.IsActive);
+            }
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 query = query.Where(c =>
-                                    c.CourseName.Contains(searchTerm) ||
-                                    c.CourseCode.Contains(searchTerm) ||
-                                    c.CourseDescription.Contains(searchTerm));
+                    c.CourseName.Contains(searchTerm) ||
+                    c.CourseCode.Contains(searchTerm) ||
+                    (c.CourseDescription != null && c.CourseDescription.Contains(searchTerm)));
             }
+
             var totalCount = await query.CountAsync();
-            var courses = await query    
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            var courses = await query
                 .OrderBy(c => c.CourseName)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
             ViewBag.TotalCount = totalCount;
-            ViewBag.Page = page;
-            ViewBag.PageSize =pageSize;
-            ViewBag.SearchTerm =searchTerm;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.PageSize = pageSize;
+            ViewBag.ShowInactive = showInactive;
 
             return View(courses);
         }
@@ -1658,22 +1649,27 @@ public async Task<IActionResult> ReactivateParent(int id)
         [HttpGet]
         public IActionResult CreateCourse()
         {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
             return View();
         }
 
-
-        //POST : Create Course
+        // POST: Create Course
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
             if (!ModelState.IsValid)
                 return View(model);
 
-            // Check if course code already exists
-            if(await _context.Courses.AnyAsync(c => c.CourseCode == model.CourseCode))
+            // Check if course code already exists (including inactive)
+            if (await _context.Courses.AnyAsync(c => c.CourseCode == model.CourseCode))
             {
-                ModelState.AddModelError("CourseCode", "This course code already exists");
+                ModelState.AddModelError("CourseCode", "This course code already exists.");
                 return View(model);
             }
 
@@ -1683,8 +1679,10 @@ public async Task<IActionResult> ReactivateParent(int id)
                 {
                     CourseName = model.CourseName,
                     CourseCode = model.CourseCode,
-                    CourseDescription = model.CourseDescription
+                    CourseDescription = model.CourseDescription,
+                    IsActive = true
                 };
+
                 await _context.Courses.AddAsync(course);
                 await _context.SaveChangesAsync();
 
@@ -1693,17 +1691,18 @@ public async Task<IActionResult> ReactivateParent(int id)
                     "Create Course",
                     adminUser.FullName,
                     $"Course '{model.CourseName}' ({model.CourseCode}) was created by {adminUser.FullName}"
-                    );
-                TempData["Success"] = $"Course '{model.CourseName}' created successfully!";
+                );
 
+                TempData["Success"] = $"Course '{model.CourseName}' created successfully!";
                 return RedirectToAction(nameof(ViewCourses));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Error creating course: {ex.Message}");
                 return View(model);
             }
         }
+
         // GET: Edit Course
         [HttpGet]
         public async Task<IActionResult> EditCourse(int id)
@@ -1724,7 +1723,8 @@ public async Task<IActionResult> ReactivateParent(int id)
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
                 CourseCode = course.CourseCode,
-                CourseDescription = course.CourseDescription
+                CourseDescription = course.CourseDescription,
+                IsActive = course.IsActive
             };
 
             return View(model);
@@ -1735,6 +1735,9 @@ public async Task<IActionResult> ReactivateParent(int id)
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCourse(EditCourseViewModel model)
         {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -1746,7 +1749,7 @@ public async Task<IActionResult> ReactivateParent(int id)
                 return RedirectToAction(nameof(ViewCourses));
             }
 
-            // Check if course code is taken by another course
+            // Check if course code is taken by another course (including inactive)
             if (await _context.Courses.AnyAsync(c => c.CourseCode == model.CourseCode && c.CourseId != model.CourseId))
             {
                 ModelState.AddModelError("CourseCode", "This course code is already used by another course.");
@@ -1759,6 +1762,7 @@ public async Task<IActionResult> ReactivateParent(int id)
                 course.CourseName = model.CourseName;
                 course.CourseCode = model.CourseCode;
                 course.CourseDescription = model.CourseDescription;
+                course.IsActive = model.IsActive;
 
                 await _context.SaveChangesAsync();
 
@@ -1777,9 +1781,9 @@ public async Task<IActionResult> ReactivateParent(int id)
                 ModelState.AddModelError("", $"Error updating course: {ex.Message}");
                 return View(model);
             }
-
         }
-        // GET: Delete Course
+
+        // ===== SOFT DELETE COURSE =====
         [HttpGet]
         public async Task<IActionResult> DeleteCourse(int id)
         {
@@ -1796,26 +1800,61 @@ public async Task<IActionResult> ReactivateParent(int id)
                 return RedirectToAction(nameof(ViewCourses));
             }
 
-            // Check if course has classes
-            if (course.Classes != null && course.Classes.Any())
+            // Check if course has active classes
+            if (course.Classes != null && course.Classes.Any(c => c.IsActive))
             {
-                TempData["Error"] = $"Cannot delete course '{course.CourseName}' because it has {course.Classes.Count} class(es) associated with it. Please delete the classes first.";
+                var activeClassCount = course.Classes.Count(c => c.IsActive);
+                TempData["Error"] = $"Cannot delete course '{course.CourseName}' because it has {activeClassCount} active class(es) associated with it. Please deactivate or delete the classes first.";
                 return RedirectToAction(nameof(ViewCourses));
             }
 
             var adminUser = await _userManager.GetUserAsync(User);
             string courseName = course.CourseName;
 
-            _context.Courses.Remove(course);
+            // SOFT DELETE - Just deactivate
+            course.IsActive = false;
             await _context.SaveChangesAsync();
 
             await _auditLogger.LogAsync(
                 "Delete Course",
                 adminUser.FullName,
-                $"Course '{courseName}' was deleted by {adminUser.FullName}"
+                $"Course '{courseName}' was deactivated by {adminUser.FullName}"
             );
 
-            TempData["Success"] = $"Course '{courseName}' deleted successfully.";
+            TempData["Success"] = $"Course '{courseName}' has been deactivated successfully.";
+            return RedirectToAction(nameof(ViewCourses));
+        }
+
+        // ===== REACTIVATE COURSE =====
+        [HttpGet]
+        public async Task<IActionResult> ReactivateCourse(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.CourseId == id);
+
+            if (course == null)
+            {
+                TempData["Error"] = "Course not found.";
+                return RedirectToAction(nameof(ViewCourses));
+            }
+
+            var adminUser = await _userManager.GetUserAsync(User);
+            string courseName = course.CourseName;
+
+            // Reactivate
+            course.IsActive = true;
+            await _context.SaveChangesAsync();
+
+            await _auditLogger.LogAsync(
+                "Reactivate Course",
+                adminUser.FullName,
+                $"Course '{courseName}' was reactivated by {adminUser.FullName}"
+            );
+
+            TempData["Success"] = $"Course '{courseName}' has been reactivated successfully!";
             return RedirectToAction(nameof(ViewCourses));
         }
 
@@ -1838,17 +1877,25 @@ public async Task<IActionResult> ReactivateParent(int id)
 
 
         // ==================== CLASS MANAGEMENT ====================
-
-        // GET: Classes List
+        // GET: View Classes (Show both active and inactive)
         [HttpGet]
-        public async Task<IActionResult> ViewClasses(string searchTerm, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> ViewClasses(string searchTerm, int page = 1, int pageSize = 10, bool showInactive = false)
         {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
             var query = _context.Classes
                 .Include(c => c.Course)
                 .Include(c => c.Teacher)
                     .ThenInclude(t => t.User)
                 .Include(c => c.Enrollments)
                 .AsQueryable();
+
+            // If showInactive is false, only show active classes
+            if (!showInactive)
+            {
+                query = query.Where(c => c.IsActive);
+            }
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
@@ -1860,6 +1907,8 @@ public async Task<IActionResult> ReactivateParent(int id)
             }
 
             var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
             var classes = await query
                 .OrderBy(c => c.ClassName)
                 .Skip((page - 1) * pageSize)
@@ -1867,17 +1916,22 @@ public async Task<IActionResult> ReactivateParent(int id)
                 .ToListAsync();
 
             ViewBag.TotalCount = totalCount;
-            ViewBag.Page = page;
+            ViewBag.CurrentPage = page;
             ViewBag.PageSize = pageSize;
             ViewBag.SearchTerm = searchTerm;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            ViewBag.TotalPages = totalPages;
+            ViewBag.ShowInactive = showInactive;
 
             return View(classes);
         }
+
         // GET: Create Class
         [HttpGet]
         public async Task<IActionResult> CreateClass()
         {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
             ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
             ViewBag.Teachers = new SelectList(
                 await _context.Teachers
@@ -1899,6 +1953,9 @@ public async Task<IActionResult> ReactivateParent(int id)
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateClass(CreateClassViewModel model)
         {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Courses = new SelectList(await _context.Courses.ToListAsync(), "CourseId", "CourseName");
@@ -1919,7 +1976,7 @@ public async Task<IActionResult> ReactivateParent(int id)
 
             try
             {
-                // Check if class name already exists
+                // Check if class name already exists (including inactive)
                 if (await _context.Classes.AnyAsync(c => c.ClassName == model.ClassName))
                 {
                     ModelState.AddModelError("ClassName", "This class name already exists.");
@@ -1945,7 +2002,7 @@ public async Task<IActionResult> ReactivateParent(int id)
                     CourseId = model.CourseId,
                     TeacherId = model.TeacherId,
                     Capacity = model.Capacity,
-                    IsActive =true
+                    IsActive = true
                 };
 
                 await _context.Classes.AddAsync(classEntity);
@@ -1985,6 +2042,7 @@ public async Task<IActionResult> ReactivateParent(int id)
                 return View(model);
             }
         }
+
         // GET: Edit Class
         [HttpGet]
         public async Task<IActionResult> EditClass(int id)
@@ -1993,9 +2051,9 @@ public async Task<IActionResult> ReactivateParent(int id)
                 return RedirectToAction("Login", "Account");
 
             var classEntity = await _context.Classes
-          .Include(c => c.Course)
-          .Include(c => c.Teacher)
-          .FirstOrDefaultAsync(c => c.ClassId == id);
+                .Include(c => c.Course)
+                .Include(c => c.Teacher)
+                .FirstOrDefaultAsync(c => c.ClassId == id);
 
             if (classEntity == null)
             {
@@ -2003,13 +2061,12 @@ public async Task<IActionResult> ReactivateParent(int id)
                 return RedirectToAction(nameof(ViewClasses));
             }
 
-            // Create ViewModel from Class entity
             var model = new EditClassViewModel
             {
                 ClassId = classEntity.ClassId,
                 ClassName = classEntity.ClassName,
                 CourseId = classEntity.CourseId,
-                TeacherId = classEntity.TeacherId ?? 0,  // Handle nullable
+                TeacherId = classEntity.TeacherId ?? 0,
                 Capacity = classEntity.Capacity,
                 IsActive = classEntity.IsActive
             };
@@ -2034,13 +2091,13 @@ public async Task<IActionResult> ReactivateParent(int id)
                 classEntity.TeacherId
             );
 
-            return View(model); 
+            return View(model);
         }
 
         // POST: Edit Class
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditClass(EditClassViewModel model)  // ← Changed from Class to EditClassViewModel
+        public async Task<IActionResult> EditClass(EditClassViewModel model)
         {
             if (!User.IsInRole("Admin"))
                 return RedirectToAction("Login", "Account");
@@ -2065,7 +2122,7 @@ public async Task<IActionResult> ReactivateParent(int id)
 
             var classEntity = await _context.Classes
                 .Include(c => c.Enrollments)
-                .FirstOrDefaultAsync(c => c.ClassId == model.ClassId);  // ← Use model.ClassId
+                .FirstOrDefaultAsync(c => c.ClassId == model.ClassId);
 
             if (classEntity == null)
             {
@@ -2075,7 +2132,7 @@ public async Task<IActionResult> ReactivateParent(int id)
 
             try
             {
-                // Check if class name is taken by another class
+                // Check if class name is taken by another class (including inactive)
                 if (await _context.Classes.AnyAsync(c => c.ClassName == model.ClassName && c.ClassId != model.ClassId))
                 {
                     ModelState.AddModelError("ClassName", "This class name already exists.");
@@ -2120,7 +2177,7 @@ public async Task<IActionResult> ReactivateParent(int id)
                 classEntity.CourseId = model.CourseId;
                 classEntity.TeacherId = model.TeacherId;
                 classEntity.Capacity = model.Capacity;
-                classEntity.IsActive = model.IsActive;  // ← Add this if you want to update status
+                classEntity.IsActive = model.IsActive;
 
                 await _context.SaveChangesAsync();
 
@@ -2154,7 +2211,7 @@ public async Task<IActionResult> ReactivateParent(int id)
             }
         }
 
-        // GET: Delete Class
+        // ===== SOFT DELETE CLASS =====
         [HttpGet]
         public async Task<IActionResult> DeleteClass(int id)
         {
@@ -2174,28 +2231,83 @@ public async Task<IActionResult> ReactivateParent(int id)
                 return RedirectToAction(nameof(ViewClasses));
             }
 
-            // Check if class has students enrolled
-            if (classEntity.Enrollments != null && classEntity.Enrollments.Any())
+            // Check if class has active enrollments
+            if (classEntity.Enrollments != null && classEntity.Enrollments.Any(e => e.IsActive))
             {
-                TempData["Error"] = $"Cannot delete class '{classEntity.ClassName}' because it has {classEntity.Enrollments.Count} student(s) enrolled. Please remove all enrollments first.";
+                var activeEnrollments = classEntity.Enrollments.Count(e => e.IsActive);
+                TempData["Error"] = $"Cannot delete class '{classEntity.ClassName}' because it has {activeEnrollments} active student(s) enrolled. Please remove all enrollments first.";
                 return RedirectToAction(nameof(ViewClasses));
             }
 
             var adminUser = await _userManager.GetUserAsync(User);
             string className = classEntity.ClassName;
 
-            _context.Classes.Remove(classEntity);
+            // SOFT DELETE - Just deactivate
+            classEntity.IsActive = false;
             await _context.SaveChangesAsync();
 
             await _auditLogger.LogAsync(
                 "Delete Class",
                 adminUser.FullName,
-                $"Class '{className}' was deleted by {adminUser.FullName}"
+                $"Class '{className}' was deactivated by {adminUser.FullName}"
             );
 
-            TempData["Success"] = $"Class '{className}' deleted successfully.";
+            TempData["Success"] = $"Class '{className}' has been deactivated successfully.";
             return RedirectToAction(nameof(ViewClasses));
         }
+
+        // ===== REACTIVATE CLASS =====
+        [HttpGet]
+        public async Task<IActionResult> ReactivateClass(int id)
+        {
+            if (!User.IsInRole("Admin"))
+                return RedirectToAction("Login", "Account");
+
+            var classEntity = await _context.Classes
+                .Include(c => c.Course)
+                .Include(c => c.Teacher)
+                    .ThenInclude(t => t.User)
+                .FirstOrDefaultAsync(c => c.ClassId == id);
+
+            if (classEntity == null)
+            {
+                TempData["Error"] = "Class not found.";
+                return RedirectToAction(nameof(ViewClasses));
+            }
+
+            var adminUser = await _userManager.GetUserAsync(User);
+            string className = classEntity.ClassName;
+
+            // Reactivate
+            classEntity.IsActive = true;
+            await _context.SaveChangesAsync();
+
+            await _auditLogger.LogAsync(
+                "Reactivate Class",
+                adminUser.FullName,
+                $"Class '{className}' was reactivated by {adminUser.FullName}"
+            );
+
+            TempData["Success"] = $"Class '{className}' has been reactivated successfully!";
+            return RedirectToAction(nameof(ViewClasses));
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // ==================== ENROLLMENT MANAGEMENT ====================
 

@@ -3,249 +3,970 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid px-3 px-md-4 mt-3 mt-md-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 gap-sm-0">
-                <div>
-                    <h2 class="fw-bold fs-4 fs-md-3">
-                        <i class="fas fa-tachometer-alt text-primary me-2"></i>Admin Dashboard
-                    </h2>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb small mb-0">
-                            <li class="breadcrumb-item active">Dashboard</li>
-                        </ol>
-                    </nav>
-                </div>
-                <span class="badge bg-primary role-badge">
-                    <i class="fas fa-user-shield me-1"></i>Administrator
-                </span>
-            </div>
-        </div>
-    </div>
+<style>
+    /* ========================================
+           MODERN ADMIN DASHBOARD STYLES
+           ======================================== */
 
-    <!-- Alerts -->
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show small">
-            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show small">
-            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+    /* ----- Animated Background ----- */
+    .dashboard-header {
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #2d1b69 100%);
+        border-radius: 20px;
+        padding: 30px 35px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 30px;
     }
 
-    <!-- Stats Cards -->
-    <div class="row g-2 g-sm-3 g-md-4 mb-3 mb-md-4">
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="d-flex justify-content-between align-items-center">
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.1);
+            animation: floatOrb 8s ease-in-out infinite;
+        }
+
+        .dashboard-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 10%;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(236, 72, 153, 0.08);
+            animation: floatOrb 10s ease-in-out infinite reverse;
+        }
+
+   
+
+    .dashboard-header .header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .dashboard-header h1 {
+        color: white;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .dashboard-header p {
+        color: rgba(255,255,255,0.6);
+        margin: 5px 0 0;
+        font-size: 0.95rem;
+    }
+
+    .dashboard-header .header-stats {
+        display: flex;
+        gap: 30px;
+        margin-top: 15px;
+    }
+
+        .dashboard-header .header-stats .stat-item {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+        }
+
+            .dashboard-header .header-stats .stat-item strong {
+                color: white;
+                font-size: 1.2rem;
+                display: block;
+            }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+        .header-actions .btn {
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .header-actions .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            }
+
+    /* ----- Stat Cards ----- */
+    .stat-card-modern {
+        padding: 24px 28px;
+        border-radius: 18px;
+        color: white;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: default;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+        .stat-card-modern:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .stat-card-modern .card-bg-pattern {
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            pointer-events: none;
+        }
+
+        .stat-card-modern .stat-icon {
+            font-size: 2.2rem;
+            opacity: 0.4;
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+        }
+
+        .stat-card-modern .stat-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .stat-card-modern .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin: 8px 0 0;
+            font-weight: 500;
+        }
+
+        .stat-card-modern .stat-change {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.15);
+            padding: 3px 12px;
+            border-radius: 20px;
+        }
+
+            .stat-card-modern .stat-change.up {
+                color: #4ade80;
+            }
+
+            .stat-card-modern .stat-change.down {
+                color: #f87171;
+            }
+
+        .stat-card-modern.color-1 {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .stat-card-modern.color-2 {
+            background: linear-gradient(135deg, #ec4899, #f472b6);
+        }
+
+        .stat-card-modern.color-3 {
+            background: linear-gradient(135deg, #06b6d4, #22d3ee);
+        }
+
+        .stat-card-modern.color-4 {
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+        }
+
+        .stat-card-modern.color-5 {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+
+        .stat-card-modern.color-6 {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+
+    /* ----- Management Cards ----- */
+    .manage-card {
+        border: none;
+        border-radius: 18px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+    }
+
+        .manage-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        }
+
+        .manage-card .card-header-custom {
+            padding: 16px 20px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .manage-card .card-header-custom .title {
+                font-weight: 600;
+                font-size: 0.95rem;
+                color: #1a1a3e;
+                margin: 0;
+            }
+
+            .manage-card .card-header-custom .badge-count {
+                background: rgba(0,0,0,0.05);
+                padding: 2px 10px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: #6b7280;
+            }
+
+        .manage-card .card-body-custom {
+            padding: 16px 20px 20px;
+        }
+
+            .manage-card .card-body-custom .description {
+                color: #6b7280;
+                font-size: 0.85rem;
+                margin-bottom: 15px;
+            }
+
+            .manage-card .card-body-custom .action-buttons {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+                .manage-card .card-body-custom .action-buttons .btn {
+                    border-radius: 10px;
+                    padding: 6px 14px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                }
+
+                    .manage-card .card-body-custom .action-buttons .btn:hover {
+                        transform: scale(1.05);
+                    }
+
+    /* ----- Quick Actions ----- */
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    .quick-action-btn {
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid #f0f2f5;
+        background: white;
+        text-align: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: #1a1a3e;
+        font-weight: 500;
+        font-size: 0.85rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .quick-action-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            border-color: #6366f1;
+            text-decoration: none;
+            color: #1a1a3e;
+        }
+
+        .quick-action-btn .icon-wrapper {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+            .quick-action-btn .icon-wrapper.purple {
+                background: rgba(99, 102, 241, 0.1);
+                color: #6366f1;
+            }
+
+            .quick-action-btn .icon-wrapper.green {
+                background: rgba(34, 197, 94, 0.1);
+                color: #22c55e;
+            }
+
+            .quick-action-btn .icon-wrapper.yellow {
+                background: rgba(245, 158, 11, 0.1);
+                color: #f59e0b;
+            }
+
+            .quick-action-btn .icon-wrapper.blue {
+                background: rgba(6, 182, 212, 0.1);
+                color: #06b6d4;
+            }
+
+            .quick-action-btn .icon-wrapper.pink {
+                background: rgba(236, 72, 153, 0.1);
+                color: #ec4899;
+            }
+
+            .quick-action-btn .icon-wrapper.red {
+                background: rgba(239, 68, 68, 0.1);
+                color: #ef4444;
+            }
+
+    /* ----- Activity Feed ----- */
+    .activity-feed {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+        .activity-feed::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .activity-feed::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 4px;
+        }
+
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            color: white;
+        }
+
+            .activity-item .avatar.purple {
+                background: #6366f1;
+            }
+
+            .activity-item .avatar.green {
+                background: #22c55e;
+            }
+
+            .activity-item .avatar.blue {
+                background: #06b6d4;
+            }
+
+            .activity-item .avatar.pink {
+                background: #ec4899;
+            }
+
+            .activity-item .avatar.orange {
+                background: #f59e0b;
+            }
+
+        .activity-item .content {
+            flex: 1;
+            min-width: 0;
+        }
+
+            .activity-item .content .text {
+                font-size: 0.9rem;
+                color: #1a1a3e;
+            }
+
+                .activity-item .content .text strong {
+                    font-weight: 600;
+                }
+
+            .activity-item .content .time {
+                font-size: 0.75rem;
+                color: #9ca3af;
+                margin-top: 2px;
+            }
+
+    /* ----- Responsive ----- */
+    @@media (max-width: 768px) {
+        .dashboard-header {
+            padding: 20px;
+        }
+
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .dashboard-header .header-stats {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+        .stat-card-modern .stat-number {
+            font-size: 2rem;
+        }
+
+        .quick-actions-grid {
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        }
+
+        .header-actions .btn {
+            font-size: 0.8rem;
+            padding: 8px 14px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .dashboard-header {
+            padding: 16px;
+            border-radius: 14px;
+        }
+
+            .dashboard-header h1 {
+                font-size: 1.2rem;
+            }
+
+        .stat-card-modern {
+            padding: 18px 20px;
+        }
+
+            .stat-card-modern .stat-number {
+                font-size: 1.6rem;
+            }
+
+        .quick-actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* ----- Animations ----- */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-in {
+        animation: fadeInUp 0.6s ease forwards;
+        opacity: 0;
+    }
+
+        .animate-in.delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .animate-in.delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .animate-in.delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        .animate-in.delay-4 {
+            animation-delay: 0.4s;
+        }
+
+        .animate-in.delay-5 {
+            animation-delay: 0.5s;
+        }
+
+        .animate-in.delay-6 {
+            animation-delay: 0.6s;
+        }
+
+    /* ----- Sparkle Effect on Cards ----- */
+    .sparkle {
+        position: relative;
+        overflow: hidden;
+    }
+
+        .sparkle::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.03), transparent, rgba(255,255,255,0.03), transparent);
+            animation: sparkleRotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+    @@keyframes sparkleRotate {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<!-- ============================================
+     HEADER
+     ============================================ -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; font-size: 24px;">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
                     <div>
-                        <div class="label">Teachers</div>
-                        <div class="number">@ViewBag.TotalTeachers</div>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
+                        <h1>Welcome back, Admin</h1>
+                        <p>Here's what's happening with your school today</p>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="label">Students</div>
-                        <div class="number">@ViewBag.TotalStudents</div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <strong>@ViewBag.TotalStudents</strong>
+                        Students
                     </div>
-                    <div class="icon">
-                        <i class="fas fa-user-graduate"></i>
+                    <div class="stat-item">
+                        <strong>@ViewBag.TotalTeachers</strong>
+                        Teachers
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="label">Courses</div>
-                        <div class="number">@ViewBag.TotalCourses</div>
+                    <div class="stat-item">
+                        <strong>@ViewBag.TotalClasses</strong>
+                        Classes
                     </div>
-                    <div class="icon">
-                        <i class="fas fa-book"></i>
+                    <div class="stat-item">
+                        <strong>@ViewBag.TotalCourses</strong>
+                        Courses
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="label">Classes</div>
-                        <div class="number">@ViewBag.TotalClasses</div>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-chalkboard"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Management Cards -->
-    <div class="row g-3">
-        <!-- Teacher Management -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card shadow h-100 card-hover">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>Teacher Management</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small">Add, edit, or view teacher records.</p>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a asp-action="AddTeacher" class="btn btn-primary btn-sm">
-                            <i class="fas fa-user-plus me-1"></i>Add Teacher
-                        </a>
-                        <a asp-action="ViewTeachers" class="btn btn-info btn-sm text-white">
-                            <i class="fas fa-users me-1"></i>View Teachers
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Student Management -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card shadow h-100 card-hover">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Student Management</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small">Add, edit, or view student records.</p>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a asp-action="AddStudent" class="btn btn-success btn-sm">
-                            <i class="fas fa-user-plus me-1"></i>Add Student
-                        </a>
-                        <a asp-action="ViewStudents" class="btn btn-info btn-sm text-white">
-                            <i class="fas fa-users me-1"></i>View Students
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Course Management -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card shadow h-100 card-hover">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Course Management</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small">Add, edit, or view course records.</p>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a asp-action="CreateCourse" class="btn btn-info btn-sm text-white">
-                            <i class="fas fa-plus me-1"></i>Add Course
-                        </a>
-                        <a asp-action="ViewCourses" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-list me-1"></i>View Courses
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Class Management -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card shadow h-100 card-hover">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="fas fa-chalkboard me-2"></i>Class Management</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small">Add, edit, or view class sections.</p>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a asp-action="CreateClass" class="btn btn-warning btn-sm">
-                            <i class="fas fa-plus me-1"></i>Add Class
-                        </a>
-                        <a asp-action="ViewClasses" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-list me-1"></i>View Classes
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Enrollment Management -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card shadow h-100 card-hover">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Enrollment Management</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small">Enroll students in classes or view rosters.</p>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a asp-action="ManageEnrollments" class="btn btn-success btn-sm">
-                            <i class="fas fa-user-plus me-1"></i>Manage Enrollments
-                        </a>
-                        <a asp-action="ViewClasses" class="btn btn-info btn-sm text-white">
-                            <i class="fas fa-chalkboard me-1"></i>View Classes
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Parent Management -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card shadow h-100 card-hover">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Parent Management</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small">Manage parent accounts and links.</p>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a asp-action="AddParent" class="btn btn-secondary btn-sm text-white">
-                            <i class="fas fa-user-plus me-1"></i>Add Parent
-                        </a>
-                        <a asp-action="ViewParents" class="btn btn-info btn-sm text-white">
-                            <i class="fas fa-list me-1"></i>View Parents
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Audit Logs -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card shadow h-100 card-hover">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Audit Logs</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small">View system activity logs.</p>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a asp-action="ViewAuditLogs" class="btn btn-dark btn-sm text-white">
-                            <i class="fas fa-history me-1"></i>View Logs
-                        </a>
-                    </div>
+            <div class="col-lg-5 mt-3 mt-lg-0">
+                <div class="header-actions justify-content-lg-end">
+                    <a asp-action="AddStudent" class="btn btn-success">
+                        <i class="fas fa-user-plus me-2"></i>Add Student
+                    </a>
+                    <a asp-action="AddTeacher" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Add Teacher
+                    </a>
+                    <a asp-action="ViewAuditLogs" class="btn btn-outline-light">
+                        <i class="fas fa-history me-2"></i>Logs
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .card-hover {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+<!-- ============================================
+     STATS CARDS
+     ============================================ -->
+<div class="row g-3 g-md-4 mb-4">
+    <div class="col-6 col-md-3 animate-in delay-1">
+        <div class="stat-card-modern color-1 sparkle">
+            <div class="card-bg-pattern"></div>
+            <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+            <div class="stat-number" data-count="@ViewBag.TotalTeachers">0</div>
+            <div class="stat-label">Total Teachers</div>
+            <span class="stat-change up"><i class="fas fa-arrow-up"></i> Active</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 animate-in delay-2">
+        <div class="stat-card-modern color-2 sparkle">
+            <div class="card-bg-pattern"></div>
+            <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+            <div class="stat-number" data-count="@ViewBag.TotalStudents">0</div>
+            <div class="stat-label">Total Students</div>
+            <span class="stat-change up"><i class="fas fa-arrow-up"></i> Active</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 animate-in delay-3">
+        <div class="stat-card-modern color-3 sparkle">
+            <div class="card-bg-pattern"></div>
+            <div class="stat-icon"><i class="fas fa-book"></i></div>
+            <div class="stat-number" data-count="@ViewBag.TotalCourses">0</div>
+            <div class="stat-label">Total Courses</div>
+            <span class="stat-change up"><i class="fas fa-arrow-up"></i> Active</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 animate-in delay-4">
+        <div class="stat-card-modern color-4 sparkle">
+            <div class="card-bg-pattern"></div>
+            <div class="stat-icon"><i class="fas fa-chalkboard"></i></div>
+            <div class="stat-number" data-count="@ViewBag.TotalClasses">0</div>
+            <div class="stat-label">Total Classes</div>
+            <span class="stat-change up"><i class="fas fa-arrow-up"></i> Active</span>
+        </div>
+    </div>
+</div>
 
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
-        }
-</style>
+<!-- ============================================
+     QUICK ACTIONS
+     ============================================ -->
+<div class="row mb-4">
+    <div class="col-12 animate-in delay-5">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+                </h6>
+                <div class="quick-actions-grid">
+                    <a asp-action="AddTeacher" class="quick-action-btn">
+                        <span class="icon-wrapper purple"><i class="fas fa-user-plus"></i></span>
+                        Add Teacher
+                    </a>
+                    <a asp-action="AddStudent" class="quick-action-btn">
+                        <span class="icon-wrapper green"><i class="fas fa-user-plus"></i></span>
+                        Add Student
+                    </a>
+                    <a asp-action="AddParent" class="quick-action-btn">
+                        <span class="icon-wrapper yellow"><i class="fas fa-user-plus"></i></span>
+                        Add Parent
+                    </a>
+                    <a asp-action="CreateCourse" class="quick-action-btn">
+                        <span class="icon-wrapper blue"><i class="fas fa-book"></i></span>
+                        Add Course
+                    </a>
+                    <a asp-action="CreateClass" class="quick-action-btn">
+                        <span class="icon-wrapper pink"><i class="fas fa-chalkboard"></i></span>
+                        Add Class
+                    </a>
+                    <a asp-action="ManageEnrollments" class="quick-action-btn">
+                        <span class="icon-wrapper red"><i class="fas fa-user-graduate"></i></span>
+                        Enroll Student
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     MANAGEMENT CARDS
+     ============================================ -->
+<div class="row g-3 g-md-4">
+    <!-- Teachers -->
+    <div class="col-12 col-md-6 col-lg-3 animate-in delay-1">
+        <div class="manage-card">
+            <div class="card-header-custom">
+                <span class="title"><i class="fas fa-chalkboard-teacher text-primary me-2"></i>Teachers</span>
+                <span class="badge-count">@ViewBag.TotalTeachers</span>
+            </div>
+            <div class="card-body-custom">
+                <p class="description">Manage teacher accounts and profiles</p>
+                <div class="action-buttons">
+                    <a asp-action="AddTeacher" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add</a>
+                    <a asp-action="ViewTeachers" class="btn btn-outline-secondary"><i class="fas fa-list me-1"></i>View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students -->
+    <div class="col-12 col-md-6 col-lg-3 animate-in delay-2">
+        <div class="manage-card">
+            <div class="card-header-custom">
+                <span class="title"><i class="fas fa-user-graduate text-success me-2"></i>Students</span>
+                <span class="badge-count">@ViewBag.TotalStudents</span>
+            </div>
+            <div class="card-body-custom">
+                <p class="description">Manage student records and profiles</p>
+                <div class="action-buttons">
+                    <a asp-action="AddStudent" class="btn btn-success"><i class="fas fa-plus me-1"></i>Add</a>
+                    <a asp-action="ViewStudents" class="btn btn-outline-secondary"><i class="fas fa-list me-1"></i>View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parents -->
+    <div class="col-12 col-md-6 col-lg-3 animate-in delay-3">
+        <div class="manage-card">
+            <div class="card-header-custom">
+                <span class="title"><i class="fas fa-users text-warning me-2"></i>Parents</span>
+                <span class="badge-count">@ViewBag.TotalParents</span>
+            </div>
+            <div class="card-body-custom">
+                <p class="description">Manage parent accounts and links</p>
+                <div class="action-buttons">
+                    <a asp-action="AddParent" class="btn btn-warning"><i class="fas fa-plus me-1"></i>Add</a>
+                    <a asp-action="ViewParents" class="btn btn-outline-secondary"><i class="fas fa-list me-1"></i>View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses -->
+    <div class="col-12 col-md-6 col-lg-3 animate-in delay-4">
+        <div class="manage-card">
+            <div class="card-header-custom">
+                <span class="title"><i class="fas fa-book text-info me-2"></i>Courses</span>
+                <span class="badge-count">@ViewBag.TotalCourses</span>
+            </div>
+            <div class="card-body-custom">
+                <p class="description">Manage course offerings and curriculum</p>
+                <div class="action-buttons">
+                    <a asp-action="CreateCourse" class="btn btn-info text-white"><i class="fas fa-plus me-1"></i>Add</a>
+                    <a asp-action="ViewCourses" class="btn btn-outline-secondary"><i class="fas fa-list me-1"></i>View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classes -->
+    <div class="col-12 col-md-6 col-lg-3 animate-in delay-5">
+        <div class="manage-card">
+            <div class="card-header-custom">
+                <span class="title"><i class="fas fa-chalkboard text-secondary me-2"></i>Classes</span>
+                <span class="badge-count">@ViewBag.TotalClasses</span>
+            </div>
+            <div class="card-body-custom">
+                <p class="description">Manage class sections and assignments</p>
+                <div class="action-buttons">
+                    <a asp-action="CreateClass" class="btn btn-secondary"><i class="fas fa-plus me-1"></i>Add</a>
+                    <a asp-action="ViewClasses" class="btn btn-outline-secondary"><i class="fas fa-list me-1"></i>View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrollments -->
+    <div class="col-12 col-md-6 col-lg-3 animate-in delay-6">
+        <div class="manage-card">
+            <div class="card-header-custom">
+                <span class="title"><i class="fas fa-user-graduate text-dark me-2"></i>Enrollments</span>
+                <span class="badge-count">Manage</span>
+            </div>
+            <div class="card-body-custom">
+                <p class="description">Enroll students in classes</p>
+                <div class="action-buttons">
+                    <a asp-action="ManageEnrollments" class="btn btn-dark"><i class="fas fa-user-plus me-1"></i>Manage</a>
+                    <a asp-action="ViewClasses" class="btn btn-outline-secondary"><i class="fas fa-chalkboard me-1"></i>Classes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- School Info -->
+    <div class="col-12 col-md-6 col-lg-3 animate-in delay-1">
+        <div class="manage-card">
+            <div class="card-header-custom">
+                <span class="title"><i class="fas fa-school text-primary me-2"></i>School Info</span>
+                <span class="badge-count">Settings</span>
+            </div>
+            <div class="card-body-custom">
+                <p class="description">Manage school information and settings</p>
+                <div class="action-buttons">
+                    <a asp-action="SchoolInfo" class="btn btn-primary"><i class="fas fa-info-circle me-1"></i>View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Logs -->
+    <div class="col-12 col-md-6 col-lg-3 animate-in delay-2">
+        <div class="manage-card">
+            <div class="card-header-custom">
+                <span class="title"><i class="fas fa-history text-danger me-2"></i>Audit Logs</span>
+                <span class="badge-count">Security</span>
+            </div>
+            <div class="card-body-custom">
+                <p class="description">View system activity and security logs</p>
+                <div class="action-buttons">
+                    <a asp-action="ViewAuditLogs" class="btn btn-danger"><i class="fas fa-history me-1"></i>View Logs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parent Management (Additional) -->
+    <div class="col-12 col-md-6 col-lg-3 animate-in delay-3">
+        <div class="manage-card">
+            <div class="card-header-custom">
+                <span class="title"><i class="fas fa-user-friends text-success me-2"></i>Parents</span>
+                <span class="badge-count">@ViewBag.TotalParents</span>
+            </div>
+            <div class="card-body-custom">
+                <p class="description">Manage parent accounts and relationships</p>
+                <div class="action-buttons">
+                    <a asp-action="AddParent" class="btn btn-success"><i class="fas fa-plus me-1"></i>Add</a>
+                    <a asp-action="ViewParents" class="btn btn-outline-secondary"><i class="fas fa-list me-1"></i>View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     RECENT ACTIVITY & CHART
+     ============================================ -->
+<div class="row mt-4 g-3">
+    <!-- Recent Activity -->
+    <div class="col-lg-7 animate-in delay-4">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-clock text-primary me-2"></i>Recent Activity
+                </h5>
+            </div>
+            <div class="card-body pt-3">
+                <div class="activity-feed">
+                    <!-- Recent logs from database -->
+                    @if (ViewBag.RecentLogs != null && ViewBag.RecentLogs.Count > 0)
+                    {
+                        var colors = new[] { "purple", "green", "blue", "pink", "orange" };
+                        var icons = new[] { "fas fa-user-plus", "fas fa-edit", "fas fa-trash", "fas fa-sign-in-alt", "fas fa-graduation-cap" };
+                        var colorIndex = 0;
+                        foreach (var log in ViewBag.RecentLogs)
+                        {
+                            var color = colors[colorIndex % colors.Length];
+                            var icon = icons[colorIndex % icons.Length];
+                            colorIndex++;
+                            <div class="activity-item">
+                                <div class="avatar @color">
+                                    <i class="@icon"></i>
+                                </div>
+                                <div class="content">
+                                    <div class="text">
+                                        <strong>@(log.FullName ?? "System")</strong>
+                                        @log.Details
+                                    </div>
+                                    <div class="time">
+                                        <i class="far fa-clock me-1"></i>
+                                        @((DateTime.UtcNow - log.ActionDate).TotalMinutes < 1 ? "Just now" :
+                                                                        (DateTime.UtcNow - log.ActionDate).TotalMinutes < 60 ? $"{(int)(DateTime.UtcNow - log.ActionDate).TotalMinutes} minutes ago" :
+                                                                        (DateTime.UtcNow - log.ActionDate).TotalHours < 24 ? $"{(int)(DateTime.UtcNow - log.ActionDate).TotalHours} hours ago" :
+                                                                        log.ActionDate.ToString("MMM dd, yyyy"))
+                            </div>
+                        </div>
+                    </div>
+                                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No recent activity</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats / Chart Placeholder -->
+    <div class="col-lg-5 animate-in delay-5">
+        <div class="card shadow-sm border-0 rounded-4 h-100">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-chart-pie text-primary me-2"></i>Quick Overview
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-4 text-center">
+                            <div class="fs-4 fw-bold text-primary">@ViewBag.TotalStudents</div>
+                            <div class="text-muted small">Students</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-4 text-center">
+                            <div class="fs-4 fw-bold text-success">@ViewBag.TotalTeachers</div>
+                            <div class="text-muted small">Teachers</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-4 text-center">
+                            <div class="fs-4 fw-bold text-info">@ViewBag.TotalCourses</div>
+                            <div class="text-muted small">Courses</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-4 text-center">
+                            <div class="fs-4 fw-bold text-warning">@ViewBag.TotalClasses</div>
+                            <div class="text-muted small">Classes</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <div class="progress" style="height: 8px; border-radius: 10px;">
+                        @{
+                            var total = (ViewBag.TotalStudents + ViewBag.TotalTeachers + ViewBag.TotalCourses + ViewBag.TotalClasses);
+                            var progress = total > 0 ? (double)ViewBag.TotalStudents / total * 100 : 0;
+                        }
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: @progress%; border-radius: 10px;"></div>
+                    </div>
+                    <small class="text-muted">Students make up @progress.ToString("F0")% of total records</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     JAVASCRIPT - ANIMATIONS
+     ============================================ -->
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Animate number counting
+            $('.stat-number').each(function() {
+                var $this = $(this);
+                var target = parseInt($this.data('count')) || 0;
+                var current = 0;
+                var steps = 40;
+                var increment = target / steps;
+                var duration = 1000;
+                var stepTime = duration / steps;
+
+                var timer = setInterval(function() {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    $this.text(Math.round(current));
+                }, stepTime);
+            });
+
+            // Add hover effect to stat cards
+            $('.stat-card-modern').on('mouseenter', function() {
+                $(this).find('.stat-icon').css('transform', 'scale(1.2) rotate(-5deg)');
+            }).on('mouseleave', function() {
+                $(this).find('.stat-icon').css('transform', 'scale(1) rotate(0deg)');
+            });
+        });
+    </script>
+}
