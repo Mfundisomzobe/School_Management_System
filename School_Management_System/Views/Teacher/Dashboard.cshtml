@@ -5,450 +5,1063 @@
 }
 
 <style>
-    /* Teacher Dashboard Styles */
-    .stat-card {
-        padding: 24px;
-        border-radius: 16px;
-        color: white;
-        transition: all 0.3s ease;
-        cursor: default;
-        height: 100%;
+    /* ============================================
+           MODERN TEACHER DASHBOARD STYLES
+           ============================================ */
+
+    /* ----- Animations ----- */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes floatOrb {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        50% {
+            transform: translate(30px, -30px) scale(1.1);
+        }
+    }
+
+    @@keyframes countUp {
+        from {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-in {
+        animation: fadeInUp 0.6s ease forwards;
+        opacity: 0;
+    }
+
+        .animate-in.delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .animate-in.delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .animate-in.delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        .animate-in.delay-4 {
+            animation-delay: 0.4s;
+        }
+
+        .animate-in.delay-5 {
+            animation-delay: 0.5s;
+        }
+
+        .animate-in.delay-6 {
+            animation-delay: 0.6s;
+        }
+
+    /* ----- Modern Header ----- */
+    .dashboard-header-modern {
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #2d1b69 100%);
+        border-radius: 20px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
         position: relative;
         overflow: hidden;
     }
 
-        .stat-card::after {
+        .dashboard-header-modern::before {
             content: '';
             position: absolute;
             top: -50%;
             right: -20%;
-            width: 120px;
-            height: 120px;
+            width: 350px;
+            height: 350px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            pointer-events: none;
+            background: rgba(99, 102, 241, 0.08);
+            animation: floatOrb 8s ease-in-out infinite;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-        }
-
-        .stat-card .stat-icon {
-            font-size: 2.5rem;
-            opacity: 0.4;
+        .dashboard-header-modern::after {
+            content: '';
             position: absolute;
-            bottom: 15px;
-            right: 20px;
+            bottom: -30%;
+            left: 10%;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: rgba(236, 72, 153, 0.05);
+            animation: floatOrb 10s ease-in-out infinite reverse;
         }
 
-        .stat-card .stat-number {
-            font-size: 2.5rem;
+        .dashboard-header-modern .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-header-modern .avatar-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+            flex-shrink: 0;
+        }
+
+        .dashboard-header-modern h1 {
+            color: white;
             font-weight: 700;
             margin: 0;
+            font-size: 1.6rem;
         }
 
-        .stat-card .stat-label {
+        .dashboard-header-modern .subtitle {
+            color: rgba(255,255,255,0.5);
             font-size: 0.9rem;
-            opacity: 0.9;
-            margin: 0;
+            margin: 4px 0 0;
         }
 
-        .stat-card .stat-sub {
+            .dashboard-header-modern .subtitle i {
+                margin-right: 4px;
+            }
+
+        .dashboard-header-modern .badge-modern {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 12px;
+            color: rgba(255,255,255,0.8);
             font-size: 0.8rem;
-            opacity: 0.7;
-            margin-top: 5px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-    /* Quick Actions */
-    .quick-action-card {
-        border: none;
+            .dashboard-header-modern .badge-modern i {
+                font-size: 0.9rem;
+                opacity: 0.7;
+            }
+
+    /* ----- Stat Cards ----- */
+    .stat-card-modern {
+        padding: 22px 24px;
         border-radius: 16px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        text-decoration: none;
-        color: inherit;
+        color: white;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: default;
         height: 100%;
-        display: block;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.05);
     }
 
-        .quick-action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-            text-decoration: none;
-            color: inherit;
+        .stat-card-modern:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
         }
 
-        .quick-action-card .card-body {
-            padding: 24px;
-            text-align: center;
+        .stat-card-modern .stat-icon {
+            font-size: 2rem;
+            opacity: 0.2;
+            position: absolute;
+            bottom: 12px;
+            right: 16px;
+            transition: all 0.3s ease;
         }
 
-        .quick-action-card .action-icon {
-            font-size: 2.5rem;
-            margin-bottom: 12px;
-            display: block;
+        .stat-card-modern:hover .stat-icon {
+            transform: scale(1.1) rotate(-5deg);
+            opacity: 0.3;
         }
 
-        .quick-action-card .action-title {
-            font-weight: 600;
-            font-size: 1rem;
+        .stat-card-modern .stat-number {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.5px;
+            line-height: 1;
+            animation: countUp 0.8s ease forwards;
         }
 
-        .quick-action-card .action-desc {
+        .stat-card-modern .stat-label {
             font-size: 0.85rem;
-            color: #6c757d;
+            opacity: 0.85;
+            margin: 6px 0 0;
+            font-weight: 500;
+        }
+
+        .stat-card-modern .stat-change {
+            font-size: 0.7rem;
+            margin-top: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 12px;
+            border-radius: 20px;
+        }
+
+            .stat-card-modern .stat-change.up {
+                color: #4ade80;
+            }
+
+            .stat-card-modern .stat-change.down {
+                color: #f87171;
+            }
+
+        .stat-card-modern.color-1 {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .stat-card-modern.color-2 {
+            background: linear-gradient(135deg, #ec4899, #f472b6);
+        }
+
+        .stat-card-modern.color-3 {
+            background: linear-gradient(135deg, #06b6d4, #22d3ee);
+        }
+
+        .stat-card-modern.color-4 {
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+        }
+
+    /* ----- Quick Actions ----- */
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 12px;
+    }
+
+    .quick-action-btn {
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid #f0f2f5;
+        background: white;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        color: #1a1a3e;
+        font-weight: 500;
+        font-size: 0.85rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+    }
+
+        .quick-action-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            border-color: #6366f1;
+            text-decoration: none;
+            color: #1a1a3e;
+        }
+
+        .quick-action-btn .icon-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover .icon-wrapper {
+            transform: scale(1.05);
+        }
+
+        .quick-action-btn .icon-wrapper.purple {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
+
+        .quick-action-btn .icon-wrapper.green {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .quick-action-btn .icon-wrapper.yellow {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .quick-action-btn .icon-wrapper.red {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .quick-action-btn .icon-wrapper.blue {
+            background: rgba(6, 182, 212, 0.1);
+            color: #06b6d4;
+        }
+
+        .quick-action-btn .action-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .quick-action-btn .action-desc {
+            font-size: 0.7rem;
+            color: #9ca3af;
             margin: 0;
         }
 
-    /* Class Cards */
-    .class-card {
+    .disabled-link {
+        opacity: 0.4;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+        .disabled-link .quick-action-btn {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+        }
+
+    /* ----- Class Cards ----- */
+    .class-card-modern {
         border: none;
         border-radius: 16px;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         height: 100%;
         overflow: hidden;
+        background: white;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
     }
 
-        .class-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+        .class-card-modern:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.08);
         }
 
-        .class-card .class-header {
+        .class-card-modern .class-header {
             padding: 16px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            position: relative;
+            overflow: hidden;
         }
 
-            .class-card .class-header .class-name {
-                font-weight: 600;
-                font-size: 1.1rem;
+            .class-card-modern .class-header::after {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -20%;
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.05);
+                pointer-events: none;
+            }
+
+            .class-card-modern .class-header .class-name {
+                font-weight: 700;
+                font-size: 1rem;
                 margin: 0;
+                position: relative;
+                z-index: 1;
             }
 
-            .class-card .class-header .class-badge {
-                background: rgba(255,255,255,0.2);
-                padding: 4px 12px;
+            .class-card-modern .class-header .class-badge {
+                background: rgba(255,255,255,0.15);
+                padding: 3px 12px;
                 border-radius: 20px;
-                font-size: 0.75rem;
-                font-weight: 500;
+                font-size: 0.65rem;
+                font-weight: 600;
+                position: relative;
+                z-index: 1;
             }
 
-        .class-card .class-body {
-            padding: 16px 20px;
+        .class-card-modern .class-body {
+            padding: 14px 20px;
         }
 
-            .class-card .class-body .class-info {
+            .class-card-modern .class-body .class-info {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 6px 0;
-                border-bottom: 1px solid #f0f2f5;
+                padding: 5px 0;
+                border-bottom: 1px solid #f3f4f6;
             }
 
-                .class-card .class-body .class-info:last-child {
+                .class-card-modern .class-body .class-info:last-child {
                     border-bottom: none;
                 }
 
-                .class-card .class-body .class-info .label {
+                .class-card-modern .class-body .class-info .label {
                     color: #6c757d;
-                    font-size: 0.85rem;
+                    font-size: 0.75rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
                 }
 
-                .class-card .class-body .class-info .value {
+                    .class-card-modern .class-body .class-info .label i {
+                        font-size: 0.7rem;
+                        color: #9ca3af;
+                    }
+
+                .class-card-modern .class-body .class-info .value {
                     font-weight: 500;
-                    font-size: 0.9rem;
+                    font-size: 0.8rem;
                 }
 
-        .class-card .class-footer {
-            padding: 12px 20px;
-            background: #f8f9fa;
+        .class-card-modern .class-footer {
+            padding: 10px 20px 14px;
+            background: #fafbfc;
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
+            border-top: 1px solid #f3f4f6;
         }
 
-            .class-card .class-footer .btn {
+            .class-card-modern .class-footer .btn {
                 flex: 1;
-                min-width: 60px;
-                font-size: 0.75rem;
-                padding: 6px 10px;
+                min-width: 50px;
+                font-size: 0.65rem;
+                padding: 5px 8px;
+                border-radius: 8px;
+                font-weight: 500;
+                transition: all 0.3s ease;
             }
 
-    .progress-bar-custom {
-        height: 6px;
+                .class-card-modern .class-footer .btn:hover {
+                    transform: scale(1.03);
+                }
+
+            .class-card-modern .class-footer .btn-info {
+                background: #06b6d4;
+                border: none;
+                color: white;
+            }
+
+            .class-card-modern .class-footer .btn-success {
+                background: #22c55e;
+                border: none;
+                color: white;
+            }
+
+            .class-card-modern .class-footer .btn-warning {
+                background: #f59e0b;
+                border: none;
+                color: white;
+            }
+
+    /* ----- Progress Bar ----- */
+    .progress-modern {
+        height: 5px;
         border-radius: 3px;
-        margin-top: 8px;
+        background: #f0f2f5;
+        overflow: hidden;
+        margin-top: 3px;
     }
 
-    .class-list-wrapper {
-        max-height: 500px;
-        overflow-y: auto;
+        .progress-modern .progress-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.8s ease;
+        }
+
+            .progress-modern .progress-bar.bg-success {
+                background: linear-gradient(90deg, #22c55e, #4ade80);
+            }
+
+            .progress-modern .progress-bar.bg-warning {
+                background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            }
+
+            .progress-modern .progress-bar.bg-danger {
+                background: linear-gradient(90deg, #ef4444, #f87171);
+            }
+
+    /* ----- Enrollment Overview ----- */
+    .enrollment-item {
+        padding: 8px 12px;
+        border-radius: 10px;
+        background: #f8fafc;
+        transition: all 0.3s ease;
     }
 
-        .class-list-wrapper::-webkit-scrollbar {
-            width: 4px;
+        .enrollment-item:hover {
+            background: #f1f5f9;
         }
 
-        .class-list-wrapper::-webkit-scrollbar-thumb {
-            background: #dee2e6;
-            border-radius: 4px;
+        .enrollment-item .enrollment-label {
+            font-size: 0.75rem;
+            color: #374151;
         }
 
-    /* Responsive */
-    @@media (max-width: 768px) {
-        .stat-card .stat-number {
-            font-size: 1.8rem;
+        .enrollment-item .enrollment-value {
+            font-weight: 600;
+            font-size: 0.8rem;
         }
 
-        .quick-action-card .action-icon {
+    /* ----- Empty State ----- */
+    .empty-state-modern {
+        padding: 50px 20px;
+        text-align: center;
+    }
+
+        .empty-state-modern .icon {
+            font-size: 3.5rem;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-modern h4 {
+            color: #374151;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .empty-state-modern p {
+            color: #6c757d;
+            font-size: 0.85rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+    /* ----- Responsive ----- */
+    @@media (max-width: 991px) {
+        .dashboard-header-modern {
+            padding: 24px;
+        }
+
+            .dashboard-header-modern h1 {
+                font-size: 1.4rem;
+            }
+
+        .stat-card-modern .stat-number {
             font-size: 2rem;
         }
 
-        .class-card .class-header .class-name {
-            font-size: 1rem;
+        .quick-actions-grid {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         }
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-header-modern {
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+            .dashboard-header-modern .avatar-wrapper {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+
+            .dashboard-header-modern h1 {
+                font-size: 1.2rem;
+            }
+
+            .dashboard-header-modern .subtitle {
+                font-size: 0.8rem;
+            }
+
+            .dashboard-header-modern .badge-modern {
+                font-size: 0.7rem;
+                padding: 6px 12px;
+            }
+
+        .stat-card-modern {
+            padding: 18px 20px;
+        }
+
+            .stat-card-modern .stat-number {
+                font-size: 1.8rem;
+            }
+
+            .stat-card-modern .stat-label {
+                font-size: 0.8rem;
+            }
+
+        .quick-actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .quick-action-btn {
+            padding: 12px 14px;
+            font-size: 0.8rem;
+        }
+
+            .quick-action-btn .icon-wrapper {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+
+        .class-card-modern .class-header {
+            padding: 14px 16px;
+        }
+
+            .class-card-modern .class-header .class-name {
+                font-size: 0.9rem;
+            }
+
+        .class-card-modern .class-body {
+            padding: 12px 16px;
+        }
+
+        .class-card-modern .class-footer {
+            padding: 8px 16px 12px;
+        }
+
+            .class-card-modern .class-footer .btn {
+                font-size: 0.6rem;
+                padding: 4px 6px;
+            }
+
+        .enrollment-item {
+            padding: 6px 10px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .dashboard-header-modern {
+            padding: 16px;
+            border-radius: 14px;
+        }
+
+            .dashboard-header-modern .avatar-wrapper {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .dashboard-header-modern h1 {
+                font-size: 1rem;
+            }
+
+            .dashboard-header-modern .subtitle {
+                font-size: 0.7rem;
+            }
+
+            .dashboard-header-modern .badge-modern {
+                font-size: 0.6rem;
+                padding: 4px 10px;
+            }
+
+        .stat-card-modern {
+            padding: 14px 16px;
+        }
+
+            .stat-card-modern .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .stat-card-modern .stat-label {
+                font-size: 0.75rem;
+            }
+
+            .stat-card-modern .stat-change {
+                font-size: 0.6rem;
+                padding: 1px 8px;
+            }
+
+            .stat-card-modern .stat-icon {
+                font-size: 1.5rem;
+                bottom: 8px;
+                right: 12px;
+            }
+
+        .quick-actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .quick-action-btn {
+            padding: 10px 8px;
+            font-size: 0.7rem;
+            border-radius: 10px;
+        }
+
+            .quick-action-btn .icon-wrapper {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+                border-radius: 8px;
+            }
+
+            .quick-action-btn .action-title {
+                font-size: 0.75rem;
+            }
+
+            .quick-action-btn .action-desc {
+                font-size: 0.6rem;
+            }
+
+        .class-card-modern .class-header {
+            padding: 10px 12px;
+        }
+
+            .class-card-modern .class-header .class-name {
+                font-size: 0.8rem;
+            }
+
+            .class-card-modern .class-header .class-badge {
+                font-size: 0.55rem;
+                padding: 2px 8px;
+            }
+
+        .class-card-modern .class-body {
+            padding: 8px 12px;
+        }
+
+            .class-card-modern .class-body .class-info {
+                padding: 3px 0;
+            }
+
+                .class-card-modern .class-body .class-info .label {
+                    font-size: 0.65rem;
+                }
+
+                .class-card-modern .class-body .class-info .value {
+                    font-size: 0.7rem;
+                }
+
+        .class-card-modern .class-footer {
+            padding: 6px 12px 10px;
+            gap: 4px;
+        }
+
+            .class-card-modern .class-footer .btn {
+                font-size: 0.55rem;
+                padding: 3px 5px;
+                border-radius: 6px;
+            }
+
+        .empty-state-modern {
+            padding: 30px 16px;
+        }
+
+            .empty-state-modern .icon {
+                font-size: 2.5rem;
+            }
+
+            .empty-state-modern h4 {
+                font-size: 1rem;
+            }
+
+            .empty-state-modern p {
+                font-size: 0.75rem;
+            }
+
+        .enrollment-item .enrollment-label {
+            font-size: 0.65rem;
+        }
+
+        .enrollment-item .enrollment-value {
+            font-size: 0.7rem;
+        }
+    }
+
+    @@media (max-width: 400px) {
+        .dashboard-header-modern h1 {
+            font-size: 0.9rem;
+        }
+
+        .quick-actions-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .class-card-modern .class-footer {
+            flex-direction: column;
+        }
+
+            .class-card-modern .class-footer .btn {
+                width: 100%;
+            }
     }
 </style>
 
-<div class="container-fluid">
-    <!-- Welcome Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex flex-wrap justify-content-between align-items-center">
-                <div>
-                    <h1 class="fw-bold">
-                        <i class="fas fa-chalkboard-teacher text-primary me-2"></i>
-                        Teacher Dashboard
-                    </h1>
-                    <p class="text-muted mb-0">
-                        <i class="fas fa-user me-1"></i>
-                        Welcome back, <strong>@ViewBag.TeacherName</strong>
-                        <span class="mx-2 text-muted">|</span>
-                        <i class="fas fa-envelope me-1"></i> @ViewBag.TeacherEmail
-                    </p>
+<!-- ============================================
+     HEADER
+     ============================================ -->
+<div class="dashboard-header-modern animate-in">
+    <div class="header-content">
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar-wrapper">
+                        @{
+                            var initial = ViewBag.TeacherName?.ToString().Substring(0, 1).ToUpper() ?? "T";
+                        }
+                        @initial
+                    </div>
+                    <div>
+                        <h1>Welcome back, @ViewBag.TeacherName</h1>
+                        <div class="subtitle">
+                            <i class="fas fa-envelope"></i> @ViewBag.TeacherEmail
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-calendar-alt"></i> @DateTime.Now.ToString("dd MMM yyyy")
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <span class="badge bg-primary fs-6 p-2">
-                        <i class="fas fa-calendar-alt me-1"></i>
-                        @DateTime.Now.ToString("dddd, MMMM dd, yyyy")
+            </div>
+            <div class="col-md-5 mt-3 mt-md-0">
+                <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                    <span class="badge-modern">
+                        <i class="fas fa-chalkboard-teacher"></i> Teacher
+                    </span>
+                    <span class="badge-modern">
+                        <i class="fas fa-id-badge"></i> @Model.Teacher.EmployeeId
+                    </span>
+                    <span class="badge-modern">
+                        <i class="fas fa-clock"></i> @DateTime.Now.ToString("HH:mm")
                     </span>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Stats Cards -->
-    <div class="row g-3 g-md-4 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="stat-number">@Model.TotalClasses</div>
-                <div class="stat-label">My Classes</div>
-                <div class="stat-sub">Active classes assigned</div>
-                <div class="stat-icon"><i class="fas fa-chalkboard"></i></div>
-            </div>
+<!-- ============================================
+     STATS CARDS
+     ============================================ -->
+<div class="row g-3 g-md-4 mb-4">
+    <div class="col-6 col-md-3 animate-in delay-1">
+        <div class="stat-card-modern color-1">
+            <div class="stat-icon"><i class="fas fa-chalkboard"></i></div>
+            <div class="stat-number" id="classCount">0</div>
+            <div class="stat-label">My Classes</div>
+            <span class="stat-change up"><i class="fas fa-arrow-up"></i> Active</span>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <div class="stat-number">@Model.TotalStudents</div>
-                <div class="stat-label">Total Students</div>
-                <div class="stat-sub">Across all your classes</div>
-                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
-            </div>
+    </div>
+    <div class="col-6 col-md-3 animate-in delay-2">
+        <div class="stat-card-modern color-2">
+            <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+            <div class="stat-number" id="studentCount">0</div>
+            <div class="stat-label">Total Students</div>
+            <span class="stat-change up"><i class="fas fa-arrow-up"></i> Enrolled</span>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                <div class="stat-number">@Model.TodayAttendance</div>
-                <div class="stat-label">Today's Attendance</div>
-                <div class="stat-sub">Marked today</div>
-                <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
-            </div>
+    </div>
+    <div class="col-6 col-md-3 animate-in delay-3">
+        <div class="stat-card-modern color-3">
+            <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
+            <div class="stat-number" id="attendanceCount">0</div>
+            <div class="stat-label">Today's Attendance</div>
+            <span class="stat-change up"><i class="fas fa-arrow-up"></i> Marked</span>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                <div class="stat-number">@((Model.TotalStudents > 0 && Model.TotalClasses > 0) ? (Model.TotalStudents / Model.TotalClasses) : 0)</div>
-                <div class="stat-label">Avg Students/Class</div>
-                <div class="stat-sub">Average class size</div>
-                <div class="stat-icon"><i class="fas fa-users"></i></div>
+    </div>
+    <div class="col-6 col-md-3 animate-in delay-4">
+        <div class="stat-card-modern color-4">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-number" id="avgCount">0</div>
+            <div class="stat-label">Avg Students/Class</div>
+            <span class="stat-change up"><i class="fas fa-arrow-up"></i> Average</span>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     QUICK ACTIONS
+     ============================================ -->
+<div class="row mb-4 animate-in delay-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-3 p-md-4">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+                </h6>
+                <div class="quick-actions-grid">
+                    <a asp-action="ClassRoster" asp-route-id="@(Model.Classes.FirstOrDefault()?.ClassId ?? 0)"
+                       class="quick-action-btn @(Model.Classes.Any() ? "" : "disabled-link")">
+                        <span class="icon-wrapper purple"><i class="fas fa-users"></i></span>
+                        <span class="action-title">View Roster</span>
+                        <span class="action-desc">See all students</span>
+                    </a>
+                    <a asp-action="MarkAttendance" asp-route-classId="@(Model.Classes.FirstOrDefault()?.ClassId ?? 0)"
+                       class="quick-action-btn @(Model.Classes.Any() ? "" : "disabled-link")">
+                        <span class="icon-wrapper green"><i class="fas fa-clipboard-check"></i></span>
+                        <span class="action-title">Mark Attendance</span>
+                        <span class="action-desc">Record today</span>
+                    </a>
+                    <a asp-action="EnterGrades" asp-route-classId="@(Model.Classes.FirstOrDefault()?.ClassId ?? 0)"
+                       class="quick-action-btn @(Model.Classes.Any() ? "" : "disabled-link")">
+                        <span class="icon-wrapper yellow"><i class="fas fa-graduation-cap"></i></span>
+                        <span class="action-title">Enter Grades</span>
+                        <span class="action-desc">Update marks</span>
+                    </a>
+                    <a asp-action="AttendanceReport" asp-route-classId="@(Model.Classes.FirstOrDefault()?.ClassId ?? 0)"
+                       class="quick-action-btn @(Model.Classes.Any() ? "" : "disabled-link")">
+                        <span class="icon-wrapper blue"><i class="fas fa-file-alt"></i></span>
+                        <span class="action-title">View Reports</span>
+                        <span class="action-desc">Attendance & grades</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Quick Actions -->
-    <div class="row g-3 g-md-4 mb-4">
-        <div class="col-6 col-md-3">
-            <a asp-action="ClassRoster" asp-route-id="@(Model.Classes.FirstOrDefault()?.ClassId ?? 0)"
-               class="quick-action-card @(Model.Classes.Any() ? "" : "disabled-link")">
-                <div class="card quick-action-card">
-                    <div class="card-body">
-                        <span class="action-icon"><i class="fas fa-users text-primary"></i></span>
-                        <div class="action-title">View Roster</div>
-                        <p class="action-desc">See all students in your classes</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-6 col-md-3">
-            <a asp-action="MarkAttendance" asp-route-classId="@(Model.Classes.FirstOrDefault()?.ClassId ?? 0)"
-               class="quick-action-card @(Model.Classes.Any() ? "" : "disabled-link")">
-                <div class="card quick-action-card">
-                    <div class="card-body">
-                        <span class="action-icon"><i class="fas fa-clipboard-check text-success"></i></span>
-                        <div class="action-title">Mark Attendance</div>
-                        <p class="action-desc">Record attendance for today</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-6 col-md-3">
-            <a asp-action="EnterGrades" asp-route-classId="@(Model.Classes.FirstOrDefault()?.ClassId ?? 0)"
-               class="quick-action-card @(Model.Classes.Any() ? "" : "disabled-link")">
-                <div class="card quick-action-card">
-                    <div class="card-body">
-                        <span class="action-icon"><i class="fas fa-graduation-cap text-warning"></i></span>
-                        <div class="action-title">Enter Grades</div>
-                        <p class="action-desc">Update student grades</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-6 col-md-3">
-            <a asp-action="ChangePassword" asp-controller="Account" class="quick-action-card">
-                <div class="card quick-action-card">
-                    <div class="card-body">
-                        <span class="action-icon"><i class="fas fa-key text-danger"></i></span>
-                        <div class="action-title">Change Password</div>
-                        <p class="action-desc">Update your account security</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- My Classes -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="fw-bold mb-3">
-                <i class="fas fa-list me-2 text-primary"></i>
+<!-- ============================================
+     MY CLASSES
+     ============================================ -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <h4 class="fw-bold mb-0">
+                <i class="fas fa-list text-primary me-2"></i>
                 My Classes
                 <span class="badge bg-secondary ms-2">@Model.Classes.Count</span>
             </h4>
-            <hr />
+            <span class="text-muted small">
+                <i class="fas fa-chalkboard me-1"></i> @Model.Classes.Count classes
+            </span>
         </div>
+        <hr class="my-2" />
     </div>
+</div>
 
-    @if (Model.Classes.Any())
-    {
-        <div class="row g-4 class-list-wrapper">
-            @foreach (var classEntity in Model.Classes)
-            {
-                var enrollmentCount = classEntity.Enrollments?.Count ?? 0;
-                var availableSpots = classEntity.Capacity - enrollmentCount;
-                var fillPercentage = classEntity.Capacity > 0 ? (double)enrollmentCount / classEntity.Capacity * 100 : 0;
-                var barColor = fillPercentage >= 80 ? "bg-success" : (fillPercentage >= 60 ? "bg-warning" : "bg-danger");
+@if (Model.Classes.Any())
+{
+    <div class="row g-3 g-md-4">
+        @{
+            var delayIndex = 0;
+            var colors = new[] { "#6366f1,#8b5cf6", "#667eea,#764ba2", "#f093fb,#f5576c", "#4facfe,#00f2fe", "#43e97b,#38f9d7" };
+        }
+        @foreach (var classEntity in Model.Classes)
+        {
+            var enrollmentCount = classEntity.Enrollments?.Count ?? 0;
+            var availableSpots = classEntity.Capacity - enrollmentCount;
+            var fillPercentage = classEntity.Capacity > 0 ? (double)enrollmentCount / classEntity.Capacity * 100 : 0;
+            var barColor = fillPercentage >= 80 ? "bg-success" : (fillPercentage >= 60 ? "bg-warning" : "bg-danger");
+            var delayClass = (delayIndex % 4 + 1).ToString();
+            var colorIndex = delayIndex % colors.Length;
 
-                <div class="col-md-6 col-lg-4">
-                    <div class="card class-card">
-                        <div class="class-header">
+            <div class="col-md-6 col-lg-4 animate-in delay-@delayClass">
+                <div class="class-card-modern">
+                    <div class="class-header" style="background: linear-gradient(135deg, @colors[colorIndex]);">
+                        <div class="d-flex justify-content-between align-items-center">
                             <span class="class-name">
                                 <i class="fas fa-chalkboard me-2"></i>@classEntity.ClassName
                             </span>
                             <span class="class-badge">@enrollmentCount / @classEntity.Capacity</span>
                         </div>
-                        <div class="class-body">
-                            <div class="class-info">
-                                <span class="label"><i class="fas fa-book me-1"></i>Course</span>
-                                <span class="value">@classEntity.Course?.CourseName</span>
-                            </div>
-                            <div class="class-info">
-                                <span class="label"><i class="fas fa-user me-1"></i>Teacher</span>
-                                <span class="value">@classEntity.Teacher?.User?.FullName</span>
-                            </div>
-                            <div class="class-info">
-                                <span class="label"><i class="fas fa-users me-1"></i>Enrollment</span>
-                                <span class="value">
-                                    @enrollmentCount / @classEntity.Capacity
-                                    <span class="text-muted ms-1">(@availableSpots spots left)</span>
-                                </span>
-                            </div>
-                            <div class="class-info">
-                                <span class="label"><i class="fas fa-chart-pie me-1"></i>Capacity</span>
-                                <span class="value">
-                                    <div class="progress-bar-custom">
-                                        <div class="progress">
-                                            <div class="progress-bar @barColor" role="progressbar"
-                                                 style="width: @fillPercentage%;"
-                                                 aria-valuenow="@fillPercentage"
-                                                 aria-valuemin="0"
-                                                 aria-valuemax="100">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </span>
-                            </div>
+                    </div>
+                    <div class="class-body">
+                        <div class="class-info">
+                            <span class="label"><i class="fas fa-book"></i>Course</span>
+                            <span class="value">@classEntity.Course?.CourseName</span>
                         </div>
-                        <div class="class-footer">
-                            <a asp-action="ClassRoster" asp-route-id="@classEntity.ClassId"
-                               class="btn btn-info btn-sm text-white" title="View Roster">
-                                <i class="fas fa-users me-1"></i>Roster
-                            </a>
-                            <a asp-action="MarkAttendance" asp-route-classId="@classEntity.ClassId"
-                               class="btn btn-success btn-sm" title="Mark Attendance">
-                                <i class="fas fa-clipboard-check me-1"></i>Attendance
-                            </a>
-                            <a asp-action="EnterGrades" asp-route-classId="@classEntity.ClassId"
-                               class="btn btn-warning btn-sm" title="Enter Grades">
-                                <i class="fas fa-graduation-cap me-1"></i>Grades
-                            </a>
+                        <div class="class-info">
+                            <span class="label"><i class="fas fa-user"></i>Teacher</span>
+                            <span class="value">@classEntity.Teacher?.User?.FullName</span>
+                        </div>
+                        <div class="class-info">
+                            <span class="label"><i class="fas fa-users"></i>Enrollment</span>
+                            <span class="value">
+                                @enrollmentCount / @classEntity.Capacity
+                                <span class="text-muted ms-1 small">(@availableSpots spots)</span>
+                            </span>
+                        </div>
+                        <div class="class-info">
+                            <span class="label"><i class="fas fa-chart-pie"></i>Capacity</span>
+                            <span class="value">
+                                <div class="progress-modern w-100">
+                                    <div class="progress-bar @barColor" role="progressbar"
+                                         style="width: @fillPercentage%;"
+                                         aria-valuenow="@fillPercentage"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </span>
                         </div>
                     </div>
+                    <div class="class-footer">
+                        <a asp-action="ClassRoster" asp-route-id="@classEntity.ClassId"
+                           class="btn btn-info btn-sm" title="View Roster">
+                            <i class="fas fa-users me-1"></i>Roster
+                        </a>
+                        <a asp-action="MarkAttendance" asp-route-classId="@classEntity.ClassId"
+                           class="btn btn-success btn-sm" title="Mark Attendance">
+                            <i class="fas fa-clipboard-check me-1"></i>Attendance
+                        </a>
+                        <a asp-action="EnterGrades" asp-route-classId="@classEntity.ClassId"
+                           class="btn btn-warning btn-sm" title="Enter Grades">
+                            <i class="fas fa-graduation-cap me-1"></i>Grades
+                        </a>
+                        <a asp-action="AttendanceReport" asp-route-classId="@classEntity.ClassId"
+                           class="btn btn-secondary btn-sm" title="Report">
+                            <i class="fas fa-file-alt"></i>
+                        </a>
+                    </div>
                 </div>
-            }
+            </div>
+            delayIndex++;
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state-modern">
+        <div class="icon">
+            <i class="fas fa-chalkboard"></i>
         </div>
-    }
-    else
-    {
-        <div class="text-center py-5">
-            <i class="fas fa-chalkboard fa-4x text-muted mb-3"></i>
-            <h4 class="text-muted">No Classes Assigned</h4>
-            <p class="text-muted">You haven't been assigned to any classes yet.</p>
-            <p class="text-muted small">Please contact the administrator for class assignments.</p>
-        </div>
-    }
+        <h4>No Classes Assigned</h4>
+        <p>You haven't been assigned to any classes yet. Please contact the administrator for class assignments.</p>
+    </div>
+}
 
-    <!-- Recent Activity / Quick Stats -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-chart-line text-primary me-2"></i>Class Enrollment Overview
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.ClassEnrollmentCounts != null && Model.ClassEnrollmentCounts.Any())
-                    {
-                        <div class="row g-3">
-                            @foreach (var item in Model.ClassEnrollmentCounts)
-                            {
-                                var percentage = Model.Classes.FirstOrDefault(c => (c.ClassName + " (" + c.Course?.CourseName + ")") == item.Key)?.Capacity ?? 100;
-                                var barWidth = percentage > 0 ? (double)item.Value / percentage * 100 : 0;
-                                var color = barWidth >= 80 ? "success" : (barWidth >= 60 ? "warning" : "danger");
-                                <div class="col-md-6 col-lg-4">
+<!-- ============================================
+     ENROLLMENT OVERVIEW
+     ============================================ -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-transparent border-0 pt-4">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-chart-bar text-primary me-2"></i>Class Enrollment Overview
+                </h5>
+            </div>
+            <div class="card-body pt-0 pb-4">
+                @if (Model.ClassEnrollmentCounts != null && Model.ClassEnrollmentCounts.Any())
+                {
+                    <div class="row g-3">
+                        @foreach (var item in Model.ClassEnrollmentCounts)
+                        {
+                            var classEntity = Model.Classes.FirstOrDefault(c => (c.ClassName + " (" + c.Course?.CourseName + ")") == item.Key);
+                            var percentage = classEntity?.Capacity ?? 100;
+                            var barWidth = percentage > 0 ? (double)item.Value / percentage * 100 : 0;
+                            var color = barWidth >= 80 ? "success" : (barWidth >= 60 ? "warning" : "danger");
+
+                            <div class="col-md-6">
+                                <div class="enrollment-item">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <span class="text-truncate" style="max-width: 60%;" title="@item.Key">
+                                        <span class="enrollment-label text-truncate" style="max-width: 60%;" title="@item.Key">
                                             <i class="fas fa-users me-1 text-primary"></i>@item.Key
                                         </span>
-                                        <span>
-                                            <strong>@item.Value</strong>
+                                        <span class="enrollment-value">
+                                            @item.Value
                                             <span class="text-muted small">/ @percentage</span>
                                         </span>
                                     </div>
-                                    <div class="progress" style="height: 6px;">
+                                    <div class="progress-modern mt-1">
                                         <div class="progress-bar bg-@color" role="progressbar"
                                              style="width: @Math.Min(barWidth, 100)%;"
                                              aria-valuenow="@barWidth"
@@ -457,27 +1070,98 @@
                                         </div>
                                     </div>
                                 </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center mb-0">No class enrollment data available.</p>
-                    }
-                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">No class enrollment data available.</p>
+                }
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .disabled-link {
-        opacity: 0.5;
-        pointer-events: none;
-        cursor: not-allowed;
-    }
+<!-- ============================================
+     SCRIPTS
+     ============================================ -->
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // ============================================
+            // ANIMATE NUMBER COUNTING
+            // ============================================
+            function animateNumber(elementId, targetValue) {
+                var element = document.getElementById(elementId);
+                if (!element) return;
 
-        .disabled-link .card {
-            opacity: 0.5;
-        }
-</style>
+                var current = 0;
+                var steps = 40;
+                var increment = targetValue / steps;
+                var duration = 1200;
+                var stepTime = duration / steps;
+
+                var timer = setInterval(function() {
+                    current += increment;
+                    if (current >= targetValue) {
+                        current = targetValue;
+                        clearInterval(timer);
+                    }
+                    element.textContent = Math.round(current);
+                }, stepTime);
+            }
+
+            var classCount = @Model.TotalClasses;
+            var studentCount = @Model.TotalStudents;
+            var attendanceCount = @Model.TodayAttendance;
+            var avgCount = (studentCount > 0 && classCount > 0) ? Math.round(studentCount / classCount) : 0;
+
+            animateNumber('classCount', classCount);
+            animateNumber('studentCount', studentCount);
+            animateNumber('attendanceCount', attendanceCount);
+            animateNumber('avgCount', avgCount);
+
+            // ============================================
+            // STAT CARD HOVER EFFECT
+            // ============================================
+            $('.stat-card-modern').on('mouseenter', function() {
+                var icon = $(this).find('.stat-icon');
+                icon.css('transform', 'scale(1.2) rotate(-5deg)');
+            }).on('mouseleave', function() {
+                var icon = $(this).find('.stat-icon');
+                icon.css('transform', 'scale(1) rotate(0deg)');
+            });
+
+            // ============================================
+            // AUTO-HIDE ALERTS
+            // ============================================
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+
+            // ============================================
+            // PROGRESS BAR ANIMATION ON SCROLL
+            // ============================================
+            var progressBars = document.querySelectorAll('.progress-bar');
+            if (progressBars.length > 0) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            var bar = entry.target;
+                            var width = bar.style.width;
+                            bar.style.width = '0%';
+                            setTimeout(function() {
+                                bar.style.width = width;
+                            }, 100);
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                progressBars.forEach(function(bar) {
+                    observer.observe(bar);
+                });
+            }
+        });
+    </script>
+}

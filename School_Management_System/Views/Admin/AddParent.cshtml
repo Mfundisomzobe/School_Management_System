@@ -5,213 +5,688 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2><i class="fas fa-user-plus me-2"></i>Add Parent</h2>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Add Parent</li>
-                    </ol>
-                </nav>
+<style>
+    /* ========================================
+           MODERN ADD PARENT STYLES
+           ======================================== */
+
+    /* ----- Page Header ----- */
+    .page-header-modern {
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #2d1b69 100%);
+        border-radius: 16px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header-modern::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.08);
+            animation: floatOrb 8s ease-in-out infinite;
+        }
+
+        .page-header-modern::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 10%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(236, 72, 153, 0.05);
+            animation: floatOrb 10s ease-in-out infinite reverse;
+        }
+
+    .page-header-modern .header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-header-modern h2 {
+        color: white;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.6rem;
+    }
+
+    .page-header-modern p {
+        color: rgba(255,255,255,0.5);
+        margin: 4px 0 0;
+        font-size: 0.95rem;
+    }
+
+    .page-header-modern .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 8px 0 0;
+    }
+
+    .page-header-modern .breadcrumb-item a {
+        color: rgba(255,255,255,0.4);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        font-size: 0.85rem;
+    }
+
+        .page-header-modern .breadcrumb-item a:hover {
+            color: #818cf8;
+        }
+
+    .page-header-modern .breadcrumb-item.active {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.85rem;
+    }
+
+    .page-header-modern .breadcrumb-item::before {
+        color: rgba(255,255,255,0.15);
+    }
+
+    /* ----- Form Card ----- */
+    .form-card-modern {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+    }
+
+        .form-card-modern:hover {
+            box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+        }
+
+        .form-card-modern .card-header {
+            background: white;
+            border-bottom: 1px solid #f0f2f5;
+            padding: 18px 28px;
+        }
+
+        .form-card-modern .card-body {
+            padding: 28px;
+        }
+
+    /* ----- Form Controls ----- */
+    .form-label-modern {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #1a1a3e;
+        margin-bottom: 6px;
+    }
+
+    .form-control-modern,
+    .form-select-modern {
+        border-radius: 10px;
+        border: 1.5px solid #e5e7eb;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+    }
+
+        .form-control-modern:focus,
+        .form-select-modern:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+            background: white;
+        }
+
+        .form-control-modern.is-invalid {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+        }
+
+    textarea.form-control-modern {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .input-group-modern .input-group-text {
+        background: #f8fafc;
+        border: 1.5px solid #e5e7eb;
+        border-right: none;
+        border-radius: 10px 0 0 10px;
+        color: #6b7280;
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+
+    .input-group-modern .form-control,
+    .input-group-modern .form-select {
+        border-radius: 0 10px 10px 0;
+        border-left: none;
+    }
+
+        .input-group-modern .form-control:focus {
+            border-color: #6366f1;
+        }
+
+    /* ----- Auto-Generated Section ----- */
+    .auto-gen-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 14px;
+        padding: 20px 24px;
+        border: 1px solid #e5e7eb;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .auto-gen-section .section-title {
+            font-weight: 600;
+            color: #1a1a3e;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+            .auto-gen-section .section-title i {
+                color: #f59e0b;
+                font-size: 1.1rem;
+            }
+
+        .auto-gen-section .credential-field {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 16px;
+            border: 1px solid #e5e7eb;
+            font-weight: 600;
+            font-size: 0.95rem;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+            color: #1a1a3e;
+            width: 100%;
+            background: white;
+            cursor: default;
+        }
+
+        .auto-gen-section .btn-regenerate {
+            border-radius: 10px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+            .auto-gen-section .btn-regenerate:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+            }
+
+            .auto-gen-section .btn-regenerate:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        .auto-gen-section .btn-toggle-password {
+            border-radius: 0 10px 10px 0;
+            padding: 0 18px;
+            border: 1px solid #e5e7eb;
+            border-left: none;
+            background: white;
+            color: #6b7280;
+            transition: all 0.3s ease;
+        }
+
+            .auto-gen-section .btn-toggle-password:hover {
+                color: #f59e0b;
+                background: #f8fafc;
+            }
+
+        .auto-gen-section .input-group .credential-field {
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+        }
+
+            .auto-gen-section .input-group .credential-field:first-child {
+                border-radius: 10px 0 0 10px;
+                border-left: 1px solid #e5e7eb;
+            }
+
+    /* ----- Success Alert ----- */
+    .success-alert-modern {
+        border: none;
+        border-radius: 14px;
+        padding: 20px 24px;
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border-left: 4px solid #22c55e;
+        margin-bottom: 24px;
+        position: relative;
+        animation: slideDown 0.5s ease;
+    }
+
+
+
+    .success-alert-modern h6 {
+        color: #065f46;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* ----- Action Buttons ----- */
+    .action-buttons-modern {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        padding-top: 20px;
+        border-top: 1px solid #f0f2f5;
+        margin-top: 20px;
+    }
+
+        .action-buttons-modern .btn {
+            border-radius: 10px;
+            padding: 10px 28px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .action-buttons-modern .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            color: white;
+        }
+
+            .action-buttons-modern .btn-warning:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3);
+                color: white;
+            }
+
+            .action-buttons-modern .btn-warning:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        .action-buttons-modern .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+  
+
+    /* ----- Loading Spinner ----- */
+    .btn-loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    /* ----- Tooltip Animation ----- */
+    .copy-tooltip {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1a1a3e;
+        color: white;
+        padding: 8px 24px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        z-index: 9999;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        animation: fadeInUp 0.3s ease;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+    }
+
+   
+</style>
+
+<!-- ============================================
+     PAGE HEADER
+     ============================================ -->
+<div class="container-fluid px-3 px-md-4 mt-3 mt-md-4">
+    <div class="page-header-modern">
+        <div class="header-content">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; font-size: 22px;">
+                            <i class="fas fa-user-friends"></i>
+                        </div>
+                        <div>
+                            <h2>Add Parent / Guardian</h2>
+                            <p>Create a new parent account and link to a student</p>
+                        </div>
+                    </div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a asp-action="Dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a asp-action="ViewParents">Parents</a></li>
+                            <li class="breadcrumb-item active">Add</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 mt-3 mt-md-0">
+                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                        <a asp-action="ViewParents" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-list me-1"></i>View All
+                        </a>
+                    </div>
+                </div>
             </div>
-            <a asp-controller="Admin" asp-action="ViewParents" class="btn btn-info text-white">
-                <i class="fas fa-list me-2"></i>View Parents
-            </a>
         </div>
     </div>
-</div>
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Parent Information</h5>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    @Html.AntiForgeryToken()
+    <!-- ============================================
+         MAIN FORM
+         ============================================ -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-7">
+            <div class="form-card-modern">
+                <div class="card-header">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-user-friends text-warning me-2"></i>Parent Information
+                        <span class="badge bg-warning ms-2">New</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                    <!-- Success Alert -->
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="success-alert-modern" id="successAlert">
+                            <h6><i class="fas fa-check-circle me-2" style="color: #22c55e;"></i>@TempData["Success"]</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" style="position: absolute; top: 12px; right: 16px;"></button>
+                        </div>
+                    }
+
+                    <!-- Validation Summary -->
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="FullName" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
+                    <!-- Form -->
+                    <form method="post" id="addParentForm" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3">
+                            <!-- Full Name -->
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="FullName" class="form-label-modern">Full Name</label>
+                                <div class="input-group input-group-modern">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input asp-for="FullName" class="form-control form-control-modern" placeholder="Enter full name" required />
+                                </div>
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
                             </div>
-                            <span asp-validation-for="FullName" class="text-danger small"></span>
+
+                            <!-- Email -->
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="Email" class="form-label-modern">Email Address</label>
+                                <div class="input-group input-group-modern">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input asp-for="Email" class="form-control form-control-modern" type="email" placeholder="Enter email" required />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="PhoneNumber" class="form-label-modern">Phone Number</label>
+                                <div class="input-group input-group-modern">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input asp-for="PhoneNumber" class="form-control form-control-modern" type="tel" placeholder="Enter phone number" required />
+                                </div>
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Occupation -->
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="Occupation" class="form-label-modern">Occupation</label>
+                                <div class="input-group input-group-modern">
+                                    <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                    <input asp-for="Occupation" class="form-control form-control-modern" placeholder="Enter occupation" />
+                                </div>
+                                <span asp-validation-for="Occupation" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="col-12">
+                                <label asp-for="Address" class="form-label-modern">Address</label>
+                                <div class="input-group input-group-modern">
+                                    <span class="input-group-text"><i class="fas fa-home"></i></span>
+                                    <textarea asp-for="Address" class="form-control form-control-modern" rows="2" placeholder="Enter full address"></textarea>
+                                </div>
+                                <span asp-validation-for="Address" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Relationship -->
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="Relationship" class="form-label-modern">Relationship</label>
+                                <div class="input-group input-group-modern">
+                                    <span class="input-group-text"><i class="fas fa-heart"></i></span>
+                                    <select asp-for="Relationship" class="form-select form-select-modern" required>
+                                        <option value="">Select Relationship</option>
+                                        <option value="Father">Father</option>
+                                        <option value="Mother">Mother</option>
+                                        <option value="Guardian">Guardian</option>
+                                        <option value="Grandparent">Grandparent</option>
+                                        <option value="Sibling">Sibling</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="Relationship" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Student -->
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="StudentId" class="form-label-modern">Link to Student</label>
+                                <div class="input-group input-group-modern">
+                                    <span class="input-group-text"><i class="fas fa-user-graduate"></i></span>
+                                    <select asp-for="StudentId" class="form-select form-select-modern" asp-items="ViewBag.Students" required>
+                                        <option value="">-- Select Student --</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="StudentId" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Auto-Generated Password -->
+                            <div class="col-12">
+                                <div class="auto-gen-section">
+                                    <div class="section-title">
+                                        <i class="fas fa-robot"></i>
+                                        Auto-Generated Password
+                                        <span class="badge bg-warning ms-2">Auto</span>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="fw-bold small text-muted">Password</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                                <input asp-for="Password" id="passwordInput" class="credential-field" readonly type="password" />
+                                                <button class="btn-toggle-password" type="button" onclick="togglePasswordVisibility()" title="Toggle visibility">
+                                                    <i class="fas fa-eye" id="eyeIcon"></i>
+                                                </button>
+                                                <button class="btn-regenerate" type="button" onclick="regenerateCredentials()" title="Regenerate">
+                                                    <i class="fas fa-sync-alt me-1"></i> Regenerate
+                                                </button>
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Double-click the password to copy it
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Email" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" />
+                        <!-- Info Note -->
+                        <div class="alert alert-info d-flex align-items-center gap-2 mt-3" style="border-radius: 10px; border-left: 4px solid #f59e0b;">
+                            <i class="fas fa-info-circle fs-5" style="color: #f59e0b;"></i>
+                            <div>
+                                <strong>Note:</strong> Password is auto-generated. Click <strong>Regenerate</strong> for a new one.
+                                The parent will be linked to the selected student.
                             </div>
-                            <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="PhoneNumber" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                <input asp-for="PhoneNumber" class="form-control" placeholder="Enter phone number" />
-                            </div>
-                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        <!-- Action Buttons -->
+                        <div class="action-buttons-modern">
+                            <a asp-action="Dashboard" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-warning" id="submitBtn">
+                                <i class="fas fa-save me-2"></i>Add Parent
+                            </button>
                         </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Occupation" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
-                                <input asp-for="Occupation" class="form-control" placeholder="Enter occupation" />
-                            </div>
-                            <span asp-validation-for="Occupation" class="text-danger small"></span>
-                        </div>
-
-                        <div class="col-md-12 mb-3">
-                            <label asp-for="Address" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-home"></i></span>
-                                <textarea asp-for="Address" class="form-control" rows="2" placeholder="Enter address"></textarea>
-                            </div>
-                            <span asp-validation-for="Address" class="text-danger small"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Relationship" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-heart"></i></span>
-                                <select asp-for="Relationship" class="form-control">
-                                    <option value="">Select Relationship</option>
-                                    <option value="Father">Father</option>
-                                    <option value="Mother">Mother</option>
-                                    <option value="Guardian">Guardian</option>
-                                </select>
-                            </div>
-                            <span asp-validation-for="Relationship" class="text-danger small"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="StudentId" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user-graduate"></i></span>
-                                <select asp-for="StudentId" class="form-control" asp-items="ViewBag.Students">
-                                    <option value="">-- Select Student --</option>
-                                </select>
-                            </div>
-                            <span asp-validation-for="StudentId" class="text-danger small"></span>
-                        </div>
-
-                        <!-- Password - BIGGER VERSION -->
-                        <div class="col-md-6 mb-3">
-                            <label class="fw-bold fs-6">Password</label>
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-text"><i class="fas fa-key"></i></span>
-                                <input asp-for="Password" id="passwordInput" class="form-control form-control-lg" readonly style="font-size: 1.2rem; font-weight: 600; background-color: #f8f9fa; letter-spacing: 1px; font-family: 'Courier New', monospace;" />
-                                <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility()" style="padding: 0 20px;">
-                                    <i class="fas fa-eye" id="eyeIcon" style="font-size: 1.2rem;"></i>
-                                </button>
-                                <button type="button" class="btn btn-warning" onclick="regenerateCredentials()" style="padding: 0 25px; font-weight: 600; font-size: 1rem;">
-                                    <i class="fas fa-sync me-2"></i> Regenerate
-                                </button>
-                            </div>
-                            <small class="text-muted mt-1 d-block">
-                                <i class="fas fa-info-circle me-1"></i>
-                                This password will be used for login. Click <strong>Regenerate</strong> for a new one.
-                            </small>
-                        </div>
-                    </div>
-
-                    <hr />
-                    <div class="d-flex justify-content-end gap-2">
-                        <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-secondary">
-                            <i class="fas fa-times me-2"></i>Cancel
-                        </a>
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fas fa-save me-2"></i>Add Parent
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ============================================
+     SCRIPTS
+     ============================================ -->
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            $('.toggle-password').click(function() {
-                const input = $(this).closest('.input-group').find('input');
-                const icon = $(this).find('i');
-                if (input.attr('type') === 'password') {
-                    input.attr('type', 'text');
-                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
-                } else {
-                    input.attr('type', 'password');
-                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
-                }
-            });
-        });
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
-           // Regenerate both credentials
+    <script>
+        // ============================================
+        // REGENERATE CREDENTIALS
+        // ============================================
         function regenerateCredentials() {
-            var btn = document.querySelector('.btn-warning');
+            var btn = document.querySelector('.btn-regenerate');
             var originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             btn.disabled = true;
 
-            $.ajax({
-                url: '/Admin/GenerateCredentials',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                   
-                    $('#passwordInput').val(data.password);
-
-                    btn.innerHTML = '<i class="fas fa-check"></i> Regenerated!';
-                    btn.disabled = false;
-                    setTimeout(function() {
-                        btn.innerHTML = originalHtml;
-                    }, 2000);
-                },
-                error: function() {
-                    alert('Failed to regenerate credentials. Please try again.');
-                    btn.innerHTML = originalHtml;
-                    btn.disabled = false;
+            fetch('@Url.Action("GenerateCredentials", "Admin")', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('passwordInput').value = data.password;
+                document.getElementById('passwordInput').setAttribute('type', 'password');
+                document.getElementById('eyeIcon').className = 'fas fa-eye';
+
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.disabled = false;
+                setTimeout(function() {
+                    btn.innerHTML = originalHtml;
+                }, 1500);
+            })
+            .catch(function() {
+                alert('Failed to regenerate credentials. Please try again.');
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
             });
         }
 
-        // Toggle password visibility
+        // ============================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================
         function togglePasswordVisibility() {
-            var passwordInput = $('#passwordInput');
-            var eyeIcon = $('#eyeIcon');
+            var passwordInput = document.getElementById('passwordInput');
+            var eyeIcon = document.getElementById('eyeIcon');
 
-            if (passwordInput.attr('type') === 'password') {
-                passwordInput.attr('type', 'text');
-                eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+            if (passwordInput.getAttribute('type') === 'password') {
+                passwordInput.setAttribute('type', 'text');
+                eyeIcon.className = 'fas fa-eye-slash';
             } else {
-                passwordInput.attr('type', 'password');
-                eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+                passwordInput.setAttribute('type', 'password');
+                eyeIcon.className = 'fas fa-eye';
             }
         }
 
-        // Auto-hide success alert after 10 seconds
-        $(document).ready(function() {
-            setTimeout(function() {
-                $('.alert-success').fadeOut('slow');
-            }, 10000);
-        });
+        // ============================================
+        // COPY TO CLIPBOARD
+        // ============================================
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                showTooltip('✓ Copied!');
+            }).catch(function() {
+                // Fallback
+                var tempInput = document.createElement('input');
+                tempInput.value = text;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                tempInput.remove();
+                showTooltip('✓ Copied!');
+            });
+        }
 
-        // Copy password on double-click
-        $('#passwordInput').on('dblclick', function() {
-            this.select();
-            document.execCommand('copy');
-            alert('Password copied to clipboard!');
+        function showTooltip(message) {
+            var tooltip = document.createElement('div');
+            tooltip.className = 'copy-tooltip';
+            tooltip.textContent = message;
+            document.body.appendChild(tooltip);
+            setTimeout(function() {
+                tooltip.style.opacity = '0';
+                setTimeout(function() {
+                    tooltip.remove();
+                }, 500);
+            }, 1500);
+        }
+
+        // ============================================
+        // DOM CONTENT LOADED
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Double-click to copy password
+            var passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.addEventListener('dblclick', function() {
+                    copyText(this.value);
+                });
+            }
+
+            // Form submit loading state
+            var form = document.getElementById('addParentForm');
+            var submitBtn = document.getElementById('submitBtn');
+
+            if (form && submitBtn) {
+                form.addEventListener('submit', function() {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Adding...';
+                });
+            }
+
+            // Auto-hide success alert
+            var successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                setTimeout(function() {
+                    var alert = new bootstrap.Alert(successAlert);
+                    alert.close();
+                }, 6000);
+            }
+
+            // Auto-focus on first input
+            var firstInput = document.querySelector('input[asp-for="FullName"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+
+            // Keyboard shortcut: Ctrl+Enter
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    var form = document.getElementById('addParentForm');
+                    if (form && document.activeElement && document.activeElement.closest('form') === form) {
+                        e.preventDefault();
+                        form.submit();
+                    }
+                }
+            });
         });
     </script>
 }

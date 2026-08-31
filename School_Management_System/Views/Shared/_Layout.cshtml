@@ -3,6 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Responsive Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="theme-color" content="#0a0e27" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>@ViewData["Title"] - School_Management_System</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
@@ -18,19 +23,37 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
+    <script src="~/js/pdf-export.js"></script>
+
     <style>
         /* ========================================
-                   BASE STYLES
-                   ======================================== */
+                           BASE STYLES
+                           ======================================== */
         body {
             background-color: #f0f2f5;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden;
         }
 
+
+        @@media (max-width: 991.98px) {
+            .sidebar-wrapper {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+                .sidebar-wrapper.open {
+                    transform: translateX(0);
+                }
+
+            .sidebar-toggle {
+                display: flex !important;
+            }
+        }
+
         /* ========================================
-                   SIDEBAR STYLES
-                   ======================================== */
+                           SIDEBAR STYLES
+                           ======================================== */
         .sidebar-wrapper {
             position: fixed;
             top: 0;
@@ -285,8 +308,8 @@
                 }
 
         /* ========================================
-                   MAIN CONTENT
-                   ======================================== */
+                           MAIN CONTENT
+                           ======================================== */
         .main-content {
             margin-left: 260px;
             min-height: 100vh;
@@ -295,8 +318,8 @@
         }
 
         /* ========================================
-                   TOP NAVBAR
-                   ======================================== */
+                           TOP NAVBAR
+                           ======================================== */
         .top-navbar {
             background: white;
             border-radius: 16px;
@@ -347,8 +370,8 @@
             }
 
         /* ========================================
-                   MOBILE SIDEBAR TOGGLE
-                   ======================================== */
+                           MOBILE SIDEBAR TOGGLE
+                           ======================================== */
         .sidebar-toggle {
             display: none;
             position: fixed;
@@ -374,8 +397,8 @@
             }
 
         /* ========================================
-                   OVERLAY
-                   ======================================== */
+                           OVERLAY
+                           ======================================== */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -392,11 +415,11 @@
                 display: block;
             }
 
-       
+
 
         /* ========================================
-                   UTILITY CLASSES
-                   ======================================== */
+                           UTILITY CLASSES
+                           ======================================== */
         .stat-card {
             padding: 20px;
             border-radius: 15px;
@@ -462,9 +485,146 @@
             border-radius: 12px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
         }
+
+        /* ========================================
+                           ADDED: DROPDOWN-STYLE MOBILE MENU
+                           ======================================== */
+        @@media (max-width: 991.98px) {
+            .sidebar-wrapper {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                max-height: 0;
+                height: auto;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: none;
+                border-radius: 0 0 20px 20px;
+                transform: none !important;
+                background: linear-gradient(180deg, #0a0e27 0%, #1a1a3e 80%, #2d1b69 100%);
+                z-index: 1045;
+            }
+
+                .sidebar-wrapper.open {
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                    border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+                    transform: none !important;
+                }
+                /* Hide footer on mobile dropdown */
+                .sidebar-wrapper .sidebar-footer {
+                    display: none;
+                }
+                /* Remove scrollbar on mobile */
+                .sidebar-wrapper::-webkit-scrollbar {
+                    width: 0;
+                }
+            /* Adjust padding for mobile */
+            .sidebar-nav {
+                padding: 8px 12px 20px;
+            }
+            /* Adjust brand padding for mobile */
+            .sidebar-brand {
+                padding: 16px 16px 12px;
+            }
+            /* Make toggle button work */
+            .sidebar-toggle {
+                display: flex !important;
+                position: fixed;
+                top: 12px;
+                left: 12px;
+                z-index: 1060;
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                border: none;
+                color: white;
+                font-size: 20px;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+                transition: all 0.3s;
+                cursor: pointer;
+                padding: 0;
+            }
+
+                .sidebar-toggle:hover {
+                    transform: scale(1.05);
+                }
+
+                .sidebar-toggle:active {
+                    transform: scale(0.95);
+                }
+        }
+
+        /* Extra small devices */
+        @@media (max-width: 576px) {
+            .sidebar-toggle {
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+                top: 10px;
+                left: 10px;
+            }
+
+            .sidebar-wrapper.open {
+                max-height: 85vh;
+                border-radius: 0 0 16px 16px;
+            }
+
+            .sidebar-brand .logo-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+
+            .sidebar-brand .brand-text h4 {
+                font-size: 16px;
+            }
+
+            .sidebar-nav .nav-link {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+                .sidebar-nav .nav-link i {
+                    font-size: 14px;
+                }
+        }
+
+        /* Overlay for mobile dropdown */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+            .sidebar-overlay.active {
+                display: block !important;
+            }
+
+        /* Desktop: hide overlay */
+        @@media (min-width: 992px) {
+            .sidebar-overlay {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
+
+
     <!-- ===== MOBILE SIDEBAR TOGGLE ===== -->
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
         <i class="fas fa-bars"></i>
@@ -630,42 +790,51 @@
                         </a>
                     </div>
 
-                    @if (ViewBag.HasClasses != null && ViewBag.HasClasses == true)
+                    @if (ViewBag.HasClasses != null && ViewBag.HasClasses == true && ViewBag.FirstClassId != null)
                     {
+                        var firstClassId = ViewBag.FirstClassId;
                         <div class="nav-section">
                             <div class="section-title">Classroom</div>
+                            <!-- Display current class name if available -->
+                            @if (!string.IsNullOrEmpty(ViewBag.CurrentClassName))
+                            {
+                                <div class="px-3 py-1 mb-1" style="color: rgba(255,255,255,0.4); font-size: 0.7rem; border-left: 2px solid #6366f1; margin-left: 12px;">
+                                    <i class="fas fa-arrow-right me-1" style="color: #6366f1; font-size: 0.6rem;"></i>
+                                    @ViewBag.CurrentClassName
+                                </div>
+                            }
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "ClassRoster" ? "active" : "")"
-                               asp-controller="Teacher" asp-action="ClassRoster" asp-route-id="@ViewBag.FirstClassId">
+                               asp-controller="Teacher" asp-action="ClassRoster" asp-route-id="@firstClassId">
                                 <i class="fas fa-users"></i>
                                 <span class="nav-text">Class Roster</span>
                             </a>
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "MarkAttendance" ? "active" : "")"
-                               asp-controller="Teacher" asp-action="MarkAttendance" asp-route-classId="@ViewBag.FirstClassId">
+                               asp-controller="Teacher" asp-action="MarkAttendance" asp-route-classId="@firstClassId">
                                 <i class="fas fa-clipboard-check"></i>
                                 <span class="nav-text">Mark Attendance</span>
                             </a>
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "AttendanceHistory" ? "active" : "")"
-                               asp-controller="Teacher" asp-action="AttendanceHistory" asp-route-classId="@ViewBag.FirstClassId">
+                               asp-controller="Teacher" asp-action="AttendanceHistory" asp-route-classId="@firstClassId">
                                 <i class="fas fa-history"></i>
                                 <span class="nav-text">Attendance History</span>
                             </a>
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "AttendanceReport" ? "active" : "")"
-                               asp-controller="Teacher" asp-action="AttendanceReport" asp-route-classId="@ViewBag.FirstClassId">
+                               asp-controller="Teacher" asp-action="AttendanceReport" asp-route-classId="@firstClassId">
                                 <i class="fas fa-file-alt"></i>
                                 <span class="nav-text">Attendance Report</span>
                             </a>
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "EnterGrades" ? "active" : "")"
-                               asp-controller="Teacher" asp-action="EnterGrades" asp-route-classId="@ViewBag.FirstClassId">
+                               asp-controller="Teacher" asp-action="EnterGrades" asp-route-classId="@firstClassId">
                                 <i class="fas fa-graduation-cap"></i>
                                 <span class="nav-text">Enter Grades</span>
                             </a>
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "GradeHistory" ? "active" : "")"
-                               asp-controller="Teacher" asp-action="GradeHistory" asp-route-classId="@ViewBag.FirstClassId">
+                               asp-controller="Teacher" asp-action="GradeHistory" asp-route-classId="@firstClassId">
                                 <i class="fas fa-history"></i>
                                 <span class="nav-text">Grade History</span>
                             </a>
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teacher" && ViewContext.RouteData.Values["Action"]?.ToString() == "GradeReport" ? "active" : "")"
-                               asp-controller="Teacher" asp-action="GradeReport" asp-route-classId="@ViewBag.FirstClassId">
+                               asp-controller="Teacher" asp-action="GradeReport" asp-route-classId="@firstClassId">
                                 <i class="fas fa-file-alt"></i>
                                 <span class="nav-text">Grade Report</span>
                             </a>
@@ -677,7 +846,8 @@
                             <div class="section-title">Classroom</div>
                             <div class="text-muted small px-3 py-2" style="color: rgba(255,255,255,0.3) !important;">
                                 <i class="fas fa-info-circle me-1"></i>
-                                No classes assigned yet
+                                <span class="d-none d-sm-inline">No classes assigned yet</span>
+                                <span class="d-inline d-sm-none">No classes</span>
                             </div>
                         </div>
                     }
@@ -723,12 +893,12 @@
                     </div>
                 }
 
-
                 @if (User.IsInRole("Parent"))
                 {
                     <div class="nav-section">
                         <div class="section-title">Main</div>
-                        <a class="nav-link active" asp-controller="Parent" asp-action="Dashboard">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Parent" && ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")"
+                           asp-controller="Parent" asp-action="Dashboard">
                             <i class="fas fa-gauge-high"></i>
                             <span class="nav-text">Dashboard</span>
                         </a>
@@ -736,13 +906,18 @@
 
                     <div class="nav-section">
                         <div class="section-title">Children</div>
-                        <a class="nav-link" asp-controller="Parent" asp-action="MyChildren">
+                        <!-- This should point to MyChildren, not Dashboard -->
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Parent" && ViewContext.RouteData.Values["Action"]?.ToString() == "MyChildren" ? "active" : "")"
+                           asp-controller="Parent" asp-action="MyChildren">
                             <i class="fas fa-child"></i>
                             <span class="nav-text">My Children</span>
+                            @if (ViewBag.ChildCount != null && ViewBag.ChildCount > 0)
+                            {
+                                <span class="nav-badge">@ViewBag.ChildCount</span>
+                            }
                         </a>
                     </div>
                 }
-
                 <!-- Account Section -->
                 <div class="nav-section" style="margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
                     <div class="section-title">Account</div>
@@ -774,7 +949,7 @@
         <div class="sidebar-footer">
             <div class="footer-text">
                 <i class="fas fa-shield-alt"></i>
-                <span>v2.0 • Secure System</span>
+                <span>Developed by : Mfundiso Mzobe</span>
             </div>
         </div>
     </div>
@@ -884,7 +1059,7 @@
                             <p class="mb-0">
                                 <span class="text-muted">Developed by</span>
                                 <strong class="developer-name">Mfundiso Mzobe</strong>
-                               
+
                             </p>
                         </div>
                     </div>
@@ -894,8 +1069,8 @@
 
         <style>
             /* ========================================
-                   CORPORATE FOOTER STYLES
-                   ======================================== */
+                               CORPORATE FOOTER STYLES
+                               ======================================== */
 
             .footer {
                 background: #0f1117;
@@ -943,8 +1118,6 @@
                         font-size: 0.6rem;
                     }
 
-            
-
             }
         </style>
     </div>
@@ -956,34 +1129,81 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
+        // ============================================
+        // RESPONSIVE SIDEBAR TOGGLE - DROPDOWN STYLE
+        // ============================================
         $(document).ready(function() {
-            // ===== SIDEBAR TOGGLE =====
-            const sidebar = $('#sidebar');
-            const overlay = $('#sidebarOverlay');
-            const toggleBtn = $('#sidebarToggle');
+            var sidebar = $('#sidebar');
+            var overlay = $('#sidebarOverlay');
+            var toggleBtn = $('#sidebarToggle');
+            var isOpen = false;
 
             function toggleSidebar() {
+                isOpen = !isOpen;
                 sidebar.toggleClass('open');
                 overlay.toggleClass('active');
-                const icon = toggleBtn.find('i');
-                if (sidebar.hasClass('open')) {
+
+                var icon = toggleBtn.find('i');
+                if (isOpen) {
                     icon.removeClass('fa-bars').addClass('fa-times');
+                    document.body.style.overflow = 'hidden';
                 } else {
                     icon.removeClass('fa-times').addClass('fa-bars');
+                    document.body.style.overflow = 'auto';
                 }
             }
 
-            toggleBtn.on('click', toggleSidebar);
-            overlay.on('click', toggleSidebar);
+            // Toggle button click
+            toggleBtn.on('click', function(e) {
+                e.stopPropagation();
+                toggleSidebar();
+            });
 
-            // ===== AUTO CLOSE ON NAVIGATION (Mobile) =====
-            if (window.innerWidth <= 991) {
-                $('.sidebar-nav .nav-link, .sidebar-nav button.nav-link').on('click', function() {
-                    if (sidebar.hasClass('open')) {
+            // Overlay click
+            overlay.on('click', function() {
+                if (isOpen) {
+                    toggleSidebar();
+                }
+            });
+
+            // Close sidebar when clicking a link on mobile
+            $(document).on('click', '.sidebar-nav .nav-link, .sidebar-nav button.nav-link', function() {
+                if (window.innerWidth <= 991 && isOpen) {
+                    setTimeout(function() {
                         toggleSidebar();
+                    }, 300);
+                }
+            });
+
+            // Close sidebar on escape key
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && isOpen) {
+                    toggleSidebar();
+                }
+            });
+
+            // Handle resize - close menu when switching to desktop
+            var resizeTimer;
+            $(window).on('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    if (window.innerWidth > 991 && isOpen) {
+                        sidebar.removeClass('open');
+                        overlay.removeClass('active');
+                        toggleBtn.find('i').removeClass('fa-times').addClass('fa-bars');
+                        document.body.style.overflow = 'auto';
+                        isOpen = false;
                     }
-                });
-            }
+                }, 250);
+            });
+
+            // Keyboard shortcut: Ctrl+B
+            $(document).on('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+                    e.preventDefault();
+                    toggleSidebar();
+                }
+            });
 
             // ===== AUTO-HIDE ALERTS =====
             setTimeout(function() {
@@ -995,34 +1215,6 @@
                 if (!confirm('Are you sure you want to logout?')) {
                     e.preventDefault();
                     return false;
-                }
-            });
-
-            // ===== CLOSE SIDEBAR ON ESCAPE =====
-            $(document).on('keydown', function(e) {
-                if (e.key === 'Escape' && sidebar.hasClass('open')) {
-                    toggleSidebar();
-                }
-            });
-
-            // ===== HANDLE RESIZE =====
-            let resizeTimer;
-            $(window).on('resize', function() {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(function() {
-                    if (window.innerWidth > 991 && sidebar.hasClass('open')) {
-                        sidebar.removeClass('open');
-                        overlay.removeClass('active');
-                        toggleBtn.find('i').removeClass('fa-times').addClass('fa-bars');
-                    }
-                }, 250);
-            });
-
-            // ===== KEYBOARD SHORTCUT: Ctrl+B =====
-            $(document).on('keydown', function(e) {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-                    e.preventDefault();
-                    toggleSidebar();
                 }
             });
         });

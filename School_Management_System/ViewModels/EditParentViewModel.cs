@@ -1,6 +1,4 @@
-﻿using School_Management_System.Models;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace School_Management_System.ViewModels
 {
@@ -8,17 +6,17 @@ namespace School_Management_System.ViewModels
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Full Name is required")]
         [Display(Name = "Full Name")]
         public string FullName { get; set; }
 
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
         [Display(Name = "Email Address")]
         public string Email { get; set; }
 
-        [Required]
-        [Phone]
+        [Required(ErrorMessage = "Phone Number is required")]
+        [Phone(ErrorMessage = "Invalid phone number format")]
         [Display(Name = "Phone Number")]
         public string PhoneNumber { get; set; }
 
@@ -31,12 +29,8 @@ namespace School_Management_System.ViewModels
         [Display(Name = "Student")]
         public int? StudentId { get; set; }
 
-        // Add this property for displaying student name
-        [Display(Name = "Student Name")]
-        public string StudentName { get; set; }
-
         [Display(Name = "Relationship")]
-        public string Relationship { get; set; }
+        public string Relationship { get; set; } = "Parent";
 
         [Display(Name = "Is Active")]
         public bool IsActive { get; set; } = true;

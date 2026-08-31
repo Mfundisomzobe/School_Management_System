@@ -5,66 +5,316 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    /* ========================================
+           MODERN CREATE CLASS STYLES
+           ======================================== */
+
+    /* ----- Page Header ----- */
+    .page-header-modern {
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #2d1b69 100%);
+        border-radius: 16px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header-modern::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.08);
+            animation: floatOrb 8s ease-in-out infinite;
+        }
+
+        .page-header-modern::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 10%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(236, 72, 153, 0.05);
+            animation: floatOrb 10s ease-in-out infinite reverse;
+        }
+
+   
+
+    .page-header-modern .header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-header-modern h2 {
+        color: white;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.6rem;
+    }
+
+    .page-header-modern p {
+        color: rgba(255,255,255,0.5);
+        margin: 4px 0 0;
+        font-size: 0.95rem;
+    }
+
+    .page-header-modern .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 8px 0 0;
+    }
+
+    .page-header-modern .breadcrumb-item a {
+        color: rgba(255,255,255,0.4);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        font-size: 0.85rem;
+    }
+
+        .page-header-modern .breadcrumb-item a:hover {
+            color: #22c55e;
+        }
+
+    .page-header-modern .breadcrumb-item.active {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.85rem;
+    }
+
+    .page-header-modern .breadcrumb-item::before {
+        color: rgba(255,255,255,0.15);
+    }
+
+    /* ----- Form Card ----- */
+    .form-card-modern {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+    }
+
+        .form-card-modern:hover {
+            box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+        }
+
+        .form-card-modern .card-header {
+            background: white;
+            border-bottom: 1px solid #f0f2f5;
+            padding: 18px 28px;
+        }
+
+        .form-card-modern .card-body {
+            padding: 28px;
+        }
+
+    /* ----- Form Controls ----- */
+    .form-label-modern {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #1a1a3e;
+        margin-bottom: 6px;
+    }
+
+    .form-control-modern,
+    .form-select-modern {
+        border-radius: 10px;
+        border: 1.5px solid #e5e7eb;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+    }
+
+        .form-control-modern:focus,
+        .form-select-modern:focus {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.08);
+            background: white;
+        }
+
+        .form-control-modern.is-invalid {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+        }
+
+    .input-group-modern .input-group-text {
+        background: #f8fafc;
+        border: 1.5px solid #e5e7eb;
+        border-right: none;
+        border-radius: 10px 0 0 10px;
+        color: #6b7280;
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+
+    .input-group-modern .form-control,
+    .input-group-modern .form-select {
+        border-radius: 0 10px 10px 0;
+        border-left: none;
+    }
+
+        .input-group-modern .form-control:focus {
+            border-color: #22c55e;
+        }
+
+    /* ----- Action Buttons ----- */
+    .action-buttons-modern {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        padding-top: 20px;
+        border-top: 1px solid #f0f2f5;
+        margin-top: 20px;
+    }
+
+        .action-buttons-modern .btn {
+            border-radius: 10px;
+            padding: 10px 28px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .action-buttons-modern .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none;
+            color: white;
+        }
+
+            .action-buttons-modern .btn-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 30px rgba(34, 197, 94, 0.3);
+                color: white;
+            }
+
+            .action-buttons-modern .btn-success:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        .action-buttons-modern .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+    /* ----- Success Alert ----- */
+    .success-alert-modern {
+        border: none;
+        border-radius: 14px;
+        padding: 16px 24px;
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border-left: 4px solid #22c55e;
+        margin-bottom: 24px;
+        animation: slideDown 0.5s ease;
+    }
+
+
+    .success-alert-modern h6 {
+        color: #065f46;
+        font-weight: 600;
+        margin: 0;
+    }
+
+</style>
+
+<!-- ============================================
+     PAGE HEADER
+     ============================================ -->
 <div class="container-fluid px-3 px-md-4 mt-3 mt-md-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 gap-sm-0">
-                <div>
-                    <h2 class="fw-bold fs-4 fs-md-3">
-                        <i class="fas fa-plus-circle text-success me-2"></i>Create Class
-                    </h2>
+    <div class="page-header-modern">
+        <div class="header-content">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; font-size: 22px;">
+                            <i class="fas fa-chalkboard"></i>
+                        </div>
+                        <div>
+                            <h2>Create New Class</h2>
+                            <p>Add a new class section with course and teacher assignment</p>
+                        </div>
+                    </div>
                     <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb small mb-0">
-                            <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a asp-action="ViewClasses" class="text-decoration-none">Classes</a></li>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a asp-action="Dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a asp-action="ViewClasses">Classes</a></li>
                             <li class="breadcrumb-item active">Create</li>
                         </ol>
                     </nav>
                 </div>
-                <a asp-action="ViewClasses" class="btn btn-secondary btn-sm w-100 w-sm-auto">
-                    <i class="fas fa-arrow-left me-1"></i>Back to Classes
-                </a>
+                <div class="col-md-4 mt-3 mt-md-0">
+                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                        <a asp-action="ViewClasses" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Classes
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Form -->
+    <!-- ============================================
+         MAIN FORM
+         ============================================ -->
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white py-2 py-md-3">
+            <div class="form-card-modern">
+                <div class="card-header">
                     <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-chalkboard me-2"></i>Class Information
+                        <i class="fas fa-chalkboard text-success me-2"></i>Class Information
+                        <span class="badge bg-success ms-2">New</span>
                     </h5>
                 </div>
-                <div class="card-body p-3 p-md-4">
-                    <form method="post" asp-action="CreateClass">
-                        @Html.AntiForgeryToken()
+                <div class="card-body">
 
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <!-- Success Alert -->
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="success-alert-modern" id="successAlert">
+                            <h6><i class="fas fa-check-circle me-2" style="color: #22c55e;"></i>@TempData["Success"]</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" style="position: absolute; top: 12px; right: 16px;"></button>
+                        </div>
+                    }
+
+                    <!-- Validation Summary -->
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <!-- Form -->
+                    <form method="post" asp-action="CreateClass" id="createClassForm" novalidate>
+                        @Html.AntiForgeryToken()
 
                         <!-- Class Name -->
                         <div class="mb-3">
-                            <label asp-for="ClassName" class="form-label fw-bold">
+                            <label asp-for="ClassName" class="form-label-modern">
                                 <i class="fas fa-chalkboard me-1 text-success"></i>Class Name
                             </label>
-                            <div class="input-group">
+                            <div class="input-group input-group-modern">
                                 <span class="input-group-text"><i class="fas fa-chalkboard"></i></span>
-                                <input asp-for="ClassName" class="form-control" placeholder="e.g., Grade 10A - Mathematics" />
+                                <input asp-for="ClassName" class="form-control form-control-modern" placeholder="e.g., Grade 10A - Mathematics" required />
                             </div>
                             <span asp-validation-for="ClassName" class="text-danger small"></span>
-                            <div class="form-text">A descriptive name for this class section.</div>
+                            <div class="form-text text-muted small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                A descriptive name for this class section
+                            </div>
                         </div>
 
                         <!-- Course -->
                         <div class="mb-3">
-                            <label asp-for="CourseId" class="form-label fw-bold">
+                            <label asp-for="CourseId" class="form-label-modern">
                                 <i class="fas fa-book me-1 text-success"></i>Course
                             </label>
-                            <div class="input-group">
+                            <div class="input-group input-group-modern">
                                 <span class="input-group-text"><i class="fas fa-book"></i></span>
-                                <select asp-for="CourseId" class="form-select" asp-items="ViewBag.Courses">
+                                <select asp-for="CourseId" class="form-select form-select-modern" asp-items="ViewBag.Courses" required>
                                     <option value="">-- Select Course --</option>
                                 </select>
                             </div>
@@ -73,12 +323,12 @@
 
                         <!-- Teacher -->
                         <div class="mb-3">
-                            <label asp-for="TeacherId" class="form-label fw-bold">
+                            <label asp-for="TeacherId" class="form-label-modern">
                                 <i class="fas fa-chalkboard-teacher me-1 text-success"></i>Teacher
                             </label>
-                            <div class="input-group">
+                            <div class="input-group input-group-modern">
                                 <span class="input-group-text"><i class="fas fa-chalkboard-teacher"></i></span>
-                                <select asp-for="TeacherId" class="form-select" asp-items="ViewBag.Teachers">
+                                <select asp-for="TeacherId" class="form-select form-select-modern" asp-items="ViewBag.Teachers" required>
                                     <option value="">-- Select Teacher --</option>
                                 </select>
                             </div>
@@ -87,24 +337,50 @@
 
                         <!-- Capacity -->
                         <div class="mb-3">
-                            <label asp-for="Capacity" class="form-label fw-bold">
+                            <label asp-for="Capacity" class="form-label-modern">
                                 <i class="fas fa-users me-1 text-success"></i>Capacity
                             </label>
-                            <div class="input-group">
+                            <div class="input-group input-group-modern">
                                 <span class="input-group-text"><i class="fas fa-users"></i></span>
-                                <input asp-for="Capacity" class="form-control" type="number" min="1" max="100" />
+                                <input asp-for="Capacity" class="form-control form-control-modern" type="number" min="1" max="100" value="30" required />
                             </div>
                             <span asp-validation-for="Capacity" class="text-danger small"></span>
-                            <div class="form-text">Maximum number of students allowed in this class (1-100).</div>
+                            <div class="form-text text-muted small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Maximum number of students allowed (1-100)
+                            </div>
                         </div>
 
-                        <!-- Submit Buttons -->
-                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-end mt-4">
+                        <!-- Quick Preview -->
+                        <div class="bg-light rounded-3 p-3 mt-3" id="classPreview" style="display: none;">
+                            <h6 class="fw-bold text-muted small text-uppercase mb-2">Class Preview</h6>
+                            <div class="d-flex flex-wrap gap-3">
+                                <div>
+                                    <span class="text-muted small">Class:</span>
+                                    <span class="fw-bold" id="previewClassName">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-muted small">Course:</span>
+                                    <span class="fw-bold" id="previewCourse">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-muted small">Teacher:</span>
+                                    <span class="fw-bold" id="previewTeacher">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-muted small">Capacity:</span>
+                                    <span class="fw-bold" id="previewCapacity">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons-modern">
                             <a asp-action="ViewClasses" class="btn btn-secondary">
-                                <i class="fas fa-times me-1"></i>Cancel
+                                <i class="fas fa-times me-2"></i>Cancel
                             </a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-1"></i>Create Class
+                            <button type="submit" class="btn btn-success" id="submitBtn">
+                                <i class="fas fa-save me-2"></i>Create Class
                             </button>
                         </div>
                     </form>
@@ -114,8 +390,101 @@
     </div>
 </div>
 
+<!-- ============================================
+     SCRIPTS
+     ============================================ -->
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        // ============================================
+        // DOM CONTENT LOADED
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // ============================================
+            // CLASS PREVIEW
+            // ============================================
+            var classNameInput = document.querySelector('input[asp-for="ClassName"]');
+            var courseSelect = document.querySelector('select[asp-for="CourseId"]');
+            var teacherSelect = document.querySelector('select[asp-for="TeacherId"]');
+            var capacityInput = document.querySelector('input[asp-for="Capacity"]');
+            var preview = document.getElementById('classPreview');
+            var previewName = document.getElementById('previewClassName');
+            var previewCourse = document.getElementById('previewCourse');
+            var previewTeacher = document.getElementById('previewTeacher');
+            var previewCapacity = document.getElementById('previewCapacity');
+
+            function updatePreview() {
+                var className = classNameInput ? classNameInput.value.trim() : '';
+                var courseName = courseSelect ? courseSelect.options[courseSelect.selectedIndex]?.text || '-' : '-';
+                var teacherName = teacherSelect ? teacherSelect.options[teacherSelect.selectedIndex]?.text || '-' : '-';
+                var capacity = capacityInput ? capacityInput.value || '-' : '-';
+
+                if (className || (courseSelect && courseSelect.value) || (teacherSelect && teacherSelect.value)) {
+                    preview.style.display = 'block';
+                    previewName.textContent = className || '-';
+                    previewCourse.textContent = courseName;
+                    previewTeacher.textContent = teacherName;
+                    previewCapacity.textContent = capacity;
+                } else {
+                    preview.style.display = 'none';
+                }
+            }
+
+            if (classNameInput) classNameInput.addEventListener('input', updatePreview);
+            if (courseSelect) courseSelect.addEventListener('change', updatePreview);
+            if (teacherSelect) teacherSelect.addEventListener('change', updatePreview);
+            if (capacityInput) capacityInput.addEventListener('input', updatePreview);
+
+            // Initial preview
+            updatePreview();
+
+            // ============================================
+            // FORM SUBMIT LOADING STATE
+            // ============================================
+            var form = document.getElementById('createClassForm');
+            var submitBtn = document.getElementById('submitBtn');
+
+            if (form && submitBtn) {
+                form.addEventListener('submit', function() {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Creating...';
+                });
+            }
+
+            // ============================================
+            // AUTO-HIDE SUCCESS ALERT
+            // ============================================
+            var successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                setTimeout(function() {
+                    var alert = new bootstrap.Alert(successAlert);
+                    alert.close();
+                }, 6000);
+            }
+
+            // ============================================
+            // AUTO-FOCUS ON FIRST INPUT
+            // ============================================
+            var firstInput = document.querySelector('input[asp-for="ClassName"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+
+            // ============================================
+            // KEYBOARD SHORTCUT: Ctrl+Enter to submit
+            // ============================================
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    var form = document.getElementById('createClassForm');
+                    if (form && document.activeElement && document.activeElement.closest('form') === form) {
+                        e.preventDefault();
+                        form.submit();
+                    }
+                }
+            });
+        });
+    </script>
 }

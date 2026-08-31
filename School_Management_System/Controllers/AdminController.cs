@@ -1235,8 +1235,6 @@ namespace School_Management_System.Controllers
             return View(parents);
         }
 
-        //EDIT: PARENT
-        
         // ===== EDIT PARENT - GET =====
         [HttpGet]
         public async Task<IActionResult> EditParent(int? id)
@@ -1254,11 +1252,6 @@ namespace School_Management_System.Controllers
             if (parent == null)
                 return NotFound();
 
-            // Get the first student linked to this parent
-            var firstStudentParent = parent.StudentParents?.FirstOrDefault();
-            int? studentId = firstStudentParent?.StudentId;
-            string studentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
-
             var model = new EditParentViewModel
             {
                 Id = parent.Id,
@@ -1267,14 +1260,12 @@ namespace School_Management_System.Controllers
                 PhoneNumber = parent.PhoneNumber,
                 Address = parent.Address,
                 Occupation = parent.Occupation,
-                StudentId = studentId,  // Get from StudentParents, not from User.Student
-                StudentName = studentName,  // Add this to ViewModel
-                IsActive = parent.IsActive
+                IsActive = parent.IsActive,
+                StudentId = parent.StudentParents?.FirstOrDefault()?.StudentId,
+                Relationship = parent.StudentParents?.FirstOrDefault()?.Relationship ?? "Parent"
             };
 
-            // Optional: Set ViewBag for student name if not using ViewModel property
-            ViewBag.StudentName = studentName;
-
+            await PopulateStudentDropdown(model.StudentId);
             return View(model);
         }
 
@@ -1285,19 +1276,7 @@ namespace School_Management_System.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // If validation fails, get parent data again for the view
-                var parent = await _context.Parents
-                    .Include(t => t.User)
-                    .Include(s => s.StudentParents)
-                        .ThenInclude(sp => sp.Student)
-                            .ThenInclude(s => s.User)
-                    .FirstOrDefaultAsync(s => s.Id == model.Id);
-
-                if (parent != null)
-                {
-                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
-                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
-                }
+                await PopulateStudentDropdown(model.StudentId);
                 return View(model);
             }
 
@@ -1306,8 +1285,6 @@ namespace School_Management_System.Controllers
                 var parent = await _context.Parents
                     .Include(t => t.User)
                     .Include(s => s.StudentParents)
-                        .ThenInclude(sp => sp.Student)
-                            .ThenInclude(s => s.User)
                     .FirstOrDefaultAsync(t => t.Id == model.Id);
 
                 if (parent == null)
@@ -1320,9 +1297,7 @@ namespace School_Management_System.Controllers
                 if (existingUser != null)
                 {
                     ModelState.AddModelError("Email", "This email is already used by another user.");
-
-                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
-                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
+                    await PopulateStudentDropdown(model.StudentId);
                     return View(model);
                 }
 
@@ -1333,9 +1308,7 @@ namespace School_Management_System.Controllers
                 if (existingParent != null)
                 {
                     ModelState.AddModelError("PhoneNumber", "This Phone Number is already used by another user.");
-
-                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
-                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
+                    await PopulateStudentDropdown(model.StudentId);
                     return View(model);
                 }
 
@@ -1350,26 +1323,28 @@ namespace School_Management_System.Controllers
                 parent.Occupation = model.Occupation;
                 parent.IsActive = model.IsActive;
 
-                // If StudentId changed, update the relationship
-                if (model.StudentId.HasValue)
+                // Handle Student relationship
+                var existingRelationships = parent.StudentParents.ToList();
+                foreach (var rel in existingRelationships)
                 {
-                    // Remove existing StudentParent relationships
-                    var existingRelationships = parent.StudentParents.ToList();
-                    foreach (var rel in existingRelationships)
-                    {
-                        _context.StudentParents.Remove(rel);
-                    }
+                    _context.StudentParents.Remove(rel);
+                }
 
-                    // Add new relationship
-                    var newRelationship = new StudentParent
+                if (model.StudentId.HasValue && model.StudentId.Value > 0)
+                {
+                    var student = await _context.Students.FindAsync(model.StudentId.Value);
+                    if (student != null)
                     {
-                        StudentId = model.StudentId.Value,
-                        ParentId = parent.Id,
-                        Relationship = model.Relationship ?? "Parent",
-                        IsPrimaryContact = true,
-                        IsActive = true
-                    };
-                    await _context.StudentParents.AddAsync(newRelationship);
+                        var newRelationship = new StudentParent
+                        {
+                            StudentId = model.StudentId.Value,
+                            ParentId = parent.Id,
+                            Relationship = !string.IsNullOrEmpty(model.Relationship) ? model.Relationship : "Parent",
+                            IsPrimaryContact = true,
+                            IsActive = true
+                        };
+                        await _context.StudentParents.AddAsync(newRelationship);
+                    }
                 }
 
                 await _userManager.UpdateAsync(parent.User);
@@ -1381,40 +1356,34 @@ namespace School_Management_System.Controllers
             catch (DbUpdateException ex)
             {
                 ModelState.AddModelError("", $"Database error: {ex.Message}");
-
-                var parent = await _context.Parents
-                    .Include(t => t.User)
-                    .Include(s => s.StudentParents)
-                        .ThenInclude(sp => sp.Student)
-                            .ThenInclude(s => s.User)
-                    .FirstOrDefaultAsync(s => s.Id == model.Id);
-
-                if (parent != null)
-                {
-                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
-                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
-                }
+                await PopulateStudentDropdown(model.StudentId);
                 return View(model);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Error: {ex.Message}");
-
-                var parent = await _context.Parents
-                    .Include(t => t.User)
-                    .Include(s => s.StudentParents)
-                        .ThenInclude(sp => sp.Student)
-                            .ThenInclude(s => s.User)
-                    .FirstOrDefaultAsync(s => s.Id == model.Id);
-
-                if (parent != null)
-                {
-                    var firstStudentParent = parent.StudentParents?.FirstOrDefault();
-                    ViewBag.StudentName = firstStudentParent?.Student?.User?.FullName ?? "Not Assigned";
-                }
+                await PopulateStudentDropdown(model.StudentId);
                 return View(model);
             }
         }
+
+        // Helper method to populate student dropdown
+        private async Task PopulateStudentDropdown(int? selectedStudentId)
+        {
+            var students = await _context.Students
+                .Include(s => s.User)
+                .Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = s.User.FullName,
+                    Selected = s.Id == selectedStudentId
+                })
+                .ToListAsync();
+
+            ViewBag.Students = students;
+        }
+
+
         // ===== SOFT DELETE PARENT =====
         [HttpGet]
         public async Task<IActionResult> DeleteParent(int id)

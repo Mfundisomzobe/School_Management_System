@@ -4,6 +4,22 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .btn-pdf {
+        background: #dc3545;
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+        .btn-pdf:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+</style>
+
 <div class="container-fluid">
     <!-- Header -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
@@ -19,6 +35,11 @@
             </nav>
         </div>
         <div class="d-flex gap-2">
+            <!-- PDF Export Button -->
+          @*   <a href="#" onclick="exportPDF(event, '@Url.Action("ExportGradePdf", "Teacher", new { classId = Model.ClassId })')"
+               class="btn btn-danger">
+                <i class="fas fa-file-pdf me-2"></i>PDF
+            </a> *@
             <a asp-action="EnterGrades" asp-route-classId="@Model.ClassId" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Enter Grades
             </a>
@@ -164,11 +185,17 @@
 
     <!-- Student Report Table -->
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-white">
+        <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold">
                 <i class="fas fa-user-graduate text-success me-2"></i>Student Grade Report
                 <span class="badge bg-secondary ms-2">@Model.StudentReports.Count</span>
             </h5>
+            <a asp-action="ExportGradePdf"
+               asp-route-classId="@Model.ClassId"
+               target="_blank"
+               class="btn btn-pdf">
+                <i class="fas fa-file-pdf me-2"></i>PDF
+            </a>
         </div>
         <div class="card-body">
             @if (Model.StudentReports.Any())

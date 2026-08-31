@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
 using School_Management_System.Models;
+using School_Management_System.Services;
 using School_Management_System.Services.Implementation;
 using School_Management_System.Services.Interface;
 
@@ -62,6 +63,7 @@ builder.Services.AddAuthorization();
 // Register Services
 builder.Services.AddScoped<IAuditLogger, AuditLogger>();  // <-- ADD THIS LINE
 builder.Services.AddScoped<AuditLogger>();
+builder.Services.AddScoped<IEmailService, MockEmailService>();
 
 var app = builder.Build();
 
