@@ -44,6 +44,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// Configure logging for Azure
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddAzureWebAppDiagnostics();
+
+// Add services
+builder.Services.AddControllersWithViews();
 
 // Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
