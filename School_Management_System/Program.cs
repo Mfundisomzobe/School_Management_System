@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.CookiePolicy;
+﻿using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
@@ -80,7 +80,23 @@ using (var scope = app.Services.CreateScope())
    var services = scope.ServiceProvider;
     await DbInitializer.InitializeAsync(services);
 
+    // Auto-migrate database on startup
+
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    try
+    {
+        await dbContext.Database.MigrateAsync();
+        Console.WriteLine("✅ Database migration successful!");
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "❌ An error occurred while migrating the database.");
+    }
+
 }
+
+
 
 // Configure HTTP request pipeline
 if (!app.Environment.IsDevelopment())
