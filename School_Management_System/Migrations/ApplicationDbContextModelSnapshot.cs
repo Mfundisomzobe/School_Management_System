@@ -356,6 +356,14 @@ namespace School_Management_System.Migrations
                     b.HasData(
                         new
                         {
+                            ClassId = 1,
+                            Capacity = 25,
+                            ClassName = "Grade 10A - Mathematics",
+                            CourseId = 1,
+                            IsActive = true
+                        },
+                        new
+                        {
                             ClassId = 2,
                             Capacity = 25,
                             ClassName = "Grade 10B - Mathematics",
@@ -486,6 +494,14 @@ namespace School_Management_System.Migrations
                     b.ToTable("Courses");
 
                     b.HasData(
+                        new
+                        {
+                            CourseId = 1,
+                            CourseCode = "MATH101",
+                            CourseDescription = "Introduction to algebra, geometry, and calculus",
+                            CourseName = "Mathematics",
+                            IsActive = true
+                        },
                         new
                         {
                             CourseId = 2,

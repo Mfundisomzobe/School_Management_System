@@ -195,7 +195,7 @@ namespace School_Management_System.Data
 
             // 1. Seed Courses
             modelBuilder.Entity<Course>().HasData(
-              
+                   new Course { CourseId = 1, CourseName = "Mathematics", CourseCode = "MATH101", CourseDescription = "Introduction to algebra, geometry, and calculus", IsActive = true },
                 new Course { CourseId = 2, CourseName = "English Literature", CourseCode = "ENG101", CourseDescription = "Introduction to English literature, poetry, and prose", IsActive = true },
                 new Course { CourseId = 3, CourseName = "Physical Science", CourseCode = "SCI101", CourseDescription = "Basic physics and chemistry principles", IsActive = true },
                 new Course { CourseId = 4, CourseName = "Biology", CourseCode = "SCI102", CourseDescription = "Introduction to biology and life sciences", IsActive = true },
@@ -214,7 +214,7 @@ namespace School_Management_System.Data
 
             // 2. Seed Classes
             modelBuilder.Entity<Class>().HasData(
-               
+                 new Class { ClassId = 1, ClassName = "Grade 10A - Mathematics", CourseId = 1, Capacity = 25, IsActive = true },
                 new Class { ClassId = 2, ClassName = "Grade 10B - Mathematics", CourseId = 1, Capacity = 25, IsActive = true },
                 new Class { ClassId = 3, ClassName = "Grade 11A - English", CourseId = 2, Capacity = 25, IsActive = true },
                 new Class { ClassId = 4, ClassName = "Grade 11B - English", CourseId = 2, Capacity = 25, IsActive = true },
