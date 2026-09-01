@@ -241,6 +241,448 @@ namespace School_Management_System.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("School_Management_System.Models.Attendance", b =>
+                {
+                    b.Property<int>("AttendanceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttendanceId"));
+
+                    b.Property<DateTime>("AttendanceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EnrollmentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("AttendanceId");
+
+                    b.HasIndex("EnrollmentId", "AttendanceDate")
+                        .IsUnique();
+
+                    b.ToTable("Attendances");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("ActionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserRole")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("ActionDate");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.Class", b =>
+                {
+                    b.Property<int>("ClassId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClassId"));
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClassId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("Classes");
+
+                    b.HasData(
+                        new
+                        {
+                            ClassId = 1,
+                            Capacity = 25,
+                            ClassName = "Grade 10A - Mathematics",
+                            CourseId = 1,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 2,
+                            Capacity = 25,
+                            ClassName = "Grade 10B - Mathematics",
+                            CourseId = 1,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 3,
+                            Capacity = 25,
+                            ClassName = "Grade 11A - English",
+                            CourseId = 2,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 4,
+                            Capacity = 25,
+                            ClassName = "Grade 11B - English",
+                            CourseId = 2,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 5,
+                            Capacity = 20,
+                            ClassName = "Grade 10A - Science",
+                            CourseId = 3,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 6,
+                            Capacity = 20,
+                            ClassName = "Grade 11A - Biology",
+                            CourseId = 4,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 7,
+                            Capacity = 30,
+                            ClassName = "Grade 12A - History",
+                            CourseId = 5,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 8,
+                            Capacity = 30,
+                            ClassName = "Grade 12B - History",
+                            CourseId = 5,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 9,
+                            Capacity = 20,
+                            ClassName = "Grade 10A - Computer Science",
+                            CourseId = 7,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 10,
+                            Capacity = 20,
+                            ClassName = "Grade 11A - Computer Science",
+                            CourseId = 7,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 11,
+                            Capacity = 15,
+                            ClassName = "Grade 10A - Art",
+                            CourseId = 9,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 12,
+                            Capacity = 30,
+                            ClassName = "Grade 11A - Physical Education",
+                            CourseId = 11,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            ClassId = 13,
+                            Capacity = 25,
+                            ClassName = "Grade 12A - Business Studies",
+                            CourseId = 8,
+                            IsActive = true
+                        });
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.Course", b =>
+                {
+                    b.Property<int>("CourseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseId"));
+
+                    b.Property<string>("CourseCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("CourseDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("CourseName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("CourseId");
+
+                    b.HasIndex("CourseCode")
+                        .IsUnique();
+
+                    b.ToTable("Courses");
+
+                    b.HasData(
+                        new
+                        {
+                            CourseId = 1,
+                            CourseCode = "MATH101",
+                            CourseDescription = "Introduction to algebra, geometry, and calculus",
+                            CourseName = "Mathematics",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 2,
+                            CourseCode = "ENG101",
+                            CourseDescription = "Introduction to English literature, poetry, and prose",
+                            CourseName = "English Literature",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 3,
+                            CourseCode = "SCI101",
+                            CourseDescription = "Basic physics and chemistry principles",
+                            CourseName = "Physical Science",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 4,
+                            CourseCode = "SCI102",
+                            CourseDescription = "Introduction to biology and life sciences",
+                            CourseName = "Biology",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 5,
+                            CourseCode = "HIST101",
+                            CourseDescription = "Survey of world history from ancient to modern times",
+                            CourseName = "World History",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 6,
+                            CourseCode = "GEOG101",
+                            CourseDescription = "Physical and human geography",
+                            CourseName = "Geography",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 7,
+                            CourseCode = "CS101",
+                            CourseDescription = "Introduction to programming and computer science",
+                            CourseName = "Computer Science",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 8,
+                            CourseCode = "BUS101",
+                            CourseDescription = "Introduction to business principles and economics",
+                            CourseName = "Business Studies",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 9,
+                            CourseCode = "ART101",
+                            CourseDescription = "Fundamentals of art and creative design",
+                            CourseName = "Art and Design",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 10,
+                            CourseCode = "MUS101",
+                            CourseDescription = "Introduction to music theory and appreciation",
+                            CourseName = "Music",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 11,
+                            CourseCode = "PE101",
+                            CourseDescription = "Physical fitness and sports education",
+                            CourseName = "Physical Education",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 12,
+                            CourseCode = "FREN101",
+                            CourseDescription = "Introduction to French language and culture",
+                            CourseName = "French Language",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 13,
+                            CourseCode = "SPAN101",
+                            CourseDescription = "Introduction to Spanish language and culture",
+                            CourseName = "Spanish Language",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 14,
+                            CourseCode = "PSYCH101",
+                            CourseDescription = "Introduction to psychology and human behavior",
+                            CourseName = "Psychology",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            CourseId = 15,
+                            CourseCode = "ECON101",
+                            CourseDescription = "Introduction to micro and macroeconomics",
+                            CourseName = "Economics",
+                            IsActive = true
+                        });
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.Enrollment", b =>
+                {
+                    b.Property<int>("EnrollmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EnrollmentId"));
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EnrollmentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("EnrollmentId");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("StudentId", "ClassId")
+                        .IsUnique();
+
+                    b.ToTable("Enrollments");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.Grade", b =>
+                {
+                    b.Property<int>("GradeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GradeId"));
+
+                    b.Property<string>("AssessmentName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("DateRecorded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EnrollmentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LetterGrade")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<double>("Marks")
+                        .HasColumnType("float");
+
+                    b.HasKey("GradeId");
+
+                    b.HasIndex("EnrollmentId");
+
+                    b.ToTable("Grades");
+                });
+
             modelBuilder.Entity("School_Management_System.Models.Parent", b =>
                 {
                     b.Property<int>("Id")
@@ -280,6 +722,55 @@ namespace School_Management_System.Migrations
                         .IsUnique();
 
                     b.ToTable("Parents");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.SchoolInfo", b =>
+                {
+                    b.Property<int>("SchoolInfoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SchoolInfoId"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SchoolName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("WebsiteUrl")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("SchoolInfoId");
+
+                    b.ToTable("SchoolInfos");
+
+                    b.HasData(
+                        new
+                        {
+                            SchoolInfoId = 1,
+                            Address = "52 Mission Rd",
+                            Email = "sisterjoan's@school.com",
+                            PhoneNumber = "+27-10-123-4567",
+                            SchoolName = "Sister Joan's",
+                            WebsiteUrl = "https://www.sisterjoan's.com"
+                        });
                 });
 
             modelBuilder.Entity("School_Management_System.Models.Student", b =>
@@ -458,6 +949,75 @@ namespace School_Management_System.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("School_Management_System.Models.Attendance", b =>
+                {
+                    b.HasOne("School_Management_System.Models.Enrollment", "Enrollments")
+                        .WithMany("Attendances")
+                        .HasForeignKey("EnrollmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Enrollments");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.AuditLog", b =>
+                {
+                    b.HasOne("School_Management_System.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.Class", b =>
+                {
+                    b.HasOne("School_Management_System.Models.Course", "Course")
+                        .WithMany("Classes")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("School_Management_System.Models.Teacher", "Teacher")
+                        .WithMany("Classes")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.Enrollment", b =>
+                {
+                    b.HasOne("School_Management_System.Models.Class", "Class")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("School_Management_System.Models.Student", "Student")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.Grade", b =>
+                {
+                    b.HasOne("School_Management_System.Models.Enrollment", "Enrollment")
+                        .WithMany("Grades")
+                        .HasForeignKey("EnrollmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Enrollment");
+                });
+
             modelBuilder.Entity("School_Management_System.Models.Parent", b =>
                 {
                     b.HasOne("School_Management_System.Models.ApplicationUser", "User")
@@ -529,6 +1089,23 @@ namespace School_Management_System.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("School_Management_System.Models.Class", b =>
+                {
+                    b.Navigation("Enrollments");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.Course", b =>
+                {
+                    b.Navigation("Classes");
+                });
+
+            modelBuilder.Entity("School_Management_System.Models.Enrollment", b =>
+                {
+                    b.Navigation("Attendances");
+
+                    b.Navigation("Grades");
+                });
+
             modelBuilder.Entity("School_Management_System.Models.Parent", b =>
                 {
                     b.Navigation("StudentParents");
@@ -536,11 +1113,15 @@ namespace School_Management_System.Migrations
 
             modelBuilder.Entity("School_Management_System.Models.Student", b =>
                 {
+                    b.Navigation("Enrollments");
+
                     b.Navigation("StudentParents");
                 });
 
             modelBuilder.Entity("School_Management_System.Models.Teacher", b =>
                 {
+                    b.Navigation("Classes");
+
                     b.Navigation("Students");
                 });
 #pragma warning restore 612, 618

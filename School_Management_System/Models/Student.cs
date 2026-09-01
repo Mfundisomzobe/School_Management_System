@@ -23,6 +23,7 @@ namespace School_Management_System.Models
 
         [MaxLength(10)]
         public string Section { get; set; }
+
         [DataType(DataType.Date)]
         [Display(Name = "Date of Birth")]
         public DateTime DateOfBirth { get; set; }
@@ -38,6 +39,7 @@ namespace School_Management_System.Models
         //Navigation Property for Parents
 
         public virtual ICollection<StudentParent> StudentParents { get; set; }
+        public virtual ICollection<Enrollment> Enrollments { get; set; }
 
         
         

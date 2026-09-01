@@ -1,0 +1,196 @@
+﻿@using School_Management_System.ViewModels
+@model EditParentViewModel
+@{
+    ViewData["Title"] = "Edit Parent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-user-edit me-2"></i>Edit Parent</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="ViewParents">Parents</a></li>
+                            <li class="breadcrumb-item active">Edit Parent</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a asp-controller="Admin" asp-action="ViewParents" class="btn btn-info text-white">
+                    <i class="fas fa-list me-2"></i>View Parents
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Edit Parent Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="editParentForm" asp-action="EditParent" asp-controller="Admin">
+                        @Html.AntiForgeryToken()
+                        <input asp-for="Id" type="hidden" />
+                        <input asp-for="Relationship" type="hidden" value="Parent" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="FullName" class="form-label fw-bold">
+                                        <i class="fas fa-user me-1"></i>Full Name
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                        <input asp-for="FullName" class="form-control" placeholder="Enter full name" required />
+                                    </div>
+                                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label fw-bold">
+                                        <i class="fas fa-envelope me-1"></i>Email
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" required />
+                                    </div>
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="PhoneNumber" class="form-label fw-bold">
+                                        <i class="fas fa-phone me-1"></i>Phone Number
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                        <input asp-for="PhoneNumber" class="form-control" placeholder="Enter phone number" required />
+                                    </div>
+                                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Occupation" class="form-label fw-bold">
+                                        <i class="fas fa-briefcase me-1"></i>Occupation
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                        <input asp-for="Occupation" class="form-control" placeholder="Enter occupation" />
+                                    </div>
+                                    <span asp-validation-for="Occupation" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Address" class="form-label fw-bold">
+                                        <i class="fas fa-home me-1"></i>Address
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-home"></i></span>
+                                        <textarea asp-for="Address" class="form-control" rows="2" placeholder="Enter address"></textarea>
+                                    </div>
+                                    <span asp-validation-for="Address" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="StudentId" class="form-label fw-bold">
+                                        <i class="fas fa-child me-1"></i>Student
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-child"></i></span>
+                                        <select asp-for="StudentId" class="form-select">
+                                            <option value="">-- Select Student --</option>
+                                            @if (ViewBag.Students != null)
+                                            {
+                                                foreach (var student in ViewBag.Students as List<SelectListItem>)
+                                                {
+                                                    <option value="@student.Value" selected="@student.Selected">@student.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="StudentId" class="text-danger small"></span>
+                                    <small class="form-text text-muted">Leave empty to remove student assignment</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-toggle-on me-1"></i>Status
+                                    </label>
+                                    <div class="form-check form-switch mt-2">
+                                        <input asp-for="IsActive" class="form-check-input" type="checkbox" id="isActiveSwitch" />
+                                        <label class="form-check-label fw-bold" for="isActiveSwitch">
+                                            <span id="statusLabel">@(Model.IsActive ? "Active" : "Inactive")</span>
+                                        </label>
+                                    </div>
+                                    <span asp-validation-for="IsActive" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-2"></i>Update Parent
+                                </button>
+                                <a asp-controller="Admin" asp-action="ViewParents" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Status toggle
+            $('#isActiveSwitch').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#statusLabel').text('Active');
+                } else {
+                    $('#statusLabel').text('Inactive');
+                }
+            });
+        });
+    </script>
+}

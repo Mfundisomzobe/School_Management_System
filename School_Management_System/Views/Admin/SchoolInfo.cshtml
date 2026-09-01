@@ -1,0 +1,167 @@
+﻿@model IEnumerable<School_Management_System.Models.SchoolInfo>
+@{
+    ViewData["Title"] = "School Information";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-3 px-md-4 mt-3 mt-md-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 gap-sm-0">
+                <div>
+                    <h2 class="fw-bold fs-4 fs-md-3">
+                        <i class="fas fa-school text-primary me-2"></i>School Information
+                    </h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb small mb-0">
+                            <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item active">School Info</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a asp-action="AddSchool" class="btn btn-primary btn-sm w-100 w-sm-auto">
+                    <i class="fas fa-plus me-1"></i>Add School Information
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show small">
+            <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show small">
+            <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- School Info Cards -->
+    @if (Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-school me-2"></i>@item.SchoolName
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <span class="text-muted small fw-bold"><i class="fas fa-map-marker-alt me-2"></i>Address</span>
+                                <p class="mb-0">@(string.IsNullOrEmpty(item.Address) ? "Not provided" : item.Address)</p>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small fw-bold"><i class="fas fa-phone me-2"></i>Phone</span>
+                                <p class="mb-0">@(string.IsNullOrEmpty(item.PhoneNumber) ? "Not provided" : item.PhoneNumber)</p>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small fw-bold"><i class="fas fa-envelope me-2"></i>Email</span>
+                                <p class="mb-0">@(string.IsNullOrEmpty(item.Email) ? "Not provided" : item.Email)</p>
+                            </div>
+                            <div class="mb-0">
+                                <span class="text-muted small fw-bold"><i class="fas fa-globe me-2"></i>Website</span>
+                                <p class="mb-0">
+                                    @if (!string.IsNullOrEmpty(item.WebsiteUrl))
+                                    {
+                                        <a href="@item.WebsiteUrl" target="_blank" class="text-decoration-none">@item.WebsiteUrl</a>
+                                    }
+                                    else
+                                    {
+                                        <span>Not provided</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <div class="d-flex gap-2">
+                                <a asp-action="EditSchool" asp-route-id="@item.SchoolInfoId" class="btn btn-warning btn-sm flex-grow-1">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </a>
+                                <a asp-action="DeleteSchool" asp-route-id="@item.SchoolInfoId" class="btn btn-danger btn-sm flex-grow-1"
+                                   onclick="return confirm('Are you sure you want to delete this school information?');">
+                                    <i class="fas fa-trash-alt me-1"></i>Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <i class="fas fa-school fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No School Information</h4>
+            <p class="text-muted">Add your school information to get started.</p>
+            <a asp-action="AddSchool" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Add School Information
+            </a>
+        </div>
+    }
+</div>
+
+<style>
+    .info-card-sm {
+        padding: 15px 20px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+        .info-card-sm:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .info-card-sm .label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card-sm .value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+
+            .info-card-sm .value a {
+                word-break: break-all;
+            }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1) !important;
+        }
+
+    .card-header {
+        border-bottom: none;
+    }
+
+    .card-footer {
+        padding-top: 0;
+    }
+</style>

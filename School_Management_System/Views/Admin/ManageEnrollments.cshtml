@@ -1,0 +1,626 @@
+﻿@model List<Enrollment>
+@{
+    ViewData["Title"] = "Manage Enrollments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* ========================================
+           MODERN MANAGE ENROLLMENTS STYLES
+           ======================================== */
+
+    /* ----- Page Header ----- */
+    .page-header-modern {
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #2d1b69 100%);
+        border-radius: 16px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header-modern::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.08);
+            animation: floatOrb 8s ease-in-out infinite;
+        }
+
+        .page-header-modern::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 10%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(236, 72, 153, 0.05);
+            animation: floatOrb 10s ease-in-out infinite reverse;
+        }
+
+ 
+
+    .page-header-modern .header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-header-modern h2 {
+        color: white;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.6rem;
+    }
+
+    .page-header-modern p {
+        color: rgba(255,255,255,0.5);
+        margin: 4px 0 0;
+        font-size: 0.95rem;
+    }
+
+    .page-header-modern .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 8px 0 0;
+    }
+
+    .page-header-modern .breadcrumb-item a {
+        color: rgba(255,255,255,0.4);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        font-size: 0.85rem;
+    }
+
+        .page-header-modern .breadcrumb-item a:hover {
+            color: #22c55e;
+        }
+
+    .page-header-modern .breadcrumb-item.active {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.85rem;
+    }
+
+    .page-header-modern .breadcrumb-item::before {
+        color: rgba(255,255,255,0.15);
+    }
+
+    /* ----- Info Cards ----- */
+    .info-card-modern {
+        padding: 16px 20px;
+        border-radius: 12px;
+        background: white;
+        border-left: 4px solid;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+        .info-card-modern:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .info-card-modern .label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card-modern .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .info-card-modern.border-primary {
+            border-color: #6366f1;
+        }
+
+        .info-card-modern.border-success {
+            border-color: #22c55e;
+        }
+
+        .info-card-modern.border-info {
+            border-color: #06b6d4;
+        }
+
+        .info-card-modern.border-warning {
+            border-color: #f59e0b;
+        }
+
+        .info-card-modern .value.text-primary {
+            color: #6366f1;
+        }
+
+        .info-card-modern .value.text-success {
+            color: #22c55e;
+        }
+
+        .info-card-modern .value.text-info {
+            color: #06b6d4;
+        }
+
+        .info-card-modern .value.text-warning {
+            color: #f59e0b;
+        }
+
+    /* ----- Form Card ----- */
+    .form-card-modern {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+        overflow: hidden;
+    }
+
+        .form-card-modern .card-header {
+            background: white;
+            border-bottom: 1px solid #f0f2f5;
+            padding: 16px 24px;
+        }
+
+        .form-card-modern .card-body {
+            padding: 20px 24px;
+        }
+
+        .form-card-modern .form-control,
+        .form-card-modern .form-select {
+            border-radius: 10px;
+            border: 1.5px solid #e5e7eb;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+            .form-card-modern .form-control:focus,
+            .form-card-modern .form-select:focus {
+                border-color: #6366f1;
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+                background: white;
+            }
+
+        .form-card-modern .btn {
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .form-card-modern .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+        }
+
+            .form-card-modern .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            }
+
+        .form-card-modern .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none;
+        }
+
+            .form-card-modern .btn-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+            }
+
+    /* ----- Enrollment Table ----- */
+    .table-enrollment {
+        margin: 0;
+    }
+
+        .table-enrollment thead th {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            border-bottom: 1px solid #f0f2f5;
+            padding: 10px 14px;
+        }
+
+        .table-enrollment tbody td {
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            vertical-align: middle;
+        }
+
+        .table-enrollment tbody tr {
+            transition: background 0.2s ease;
+        }
+
+            .table-enrollment tbody tr:hover {
+                background: #f8fafc;
+            }
+
+    /* ----- Remove Button ----- */
+    .btn-remove {
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .btn-remove:hover {
+            transform: scale(1.05);
+        }
+
+    /* ----- Alert ----- */
+    .alert-full {
+        border: none;
+        border-radius: 14px;
+        padding: 16px 24px;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 4px solid #f59e0b;
+        color: #78350f;
+    }
+
+        .alert-full i {
+            color: #f59e0b;
+        }
+
+    /* ----- Empty State ----- */
+    .empty-state {
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h5 {
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+    
+</style>
+
+<!-- ============================================
+     PAGE HEADER
+     ============================================ -->
+<div class="container-fluid px-3 px-md-4 mt-3 mt-md-4">
+    <div class="page-header-modern">
+        <div class="header-content">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; font-size: 22px;">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div>
+                            <h2>Manage Enrollments</h2>
+                            <p>Enroll students in classes and manage rosters</p>
+                        </div>
+                    </div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a asp-action="Dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Enrollments</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 mt-3 mt-md-0">
+                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                        <a asp-action="ViewClasses" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-chalkboard me-1"></i>View Classes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         ALERTS
+         ============================================ -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- ============================================
+         SELECT CLASS
+         ============================================ -->
+    <div class="form-card-modern mb-4">
+        <div class="card-header">
+            <h5 class="mb-0 fw-bold">
+                <i class="fas fa-chalkboard text-primary me-2"></i>Select a Class
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="ManageEnrollments" class="row g-2 g-md-3 align-items-end">
+                <div class="col-12 col-md-8 col-lg-9">
+                    <label class="form-label small fw-bold text-muted mb-1">Choose Class</label>
+                    <select name="classId" class="form-select" asp-items="ViewBag.Classes">
+                        <option value="">-- Select a Class --</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 col-lg-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-eye me-1"></i>View Class
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================
+         CLASS DETAILS
+         ============================================ -->
+    @if (ViewBag.SelectedClass != null)
+    {
+        var selectedClass = ViewBag.SelectedClass;
+        var enrollmentCount = ViewBag.EnrollmentCount;
+        var availableSpots = ViewBag.AvailableSpots;
+        var isFull = availableSpots <= 0;
+
+        <!-- Info Cards -->
+        <div class="row g-2 g-sm-3 mb-3 mb-md-4">
+            <div class="col-6 col-md-3">
+                <div class="info-card-modern border-primary">
+                    <div class="label"><i class="fas fa-chalkboard me-1"></i>Class</div>
+                    <div class="value text-primary">@selectedClass.ClassName</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="info-card-modern border-success">
+                    <div class="label"><i class="fas fa-book me-1"></i>Course</div>
+                    <div class="value text-success">@selectedClass.Course?.CourseName</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="info-card-modern border-info">
+                    <div class="label"><i class="fas fa-user me-1"></i>Teacher</div>
+                    <div class="value text-info">@selectedClass.Teacher?.User?.FullName</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="info-card-modern border-warning">
+                    <div class="label"><i class="fas fa-users me-1"></i>Enrollment</div>
+                    <div class="value text-warning">
+                        @enrollmentCount / @selectedClass.Capacity
+                        <span class="badge @(isFull ? "bg-danger" : "bg-success") ms-1">
+                            @(isFull ? "Full" : $"{availableSpots} spots")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enroll Student -->
+        @if (availableSpots > 0)
+        {
+            <div class="form-card-modern mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-user-plus me-2"></i>Enroll Student
+                        <span class="badge bg-light text-success ms-2">@availableSpots spots available</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-12 col-md-8 col-lg-9">
+                            <label class="form-label small fw-bold text-muted mb-1">Select Student</label>
+                            <select id="studentSelect" class="form-select" asp-items="ViewBag.AvailableStudents">
+                                <option value="">-- Select Student --</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-success w-100" onclick="enrollStudent()">
+                                <i class="fas fa-user-plus me-1"></i>Enroll
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert-full mb-4">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Class is full!</strong> This class has reached its maximum capacity of @selectedClass.Capacity students.
+            </div>
+        }
+
+        <!-- Enrolled Students -->
+        <div class="form-card-modern">
+            <div class="card-header">
+                <div class="d-flex flex-wrap justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-users text-info me-2"></i>Enrolled Students
+                        <span class="badge bg-secondary ms-2">@enrollmentCount</span>
+                    </h5>
+                    <span class="badge bg-light text-dark">
+                        <i class="fas fa-user-graduate me-1"></i> @enrollmentCount students
+                    </span>
+                </div>
+            </div>
+            <div class="card-body p-2 p-md-3">
+                @if (Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-enrollment" id="enrollmentTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Student Name</th>
+                                    <th class="d-none d-sm-table-cell">Admission No</th>
+                                    <th class="d-none d-md-table-cell">Class</th>
+                                    <th class="d-none d-lg-table-cell">Enrolled On</th>
+                                    <th style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var enrollment in Model.OrderBy(e => e.Student.User.FullName))
+                                {
+                                    <tr>
+                                        <td>@enrollment.EnrollmentId</td>
+                                        <td>
+                                            <i class="fas fa-user-circle me-1 text-success"></i>
+                                            @enrollment.Student.User.FullName
+                                        </td>
+                                        <td class="d-none d-sm-table-cell">@enrollment.Student.AdmissionNumber</td>
+                                        <td class="d-none d-md-table-cell">@enrollment.Class.ClassName</td>
+                                        <td class="d-none d-lg-table-cell">@enrollment.EnrollmentDate.ToString("yyyy-MM-dd")</td>
+                                        <td>
+                                            <a asp-action="RemoveEnrollment" asp-route-enrollmentId="@enrollment.EnrollmentId"
+                                               class="btn btn-danger btn-remove" title="Remove"
+                                               onclick="return confirm('Are you sure you want to remove this student from the class?');">
+                                                <i class="fas fa-user-minus me-1"></i>Remove
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h5>No Students Enrolled</h5>
+                        <p>This class has no students enrolled yet. Enroll students using the form above.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- ============================================
+     SCRIPTS
+     ============================================ -->
+@section Scripts {
+    <script>
+        // ============================================
+        // ENROLL STUDENT
+        // ============================================
+        function enrollStudent() {
+            var studentId = document.getElementById('studentSelect')?.value;
+            var classId = @(ViewBag.SelectedClass?.ClassId ?? 0);
+
+            if (!studentId) {
+                showAlert('Please select a student.', 'warning');
+                return;
+            }
+
+            if (!classId) {
+                showAlert('No class selected.', 'warning');
+                return;
+            }
+
+            // Submit via form
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = '@Url.Action("EnrollStudent", "Admin")';
+            form.style.display = 'none';
+
+            var studentInput = document.createElement('input');
+            studentInput.type = 'hidden';
+            studentInput.name = 'studentId';
+            studentInput.value = studentId;
+
+            var classInput = document.createElement('input');
+            classInput.type = 'hidden';
+            classInput.name = 'classId';
+            classInput.value = classId;
+
+            // Add anti-forgery token
+            var tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = '__RequestVerificationToken';
+            tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+            form.appendChild(studentInput);
+            form.appendChild(classInput);
+            form.appendChild(tokenInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // ============================================
+        // SHOW ALERT
+        // ============================================
+        function showAlert(message, type) {
+            var alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-' + type + ' alert-dismissible fade show';
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+            var container = document.querySelector('.container-fluid');
+            if (container) {
+                container.insertBefore(alertDiv, container.firstChild);
+            }
+            setTimeout(function() {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // ============================================
+        // DATATABLE
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            var table = document.getElementById('enrollmentTable');
+            if (table) {
+                if (typeof $ !== 'undefined' && $.fn.DataTable) {
+                    $('#enrollmentTable').DataTable({
+                        responsive: true,
+                        paging: true,
+                        pageLength: 10,
+                        searching: true,
+                        language: {
+                            search: "_INPUT_",
+                            searchPlaceholder: "Search enrolled students..."
+                        },
+                        columnDefs: [
+                            { orderable: false, targets: [5] }
+                        ]
+                    });
+                }
+            }
+
+            // ============================================
+            // AUTO-HIDE SUCCESS/ERROR ALERTS
+            // ============================================
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 6000);
+            });
+        });
+    </script>
+}

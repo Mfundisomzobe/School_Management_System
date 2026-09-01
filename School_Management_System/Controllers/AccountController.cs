@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
 using School_Management_System.Models;
-
+using School_Management_System.Services.Interface;
 using School_Management_System.ViewModels;
 
 namespace School_Management_System.Controllers
@@ -17,17 +17,25 @@ namespace School_Management_System.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
+
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
            RoleManager<IdentityRole> roleManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+             IEmailService emailService
+            )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _context = context;
+            _emailService = emailService;
+           
+
+
         }
 
         [HttpGet]
@@ -36,6 +44,8 @@ namespace School_Management_System.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Dashboard", "Admin");
+
+
             }
 
             ViewData["ReturnUrl"] = returnUrl;
@@ -60,6 +70,7 @@ namespace School_Management_System.Controllers
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
+       
 
                 //Update last login time
                 user.CreatedAt = DateTime.UtcNow;
@@ -85,6 +96,8 @@ namespace School_Management_System.Controllers
             if (result.IsLockedOut)
             {
                 ModelState.AddModelError(string.Empty, "Account Locked out. Please ty again later.");
+
+
                 return View(model);
             }
 
@@ -208,6 +221,134 @@ namespace School_Management_System.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                // Don't reveal if user exists or not
+                TempData["Success"] = "If your email is registered, you will receive a password reset link.";
+                return RedirectToAction("ForgotPasswordConfirmation");
+            }
+
+            // Generate token
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            // Create reset link
+            var resetLink = Url.Action("ResetPassword", "Account",
+                new { email = model.Email, token = token },
+                protocol: HttpContext.Request.Scheme);
+
+            // Send email (will be logged in portfolio)
+            await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink, user.FullName);
+
+            // Log the reset request in database
+            var auditLog = new AuditLog
+            {
+                UserId = user.Id,
+                Action = "Password Reset Requested",
+                Details = $"Password reset link sent to {user.Email}",
+                ActionDate = DateTime.UtcNow,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.AuditLogs.Add(auditLog);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Password reset link has been sent to your email.";
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "Invalid password reset request.";
+                return RedirectToAction("Login");
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                Email = email,
+                Token = token
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid password reset attempt.");
+                return View(model);
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+
+            if (result.Succeeded)
+            {
+                // Log successful reset
+                var auditLog = new AuditLog
+                {
+                    UserId = user.Id,
+                    Action = "Password Reset Successful",
+                    Details = $"Password was successfully reset for {user.Email}",
+                    ActionDate = DateTime.UtcNow,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+                };
+                _context.AuditLogs.Add(auditLog);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Your password has been reset successfully! Please login with your new password.";
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
+
 
     }
 }

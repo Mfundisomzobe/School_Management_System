@@ -1,0 +1,137 @@
+﻿@model List<Enrollment>
+@{
+    ViewData["Title"] = "My Grades";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold">
+                <i class="fas fa-graduation-cap text-success me-2"></i>My Grades
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Grades</li>
+                </ol>
+            </nav>
+        </div>
+        <span class="badge bg-success fs-6 p-2">
+            <i class="fas fa-graduation-cap me-1"></i> @Model.Count Classes
+        </span>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="gradesTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Class</th>
+                                <th>Course</th>
+                                <th>Assessment</th>
+                                <th>Marks</th>
+                                <th>Grade</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var enrollment in Model)
+                            {
+                                var grade = enrollment.Grades.FirstOrDefault();
+                                var gradeClass = grade?.LetterGrade?.ToLower() ?? "na";
+                                var status = grade != null ? (grade.Marks >= 70 ? "Pass" : "Fail") : "Pending";
+                                var statusClass = grade != null ? (grade.Marks >= 70 ? "bg-success" : "bg-danger") : "bg-warning";
+                                <tr>
+                                    <td>@enrollment.EnrollmentId</td>
+                                    <td>@enrollment.Class.ClassName</td>
+                                    <td>@enrollment.Class.Course?.CourseName</td>
+                                    <td>@(grade?.AssessmentName ?? "N/A")</td>
+                                    <td>@(grade != null ? grade.Marks.ToString("F1") : "-")</td>
+                                    <td>
+                                        <span class="grade-badge grade-@gradeClass">
+                                            @(grade?.LetterGrade ?? "N/A")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @statusClass">@status</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-graduation-cap fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Grades</h4>
+            <p class="text-muted">You have no grades available yet.</p>
+        </div>
+    }
+</div>
+
+<style>
+    .grade-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: inline-block;
+        min-width: 35px;
+        text-align: center;
+    }
+
+        .grade-badge.grade-a {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .grade-badge.grade-b {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .grade-badge.grade-c {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .grade-badge.grade-d {
+            background: #ffe5d0;
+            color: #7b3f00;
+        }
+
+        .grade-badge.grade-f {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .grade-badge.grade-na {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#gradesTable').DataTable({
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search grades..."
+                },
+                pageLength: 10,
+                order: [[0, 'asc']]
+            });
+        });
+    </script>
+}

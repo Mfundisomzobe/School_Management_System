@@ -1,0 +1,148 @@
+﻿@model List<StudentParent>
+@{
+    ViewData["Title"] = "My Children";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold">
+                <i class="fas fa-child text-primary me-2"></i>My Children
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">My Children</li>
+                </ol>
+            </nav>
+        </div>
+        <span class="badge bg-primary fs-6 p-2">
+            <i class="fas fa-users me-1"></i> @Model.Count Children
+        </span>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var sp in Model)
+            {
+                var enrollments = sp.Student.Enrollments?.ToList() ?? new List<Enrollment>();
+                var grade = enrollments.SelectMany(e => e.Grades).FirstOrDefault();
+                var gradeClass = grade?.LetterGrade?.ToLower() ?? "na";
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card child-card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user-circle me-2"></i>
+                                    @sp.Student.User.FullName
+                                </h5>
+                                <span class="badge bg-light text-dark">@sp.Relationship</span>
+                            </div>
+                            <small>
+                                <i class="fas fa-id-card me-1"></i> @sp.Student.AdmissionNumber
+                            </small>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Class</small>
+                                    <p class="fw-bold mb-0">@sp.Student.Class @sp.Student.Section</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Enrollments</small>
+                                    <p class="fw-bold mb-0">@enrollments.Count</p>
+                                </div>
+                            </div>
+                            @if (grade != null)
+                            {
+                                <div class="mt-2">
+                                    <small class="text-muted">Latest Grade</small>
+                                    <p class="fw-bold mb-0">
+                                        <span class="grade-badge grade-@gradeClass">@grade.LetterGrade</span>
+                                        <span class="text-muted ms-2">(@grade.Marks.ToString("F1")%)</span>
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer bg-white d-flex gap-2 flex-wrap">
+                            <a asp-action="ViewChild" asp-route-studentId="@sp.Student.Id" class="btn btn-info btn-sm text-white flex-fill">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                            <a asp-action="ChildGrades" asp-route-studentId="@sp.Student.Id" class="btn btn-success btn-sm flex-fill">
+                                <i class="fas fa-graduation-cap me-1"></i>Grades
+                            </a>
+                            <a asp-action="ChildAttendance" asp-route-studentId="@sp.Student.Id" class="btn btn-warning btn-sm flex-fill">
+                                <i class="fas fa-clipboard-check me-1"></i>Attendance
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-child fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Children Linked</h4>
+            <p class="text-muted">You don't have any children linked to your account yet.</p>
+        </div>
+    }
+</div>
+
+<style>
+    .child-card {
+        border: none;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+
+        .child-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        }
+
+    .grade-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: inline-block;
+        min-width: 35px;
+        text-align: center;
+    }
+
+        .grade-badge.grade-a {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .grade-badge.grade-b {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .grade-badge.grade-c {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .grade-badge.grade-d {
+            background: #ffe5d0;
+            color: #7b3f00;
+        }
+
+        .grade-badge.grade-f {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .grade-badge.grade-na {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+</style>

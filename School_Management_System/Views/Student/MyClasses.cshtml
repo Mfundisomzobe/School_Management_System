@@ -1,0 +1,218 @@
+﻿@model List<Enrollment>
+@{
+    ViewData["Title"] = "My Classes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold">
+                <i class="fas fa-chalkboard text-primary me-2"></i>My Classes
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Classes</li>
+                </ol>
+            </nav>
+        </div>
+        <span class="badge bg-primary fs-6 p-2">
+            <i class="fas fa-users me-1"></i> @Model.Count Classes
+        </span>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var enrollment in Model)
+            {
+                var grade = enrollment.Grades.FirstOrDefault();
+                var gradeClass = grade?.LetterGrade?.ToLower() ?? "na";
+                var attendanceRecords = enrollment.Attendances ?? new List<Attendance>();
+                var totalDays = attendanceRecords.Count;
+                var presentDays = attendanceRecords.Count(a =>
+                a.Status == Attendance.AttendanceStatus.Present ||
+                a.Status == Attendance.AttendanceStatus.Excused);
+                var attendancePercent = totalDays > 0 ? (double)presentDays / totalDays * 100 : 0;
+                var statusClass = attendancePercent >= 80 ? "good" : (attendancePercent >= 60 ? "fair" : "poor");
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card class-card border-0 shadow-sm h-100">
+                        <div class="class-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="class-name">
+                                <i class="fas fa-chalkboard me-2"></i>
+                                @enrollment.Class.ClassName
+                            </div>
+                        </div>
+                        <div class="class-body">
+                            <div class="class-info">
+                                <span class="label">Course</span>
+                                <span class="value">@enrollment.Class.Course?.CourseName</span>
+                            </div>
+                            <div class="class-info">
+                                <span class="label">Teacher</span>
+                                <span class="value">@enrollment.Class.Teacher?.User?.FullName</span>
+                            </div>
+                            <div class="class-info">
+                                <span class="label">Grade</span>
+                                <span class="value">
+                                    @if (grade != null)
+                                    {
+                                        <span class="grade-badge grade-@gradeClass">@grade.LetterGrade</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not graded</span>
+                                    }
+                                </span>
+                            </div>
+                            <div class="class-info">
+                                <span class="label">Attendance</span>
+                                <span class="value">@attendancePercent.ToString("F0")%</span>
+                            </div>
+                            <div class="class-info">
+                                <span class="label">Progress</span>
+                                <span class="value">
+                                    <div class="attendance-bar" style="width: 100%;">
+                                        <div class="fill @statusClass" style="width: @attendancePercent%;"></div>
+                                    </div>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="class-footer p-3 bg-light">
+                            <a asp-action="ClassDetails" asp-route-id="@enrollment.EnrollmentId"
+                               class="btn btn-info btn-sm w-100 text-white">
+                                <i class="fas fa-eye me-2"></i>View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-chalkboard fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Classes</h4>
+            <p class="text-muted">You are not enrolled in any classes yet.</p>
+        </div>
+    }
+</div>
+
+<style>
+    .class-card {
+        border: none;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+        .class-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
+        }
+
+        .class-card .class-header {
+            padding: 16px 20px;
+            color: white;
+        }
+
+            .class-card .class-header .class-name {
+                font-weight: 600;
+                font-size: 1.1rem;
+                margin: 0;
+            }
+
+        .class-card .class-body {
+            padding: 16px 20px;
+        }
+
+            .class-card .class-body .class-info {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 6px 0;
+                border-bottom: 1px solid #f0f2f5;
+            }
+
+                .class-card .class-body .class-info:last-child {
+                    border-bottom: none;
+                }
+
+                .class-card .class-body .class-info .label {
+                    color: #6c757d;
+                    font-size: 0.85rem;
+                }
+
+                .class-card .class-body .class-info .value {
+                    font-weight: 500;
+                    font-size: 0.9rem;
+                }
+
+    .grade-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: inline-block;
+        min-width: 35px;
+        text-align: center;
+    }
+
+        .grade-badge.grade-a {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .grade-badge.grade-b {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .grade-badge.grade-c {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .grade-badge.grade-d {
+            background: #ffe5d0;
+            color: #7b3f00;
+        }
+
+        .grade-badge.grade-f {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .grade-badge.grade-na {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+    .attendance-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: #e9ecef;
+        overflow: hidden;
+    }
+
+        .attendance-bar .fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+            .attendance-bar .fill.good {
+                background: #28a745;
+            }
+
+            .attendance-bar .fill.fair {
+                background: #ffc107;
+            }
+
+            .attendance-bar .fill.poor {
+                background: #dc3545;
+            }
+</style>

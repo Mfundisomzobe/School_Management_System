@@ -1,0 +1,274 @@
+﻿@model GradeReportViewModel
+@{
+    ViewData["Title"] = "Grade Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .btn-pdf {
+        background: #dc3545;
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+        .btn-pdf:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+</style>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold">
+                <i class="fas fa-file-alt text-success me-2"></i>Grade Report
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">@Model.ClassName</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <!-- PDF Export Button -->
+          @*   <a href="#" onclick="exportPDF(event, '@Url.Action("ExportGradePdf", "Teacher", new { classId = Model.ClassId })')"
+               class="btn btn-danger">
+                <i class="fas fa-file-pdf me-2"></i>PDF
+            </a> *@
+            <a asp-action="EnterGrades" asp-route-classId="@Model.ClassId" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Enter Grades
+            </a>
+            <a asp-action="GradeHistory" asp-route-classId="@Model.ClassId" class="btn btn-info text-white">
+                <i class="fas fa-history me-2"></i>History
+            </a>
+            <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Students</h6>
+                    <h3 class="fw-bold text-primary">@Model.Summary.TotalStudents</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Class Average</h6>
+                    <h3 class="fw-bold text-success">@Model.Summary.ClassAverage.ToString("F1")%</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Highest Grade</h6>
+                    <h3 class="fw-bold text-info">@Model.Summary.HighestGrade.ToString("F1")%</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Lowest Grade</h6>
+                    <h3 class="fw-bold text-danger">@Model.Summary.LowestGrade.ToString("F1")%</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pass/Fail Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Passing Students</h6>
+                    <h3 class="fw-bold text-success">@Model.Summary.StudentsPassing</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Failing Students</h6>
+                    <h3 class="fw-bold text-danger">@Model.Summary.StudentsFailing</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Assessments</h6>
+                    <h3 class="fw-bold text-info">@Model.Summary.TotalAssessments</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Pass Rate</h6>
+                    <h3 class="fw-bold text-primary">
+                        @(Model.Summary.TotalStudents > 0 ? (Model.Summary.StudentsPassing * 100 / Model.Summary.TotalStudents) : 0)%
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assessment Averages -->
+    @if (Model.AssessmentAverages.Any())
+    {
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-chart-bar text-success me-2"></i>Assessment Averages
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    @foreach (var assessment in Model.AssessmentAverages)
+                    {
+                        <div class="col-md-4 col-lg-3">
+                            <div class="border rounded p-3 text-center">
+                                <div class="text-muted small">@assessment.AssessmentName</div>
+                                <div class="fw-bold fs-4 text-success">@assessment.Average.ToString("F1")%</div>
+                                <div class="text-muted small">@assessment.StudentCount students</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Grade Distribution -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">
+                <i class="fas fa-chart-pie text-success me-2"></i>Grade Distribution
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                @foreach (var grade in Model.GradeDistribution)
+                {
+                    var color = grade.Key switch
+                    {
+                        "A" => "success",
+                        "B" => "info",
+                        "C" => "warning",
+                        "D" => "orange",
+                        "F" => "danger",
+                        _ => "secondary"
+                    };
+                    <div class="col-6 col-md-2">
+                        <div class="border rounded p-3 text-center">
+                            <div class="display-6 fw-bold text-@color">@grade.Value</div>
+                            <div class="text-muted small">@grade.Key</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Report Table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">
+                <i class="fas fa-user-graduate text-success me-2"></i>Student Grade Report
+                <span class="badge bg-secondary ms-2">@Model.StudentReports.Count</span>
+            </h5>
+            <a asp-action="ExportGradePdf"
+               asp-route-classId="@Model.ClassId"
+               target="_blank"
+               class="btn btn-pdf">
+                <i class="fas fa-file-pdf me-2"></i>PDF
+            </a>
+        </div>
+        <div class="card-body">
+            @if (Model.StudentReports.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="reportTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Student</th>
+                                <th>Admission No</th>
+                                @foreach (var assessment in Model.AssessmentAverages)
+                                {
+                                    <th>@assessment.AssessmentName</th>
+                                }
+                                <th>Overall</th>
+                                <th>Grade</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var report in Model.StudentReports)
+                            {
+                                var statusClass = report.Status == "Pass" ? "success" : (report.Status == "Fail" ? "danger" : "warning");
+                                var gradeClass = report.OverallGrade?.ToLower() ?? "na";
+                                <tr>
+                                    <td>@report.StudentId</td>
+                                    <td>@report.StudentName</td>
+                                    <td>@report.AdmissionNumber</td>
+                                    @foreach (var assessment in Model.AssessmentAverages)
+                                    {
+                                        var score = report.AssessmentScores.ContainsKey(assessment.AssessmentName) ? report.AssessmentScores[assessment.AssessmentName] : null;
+                                        <td>@(score.HasValue? score.Value.ToString("F1") : "-")</td>
+                                    }
+                                    <td class="fw-bold">@(report.OverallAverage.HasValue? report.OverallAverage.Value.ToString("F1") : "-")</td>
+                                    <td>
+                                        <span class="badge bg-@gradeClass">
+                                            @report.OverallGrade
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@statusClass">@report.Status</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Data Available</h5>
+                    <p class="text-muted">No grades have been entered for this class yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#reportTable').DataTable({
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search students..."
+                },
+                pageLength: 10,
+                order: [[0, 'asc']]
+            });
+        });
+    </script>
+}
